@@ -15,7 +15,12 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(find /c/Users/kingt/Desktop/quotzal/src/app/f/[slug] -type f -name \"*.tsx\")",
+      "Bash(ls:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npx -y @anthropic-ai/claude-code mcp add --help)",
+      "Bash(npm ls:*)"
     ]
   }
 }

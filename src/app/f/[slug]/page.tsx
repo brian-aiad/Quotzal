@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { IntakeForm } from './intake-form';
 import { InactivePage } from './components/inactive-page';
 import { ExpiredPage } from './components/expired-page';
@@ -37,7 +37,7 @@ interface DemoRequestRow {
 
 export default async function IntakeFormPage({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // 1. Try broker_links first
   const { data: linkData } = await supabase

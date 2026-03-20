@@ -2,7 +2,20 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(mkdir -p src/app/\\\\\\(auth\\\\\\)/login)",
+      "Bash(mkdir -p src/app/\\\\\\(auth\\\\\\)/signup)",
+      "Bash(mkdir -p src/app/auth/callback)",
+      "Bash(mv app/\\\\\\(auth\\\\\\)/layout.tsx src/app/\\\\\\(auth\\\\\\)/layout.tsx)",
+      "Bash(mv app/\\\\\\(auth\\\\\\)/login/page.tsx src/app/\\\\\\(auth\\\\\\)/login/page.tsx)",
+      "Bash(cd:*)",
+      "Bash(npm run:*)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(rm -rf .next)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(curl:*)"
     ]
   }
 }

@@ -19,8 +19,8 @@ CREATE TABLE brokers (
   plan text NOT NULL DEFAULT 'starter',
   status text NOT NULL DEFAULT 'trialing',
   insurance_types_enabled text[] NOT NULL DEFAULT ARRAY[
-    'auto', 'home', 'life', 'health',
-    'business', 'renters', 'umbrella', 'motorcycle'
+    'auto_personal', 'auto_commercial', 'home', 'life',
+    'motorcycle', 'boat', 'rv', 'other'
   ],
   stripe_customer_id text,
   stripe_subscription_id text,

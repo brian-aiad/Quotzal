@@ -47,6 +47,21 @@ Never skip this. Never start coding without confirmation.
 - No complex solution when a simple one exists
 - Never start the next task if the current one is not committed
 
+## THINK AHEAD
+Before confirming any plan, actively look for:
+- Schema mismatches between what exists and what the code expects
+- Naming inconsistencies between database columns, TypeScript types, and UI labels
+- Missing environment variables the new code will need
+- API endpoints that don't exist yet but will be called
+- Duplicate logic that already exists elsewhere in the codebase
+- Changes that will break existing working features
+
+If you find any of these issues, flag them in your plan BEFORE waiting for confirmation — never silently work around them in code.
+
+Format flags as:
+⚠️ ISSUE FOUND: [what the problem is]
+RECOMMENDATION: [what we should do about it]
+
 ## SESSION START
 Begin every session with:
 "Working on Quotzal — insurance intake SaaS.

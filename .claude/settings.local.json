@@ -23,7 +23,8 @@
       "Bash(npm ls:*)",
       "Bash(node:*)",
       "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name *schema* -o -name *migration* \\\\\\))",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(npx next:*)"
     ]
   }
 }

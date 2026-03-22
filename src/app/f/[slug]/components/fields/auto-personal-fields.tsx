@@ -22,6 +22,8 @@ function emptyDriver(): Driver {
     licenseNumber: '',
     licenseState: '',
     relationship: 'other',
+    maritalStatus: undefined,
+    goodStudentDiscount: false,
     sr22Required: false,
     hasViolations: false,
     violations: [],
@@ -34,9 +36,8 @@ function emptyVehicle(): Vehicle {
     year: '',
     make: '',
     model: '',
-    ownership: 'owned',
+    trim: '',
     primaryDriverIndex: 0,
-    annualMileage: '10000_15000',
     coverageType: 'full',
   };
 }

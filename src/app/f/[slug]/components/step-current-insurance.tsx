@@ -65,11 +65,39 @@ export function StepCurrentInsurance({
               </label>
               <input
                 type="text"
+                list="carriers-list"
                 value={data.currentCarrier ?? ''}
                 onChange={(e) => update('currentCarrier', e.target.value)}
                 placeholder="e.g., State Farm, GEICO"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
+              <datalist id="carriers-list">
+                <option value="State Farm" />
+                <option value="GEICO" />
+                <option value="Progressive" />
+                <option value="Allstate" />
+                <option value="USAA" />
+                <option value="Liberty Mutual" />
+                <option value="Farmers" />
+                <option value="Nationwide" />
+                <option value="Travelers" />
+                <option value="American Family" />
+                <option value="Erie Insurance" />
+                <option value="The Hartford" />
+                <option value="Amica" />
+                <option value="AAA" />
+                <option value="Esurance" />
+                <option value="Safeco" />
+                <option value="Mercury Insurance" />
+                <option value="21st Century" />
+                <option value="Bristol West" />
+                <option value="Dairyland" />
+                <option value="The General" />
+                <option value="Infinity Insurance" />
+                <option value="National General" />
+                <option value="Kemper" />
+                <option value="Gainsco" />
+              </datalist>
             </div>
 
             <div>
@@ -78,13 +106,26 @@ export function StepCurrentInsurance({
               </label>
               <input
                 type="text"
+                list="limits-list"
                 value={data.currentCoverageLimits ?? ''}
                 onChange={(e) =>
                   update('currentCoverageLimits', e.target.value)
                 }
                 placeholder="e.g., 100/300/100"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
+              <datalist id="limits-list">
+                <option value="15/30/5" />
+                <option value="25/50/10" />
+                <option value="25/50/25" />
+                <option value="50/100/25" />
+                <option value="50/100/50" />
+                <option value="100/300/50" />
+                <option value="100/300/100" />
+                <option value="250/500/250" />
+                <option value="500/500/500" />
+                <option value="State Minimum" />
+              </datalist>
             </div>
 
             <div>
@@ -95,7 +136,7 @@ export function StepCurrentInsurance({
                 type="date"
                 value={data.policyExpiryDate ?? ''}
                 onChange={(e) => update('policyExpiryDate', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
             </div>
           </div>

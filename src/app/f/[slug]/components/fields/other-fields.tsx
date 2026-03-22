@@ -29,7 +29,7 @@ export function OtherFields({ data, onChange }: OtherFieldsProps) {
           maxLength={500}
           rows={5}
           placeholder="Describe the insurance coverage you are looking for..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         />
         <p className="text-xs text-gray-400 text-right">
           {data.description.length}/500
@@ -45,7 +45,7 @@ export function OtherFields({ data, onChange }: OtherFieldsProps) {
           value={data.estimatedValue}
           onChange={(e) => update('estimatedValue', e.target.value)}
           placeholder="e.g., $50,000"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         />
       </div>
     </div>

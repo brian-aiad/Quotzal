@@ -31,12 +31,14 @@ export interface PersonalInfo {
 // --- Violation / Incident ---
 
 export type ViolationType =
-  | 'speeding'
-  | 'dui'
+  | 'speeding_1_10'
+  | 'speeding_11_20'
+  | 'speeding_21_plus'
+  | 'dui_dwi'
   | 'at_fault_accident'
   | 'not_at_fault_accident'
   | 'reckless_driving'
-  | 'other';
+  | 'other_moving';
 
 export interface Violation {
   type: ViolationType;
@@ -57,13 +59,19 @@ export type DriverRelationship =
 
 export type DriverRole = 'owner' | 'employee' | 'contractor';
 
+export type MaritalStatus = 'single' | 'married' | 'divorced' | 'widowed';
+
 export interface Driver {
   fullName: string;
   dateOfBirth: string;
   licenseNumber: string;
   licenseState: string;
+  noUsLicense?: boolean;
+  licenseType?: string;
   relationship?: DriverRelationship;
   role?: DriverRole;
+  maritalStatus?: MaritalStatus;
+  goodStudentDiscount?: boolean;
   sr22Required: boolean;
   sr22State?: string;
   hasViolations: boolean;
@@ -75,22 +83,13 @@ export interface Driver {
 export type OwnershipType = 'owned' | 'financed' | 'leased';
 export type CoverageType = 'full' | 'liability_only';
 
-export type AnnualMileage =
-  | 'under_5000'
-  | '5000_10000'
-  | '10000_15000'
-  | '15000_20000'
-  | '20000_plus';
-
 export interface Vehicle {
   vin: string;
   year: string;
   make: string;
   model: string;
-  ownership: OwnershipType;
-  lienholderName?: string;
+  trim?: string;
   primaryDriverIndex: number;
-  annualMileage: AnnualMileage;
   coverageType: CoverageType;
 }
 

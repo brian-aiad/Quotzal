@@ -9,9 +9,10 @@ interface ProgressBarProps {
 const STEP_LABELS = [
   'Insurance Type',
   'Personal Info',
-  'Details',
+  'Drivers',
+  'Vehicles',
   'Current Insurance',
-  'Review & Submit',
+  'Review',
 ];
 
 export function ProgressBar({
@@ -29,7 +30,7 @@ export function ProgressBar({
           Step {currentStep + 1} of {totalSteps}
         </span>
         <span className="text-sm text-gray-500">
-          {STEP_LABELS[currentStep]}
+          {STEP_LABELS[currentStep] ?? ''}
         </span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">

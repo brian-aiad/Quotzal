@@ -13,8 +13,10 @@ import type {
   OtherData,
   TypeSpecificData,
 } from '@/lib/types/intake-form';
-import { AutoPersonalFields } from './fields/auto-personal-fields';
-import { AutoCommercialFields } from './fields/auto-commercial-fields';
+import { AutoPersonalDrivers } from './fields/auto-personal-drivers';
+import { AutoPersonalVehicles } from './fields/auto-personal-vehicles';
+import { AutoCommercialDrivers } from './fields/auto-commercial-drivers';
+import { AutoCommercialVehicles } from './fields/auto-commercial-vehicles';
 import { HomeFields } from './fields/home-fields';
 import { LifeFields } from './fields/life-fields';
 import { MotorcycleFields } from './fields/motorcycle-fields';
@@ -27,12 +29,13 @@ interface StepTypeFieldsProps {
   personalInfo: PersonalInfo;
   data: TypeSpecificData | null;
   onChange: (data: TypeSpecificData) => void;
+  section: 'drivers' | 'vehicles' | 'all';
 }
 
 export function getDefaultTypeData(type: InsuranceType): TypeSpecificData {
   switch (type) {
     case 'auto_personal':
-      return { drivers: [], vehicles: [] } as AutoPersonalData;
+      return { drivers: [], vehicles: [{ vin: '', year: '', make: '', model: '', trim: '', primaryDriverIndex: 0, coverageType: 'full' }] } as AutoPersonalData;
     case 'auto_commercial':
       return {
         businessName: '',
@@ -40,7 +43,7 @@ export function getDefaultTypeData(type: InsuranceType): TypeSpecificData {
         numberOfVehicles: '',
         driversAreEmployees: false,
         drivers: [],
-        vehicles: [],
+        vehicles: [{ vin: '', year: '', make: '', model: '', trim: '', primaryDriverIndex: 0, coverageType: 'full' }],
       } as AutoCommercialData;
     case 'home':
       return {
@@ -113,55 +116,77 @@ export function getDefaultTypeData(type: InsuranceType): TypeSpecificData {
   }
 }
 
+export function hasVehicleStep(type: InsuranceType): boolean {
+  return type === 'auto_personal' || type === 'auto_commercial';
+}
+
 export function StepTypeFields({
   insuranceType,
   personalInfo,
   data,
   onChange,
+  section,
 }: StepTypeFieldsProps) {
   const typeData = data ?? getDefaultTypeData(insuranceType);
 
-  switch (insuranceType) {
-    case 'auto_personal':
+  // Auto types: split into drivers/vehicles sections
+  if (insuranceType === 'auto_personal') {
+    if (section === 'drivers') {
       return (
-        <AutoPersonalFields
+        <AutoPersonalDrivers
           data={typeData as AutoPersonalData}
           personalInfo={personalInfo}
           onChange={onChange}
         />
       );
-    case 'auto_commercial':
+    }
+    if (section === 'vehicles') {
       return (
-        <AutoCommercialFields
+        <AutoPersonalVehicles
+          data={typeData as AutoPersonalData}
+          onChange={onChange}
+        />
+      );
+    }
+  }
+
+  if (insuranceType === 'auto_commercial') {
+    if (section === 'drivers') {
+      return (
+        <AutoCommercialDrivers
           data={typeData as AutoCommercialData}
           personalInfo={personalInfo}
           onChange={onChange}
         />
       );
-    case 'home':
+    }
+    if (section === 'vehicles') {
       return (
-        <HomeFields data={typeData as HomeData} onChange={onChange} />
-      );
-    case 'life':
-      return (
-        <LifeFields data={typeData as LifeData} onChange={onChange} />
-      );
-    case 'motorcycle':
-      return (
-        <MotorcycleFields
-          data={typeData as MotorcycleData}
+        <AutoCommercialVehicles
+          data={typeData as AutoCommercialData}
           onChange={onChange}
         />
       );
+    }
+  }
+
+  // Non-auto types: render on the drivers step (section==='drivers' or 'all')
+  if (section === 'vehicles') return null;
+
+  switch (insuranceType) {
+    case 'home':
+      return <HomeFields data={typeData as HomeData} onChange={onChange} />;
+    case 'life':
+      return <LifeFields data={typeData as LifeData} onChange={onChange} />;
+    case 'motorcycle':
+      return <MotorcycleFields data={typeData as MotorcycleData} onChange={onChange} />;
     case 'boat':
-      return (
-        <BoatFields data={typeData as BoatData} onChange={onChange} />
-      );
+      return <BoatFields data={typeData as BoatData} onChange={onChange} />;
     case 'rv':
       return <RvFields data={typeData as RvData} onChange={onChange} />;
     case 'other':
-      return (
-        <OtherFields data={typeData as OtherData} onChange={onChange} />
-      );
+      return <OtherFields data={typeData as OtherData} onChange={onChange} />;
+    default:
+      return null;
   }
 }

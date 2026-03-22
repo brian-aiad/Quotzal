@@ -175,7 +175,7 @@ export function StepReview({ data, onEdit, brandColor }: StepReviewProps) {
         </Section>
 
         {/* Current Insurance */}
-        <Section title="Current Insurance" step={3} onEdit={onEdit}>
+        <Section title="Current Insurance" step={4} onEdit={onEdit}>
           <Field
             label="Currently Insured"
             value={

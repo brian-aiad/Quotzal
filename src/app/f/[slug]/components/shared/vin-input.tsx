@@ -12,15 +12,26 @@ interface VinInputProps {
     year?: string;
     make?: string;
     model?: string;
+    trim?: string;
   }) => void;
   expectedLength?: number;
   label?: string;
   error?: string;
+  required?: boolean;
 }
 
 interface NHTSAResult {
   Variable: string;
   Value: string | null;
+}
+
+function toTitleCase(str: string): string {
+  if (!str) return str;
+  return str
+    .toLowerCase()
+    .split(/[\s-]+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(str.includes('-') ? '-' : ' ');
 }
 
 export function VinInput({
@@ -32,6 +43,7 @@ export function VinInput({
   expectedLength = 17,
   label = 'VIN',
   error,
+  required,
 }: VinInputProps) {
   const [decoding, setDecoding] = useState(false);
   const [decodeError, setDecodeError] = useState('');
@@ -39,7 +51,7 @@ export function VinInput({
   const decodeVin = useCallback(
     async (vin: string) => {
       if (vin.length !== expectedLength) return;
-      if (expectedLength !== 17) return; // NHTSA only works for 17-char VINs
+      if (expectedLength !== 17) return;
 
       setDecoding(true);
       setDecodeError('');
@@ -57,12 +69,14 @@ export function VinInput({
           const found = results.find(
             (r: NHTSAResult) => r.Variable === variable
           );
-          return found?.Value ?? '';
+          return found?.Value?.trim() ?? '';
         };
 
         const decodedYear = getValue('Model Year');
-        const decodedMake = getValue('Make');
+        const rawMake = getValue('Make');
+        const decodedMake = rawMake ? toTitleCase(rawMake) : '';
         const decodedModel = getValue('Model');
+        const decodedTrim = getValue('Trim');
 
         if (decodedYear || decodedMake || decodedModel) {
           onChange({
@@ -70,6 +84,7 @@ export function VinInput({
             year: decodedYear || year,
             make: decodedMake || make,
             model: decodedModel || model,
+            trim: decodedTrim || undefined,
           });
         } else {
           setDecodeError('Could not decode VIN. Please enter details manually.');
@@ -95,7 +110,7 @@ export function VinInput({
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
+        {label}{required ? ' — Required for accurate quote' : ''} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
         <input
@@ -104,8 +119,8 @@ export function VinInput({
           onChange={handleChange}
           maxLength={expectedLength}
           placeholder={`Enter ${expectedLength}-character ${label}`}
-          className={`w-full px-3 py-2 border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            error ? 'border-red-400' : 'border-gray-300'
+          className={`w-full px-3 py-2 border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400 ${
+            error ? 'border-red-400 focus:ring-red-400' : 'border-gray-300'
           }`}
         />
         {decoding && (
@@ -114,7 +129,7 @@ export function VinInput({
           </div>
         )}
       </div>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       {decodeError && (
         <p className="mt-1 text-xs text-amber-600">{decodeError}</p>
       )}

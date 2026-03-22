@@ -10,6 +10,9 @@ import type {
   CurrentInsurance,
   TypeSpecificData,
   OtherData,
+  AutoPersonalData,
+  AutoCommercialData,
+  Driver,
 } from '@/lib/types/intake-form';
 import { ProgressBar } from './components/progress-bar';
 import { StepInsuranceType } from './components/step-insurance-type';
@@ -17,6 +20,7 @@ import { StepPersonalInfo } from './components/step-personal-info';
 import {
   StepTypeFields,
   getDefaultTypeData,
+  hasVehicleStep,
 } from './components/step-type-fields';
 import { StepCurrentInsurance } from './components/step-current-insurance';
 import { StepReview } from './components/step-review';
@@ -26,7 +30,7 @@ interface IntakeFormProps {
   broker: BrokerData;
 }
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const INITIAL_PERSONAL_INFO: PersonalInfo = {
   firstName: '',
@@ -40,11 +44,28 @@ const INITIAL_CURRENT_INSURANCE: CurrentInsurance = {
   hasCurrentInsurance: false,
 };
 
+function validateDob(dob: string): string | null {
+  if (!dob) return 'Date of birth is required';
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return 'Invalid date';
+  const today = new Date();
+  if (birthDate > today) return 'Date of birth cannot be in the future';
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  if (age < 14) return 'Must be at least 14 years old';
+  if (age > 100) return 'Please verify date of birth';
+  return null;
+}
+
 function validatePersonalInfo(data: PersonalInfo): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!data.firstName.trim()) errors.firstName = 'First name is required';
   if (!data.lastName.trim()) errors.lastName = 'Last name is required';
-  if (!data.dateOfBirth) errors.dateOfBirth = 'Date of birth is required';
+  const dobError = validateDob(data.dateOfBirth);
+  if (dobError) errors.dateOfBirth = dobError;
   if (!data.phone || data.phone.replace(/\D/g, '').length < 10)
     errors.phone = 'Valid phone number is required';
   if (!data.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
@@ -52,18 +73,57 @@ function validatePersonalInfo(data: PersonalInfo): Record<string, string> {
   return errors;
 }
 
-function validateTypeSpecific(
+function validateDrivers(drivers: Driver[]): string | null {
+  for (const driver of drivers) {
+    if (!driver.noUsLicense && !driver.licenseNumber.trim()) {
+      return 'All drivers must have a license number (or check "No US driver\'s license")';
+    }
+    if (driver.dateOfBirth) {
+      const dobErr = validateDob(driver.dateOfBirth);
+      if (dobErr) return `Driver "${driver.fullName || 'Unnamed'}": ${dobErr}`;
+    }
+  }
+  return null;
+}
+
+function validateVehicles(vehicles: { vin: string }[]): string | null {
+  for (const vehicle of vehicles) {
+    if (!vehicle.vin.trim()) return 'All vehicles must have a VIN';
+  }
+  return null;
+}
+
+function validateTypeSpecificDrivers(
   type: InsuranceType,
   data: TypeSpecificData | null
-): boolean {
-  if (!data) return false;
+): string | null {
+  if (!data) return 'Please fill in the required details';
 
-  // For "other", description is required
-  if (type === 'other') {
-    return (data as OtherData).description.trim().length > 0;
+  if (type === 'auto_personal') {
+    return validateDrivers((data as AutoPersonalData).drivers);
   }
+  if (type === 'auto_commercial') {
+    return validateDrivers((data as AutoCommercialData).drivers);
+  }
+  if (type === 'other') {
+    if (!(data as OtherData).description.trim()) return 'Description is required';
+  }
+  return null;
+}
 
-  return true;
+function validateTypeSpecificVehicles(
+  type: InsuranceType,
+  data: TypeSpecificData | null
+): string | null {
+  if (!data) return 'Please fill in the required details';
+
+  if (type === 'auto_personal') {
+    return validateVehicles((data as AutoPersonalData).vehicles);
+  }
+  if (type === 'auto_commercial') {
+    return validateVehicles((data as AutoCommercialData).vehicles);
+  }
+  return null;
 }
 
 export function IntakeForm({ broker }: IntakeFormProps) {
@@ -74,6 +134,7 @@ export function IntakeForm({ broker }: IntakeFormProps) {
   const [personalInfoErrors, setPersonalInfoErrors] = useState<
     Record<string, string>
   >({});
+  const [typeSpecificError, setTypeSpecificError] = useState('');
 
   const [formData, setFormData] = useState<IntakeFormData>({
     insuranceType: '',
@@ -88,31 +149,55 @@ export function IntakeForm({ broker }: IntakeFormProps) {
   const brandColor = isPro ? broker.brandColor : null;
   const accentColor = brandColor ?? '#2563eb';
 
+  const insType = formData.insuranceType as InsuranceType;
+  const isAutoType = hasVehicleStep(insType);
+
   function handleNext() {
-    // Validate current step before advancing
+    // Step 0: Insurance Type
     if (currentStep === 0 && !formData.insuranceType) return;
 
+    // Step 1: Personal Info
     if (currentStep === 1) {
       const errors = validatePersonalInfo(formData.personalInfo);
       setPersonalInfoErrors(errors);
       if (Object.keys(errors).length > 0) return;
     }
 
+    // Step 2: Drivers / type-specific details
     if (currentStep === 2) {
-      if (
-        !validateTypeSpecific(
-          formData.insuranceType as InsuranceType,
-          formData.typeSpecificData
-        )
-      ) {
+      setTypeSpecificError('');
+      const err = validateTypeSpecificDrivers(insType, formData.typeSpecificData);
+      if (err) {
+        setTypeSpecificError(err);
         return;
       }
+    }
+
+    // Step 3: Vehicles (auto types) — skip for non-auto
+    if (currentStep === 3 && isAutoType) {
+      setTypeSpecificError('');
+      const err = validateTypeSpecificVehicles(insType, formData.typeSpecificData);
+      if (err) {
+        setTypeSpecificError(err);
+        return;
+      }
+    }
+
+    // For non-auto types, skip the vehicles step (step 3)
+    if (currentStep === 2 && !isAutoType) {
+      setCurrentStep(4); // skip to current insurance
+      return;
     }
 
     setCurrentStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
   }
 
   function handleBack() {
+    // For non-auto types, skip back over vehicles step
+    if (currentStep === 4 && !isAutoType) {
+      setCurrentStep(2);
+      return;
+    }
     setCurrentStep((s) => Math.max(s - 1, 0));
   }
 
@@ -121,7 +206,6 @@ export function IntakeForm({ broker }: IntakeFormProps) {
   }
 
   function handleInsuranceTypeSelect(type: InsuranceType) {
-    // Reset type-specific data when type changes
     const needsReset = formData.insuranceType !== type;
     setFormData((prev) => ({
       ...prev,
@@ -132,7 +216,6 @@ export function IntakeForm({ broker }: IntakeFormProps) {
 
   function handlePersonalInfoChange(data: PersonalInfo) {
     setFormData((prev) => ({ ...prev, personalInfo: data }));
-    // Clear errors as user types
     if (Object.keys(personalInfoErrors).length > 0) {
       setPersonalInfoErrors({});
     }
@@ -179,7 +262,6 @@ export function IntakeForm({ broker }: IntakeFormProps) {
     }
   }
 
-  // Thank You screen
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -238,7 +320,7 @@ export function IntakeForm({ broker }: IntakeFormProps) {
           />
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-8">
-            {/* Step Content */}
+            {/* Step 0: Insurance Type */}
             {currentStep === 0 && (
               <StepInsuranceType
                 selected={formData.insuranceType}
@@ -248,6 +330,7 @@ export function IntakeForm({ broker }: IntakeFormProps) {
               />
             )}
 
+            {/* Step 1: Personal Info */}
             {currentStep === 1 && (
               <StepPersonalInfo
                 data={formData.personalInfo}
@@ -256,23 +339,45 @@ export function IntakeForm({ broker }: IntakeFormProps) {
               />
             )}
 
+            {/* Step 2: Drivers / type-specific details */}
             {currentStep === 2 && formData.insuranceType && (
               <StepTypeFields
-                insuranceType={formData.insuranceType as InsuranceType}
+                insuranceType={insType}
                 personalInfo={formData.personalInfo}
                 data={formData.typeSpecificData}
                 onChange={handleTypeSpecificChange}
+                section="drivers"
               />
             )}
 
-            {currentStep === 3 && (
+            {/* Step 3: Vehicles (auto types only) */}
+            {currentStep === 3 && formData.insuranceType && (
+              <StepTypeFields
+                insuranceType={insType}
+                personalInfo={formData.personalInfo}
+                data={formData.typeSpecificData}
+                onChange={handleTypeSpecificChange}
+                section="vehicles"
+              />
+            )}
+
+            {/* Validation error for steps 2 and 3 */}
+            {(currentStep === 2 || currentStep === 3) && typeSpecificError && (
+              <p className="mt-3 text-sm text-red-600 text-center">
+                {typeSpecificError}
+              </p>
+            )}
+
+            {/* Step 4: Current Insurance */}
+            {currentStep === 4 && (
               <StepCurrentInsurance
                 data={formData.currentInsurance}
                 onChange={handleCurrentInsuranceChange}
               />
             )}
 
-            {currentStep === 4 && (
+            {/* Step 5: Review */}
+            {currentStep === 5 && (
               <StepReview
                 data={formData}
                 onEdit={handleEditFromReview}

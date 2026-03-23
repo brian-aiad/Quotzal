@@ -32,9 +32,12 @@ export interface BrokerProfile {
   logo_url: string | null;
   brand_color: string | null;
   phone: string | null;
+  address: string | null;
   plan: 'starter' | 'pro';
   status: string;
   insurance_types_enabled: string[];
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
   created_at: string;
 }
 

@@ -20,7 +20,7 @@ export default async function DashboardLayout({
 
   const { data: broker } = await supabase
     .from('brokers')
-    .select('id, email, brokerage_name, slug, logo_url, brand_color, phone, plan, status, insurance_types_enabled, created_at')
+    .select('id, email, brokerage_name, slug, logo_url, brand_color, phone, address, plan, status, insurance_types_enabled, stripe_customer_id, stripe_subscription_id, created_at')
     .eq('id', user.id)
     .single<BrokerProfile>();
 

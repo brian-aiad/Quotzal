@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { Resend } from "resend";
+import {
+  sendWelcomeEmail,
+  sendPaymentFailedEmail,
+  sendLinkDeactivatedEmail,
+} from "@/lib/emails";
 import type Stripe from "stripe";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 const PRICE_TO_PLAN: Record<string, "starter" | "pro"> = {
@@ -64,23 +67,19 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     .eq("broker_id", broker.id);
 
   if (count === 1) {
-    await resend.emails.send({
-      from: "Quotzal <notifications@quotzal.com>",
-      to: broker.email,
-      subject: "Welcome to Quotzal!",
-      html: `
-        <h2>Welcome to Quotzal, ${broker.brokerage_name}!</h2>
-        <p>Your account is now active. Here's what you can do next:</p>
-        <ul>
-          <li>Share your intake form link with clients</li>
-          <li>View and manage submissions from your dashboard</li>
-          <li>Customize your form settings anytime</li>
-        </ul>
-        <p><a href="https://quotzal.com/dashboard">Go to your dashboard</a></p>
-        <br />
-        <p style="color: #6b7280; font-size: 12px;">Powered by Quotzal</p>
-      `,
-    });
+    // Fetch primary link slug for welcome email
+    const { data: primaryLink } = await supabase
+      .from("broker_links")
+      .select("slug")
+      .eq("broker_id", broker.id)
+      .eq("is_primary", true)
+      .maybeSingle();
+
+    await sendWelcomeEmail(
+      broker.email,
+      broker.brokerage_name,
+      primaryLink?.slug || ""
+    );
   }
 }
 
@@ -104,20 +103,11 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   await supabase.from("brokers").update({ status: "past_due" }).eq("id", broker.id);
 
-  await resend.emails.send({
-    from: "Quotzal <notifications@quotzal.com>",
-    to: broker.email,
-    subject: "Payment failed — action required",
-    html: `
-      <h2>Payment Failed</h2>
-      <p>Hi ${broker.brokerage_name},</p>
-      <p>We were unable to process your latest payment. Please update your payment method to keep your account active.</p>
-      <p><a href="https://quotzal.com/dashboard/billing">Update payment method</a></p>
-      <p>If your payment is not resolved, your intake form link will be deactivated.</p>
-      <br />
-      <p style="color: #6b7280; font-size: 12px;">Powered by Quotzal</p>
-    `,
-  });
+  await sendPaymentFailedEmail(
+    broker.email,
+    broker.brokerage_name,
+    invoice.amount_due
+  );
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
@@ -133,20 +123,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
   await supabase.from("brokers").update({ status: "cancelled" }).eq("id", broker.id);
 
-  await resend.emails.send({
-    from: "Quotzal <notifications@quotzal.com>",
-    to: broker.email,
-    subject: "Your Quotzal subscription has been cancelled",
-    html: `
-      <h2>Subscription Cancelled</h2>
-      <p>Hi ${broker.brokerage_name},</p>
-      <p>Your subscription has been cancelled and your intake form link has been deactivated.</p>
-      <p>Your existing submission data will be retained for 90 days. You can reactivate your account anytime by subscribing again.</p>
-      <p><a href="https://quotzal.com/dashboard/billing">Reactivate your account</a></p>
-      <br />
-      <p style="color: #6b7280; font-size: 12px;">Powered by Quotzal</p>
-    `,
-  });
+  // Fetch primary link slug for deactivation email
+  const { data: primaryLink } = await supabase
+    .from("broker_links")
+    .select("slug")
+    .eq("broker_id", broker.id)
+    .eq("is_primary", true)
+    .maybeSingle();
+
+  await sendLinkDeactivatedEmail(
+    broker.email,
+    broker.brokerage_name,
+    primaryLink?.slug || ""
+  );
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {

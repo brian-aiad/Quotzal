@@ -114,7 +114,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
       {/* Mobile drawer */}
       {mobileOpen && (
         <>
-          <div className="md:hidden fixed inset-0 z-40 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <div className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-64 shadow-xl" style={{ backgroundColor: '#0f172a' }}>
             {navContent}
           </aside>

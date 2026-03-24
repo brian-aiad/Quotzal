@@ -17,6 +17,7 @@ import type {
   CustomField,
   CustomFieldType,
 } from '@/lib/types/intake-form';
+import { QuotzalLogo } from '@/components/ui/logo';
 import { ProgressBar } from './components/progress-bar';
 import { StepInsuranceType } from './components/step-insurance-type';
 import { StepPersonalInfo } from './components/step-personal-info';
@@ -391,7 +392,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 text-center mt-6">Powered by Quotzal</p>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 mt-6">
+              <QuotzalLogo size="xs" variant="icon" />
+              <span>Powered by Quotzal</span>
+            </div>
           </div>
         </div>
       </div>
@@ -425,7 +429,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
             )}
           </div>
           {!isPro && (
-            <span className="text-xs text-slate-400">Powered by Quotzal</span>
+            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+              <QuotzalLogo size="xs" variant="icon" />
+              <span>Powered by Quotzal</span>
+            </div>
           )}
         </div>
       </header>
@@ -640,20 +647,8 @@ function Footer() {
   return (
     <footer className="py-4 text-center">
       <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
-        <svg
-          className="w-3.5 h-3.5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-          />
-        </svg>
-        Secured by Quotzal
+        <QuotzalLogo size="xs" variant="icon" />
+        <span>Secured by Quotzal</span>
       </div>
       <p className="text-xs text-slate-500 text-center mt-2">
         Your information is encrypted and only shared with your broker.{' '}

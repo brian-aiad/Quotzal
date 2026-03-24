@@ -25,7 +25,7 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
   const acctBorder = STATUS_BORDER[stats.accountStatus] ?? STATUS_BORDER.active;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
       <Card
         label="Total Submissions"
         value={String(stats.total)}
@@ -71,12 +71,12 @@ function Card({ label, value, highlight, borderColor, iconBg, icon }: {
   return (
     <div className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm border-t-4 ${borderColor}`}>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-slate-500 truncate">{label}</p>
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
       </div>
-      <p className={`text-3xl font-bold ${highlight ? 'text-amber-600' : 'text-slate-900'}`}>
+      <p className={`text-2xl md:text-3xl font-bold ${highlight ? 'text-amber-600' : 'text-slate-900'}`}>
         {value}
       </p>
     </div>

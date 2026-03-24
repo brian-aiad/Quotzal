@@ -174,7 +174,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 <th

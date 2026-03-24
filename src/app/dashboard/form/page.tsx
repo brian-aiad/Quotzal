@@ -284,9 +284,6 @@ export default function MyFormPage() {
           )}
         </div>
 
-        {/* Embed Code */}
-        <EmbedCodeSection slug={primaryLink?.slug || data.slug} copyToClipboard={copyToClipboard} />
-
         {/* Section 2: Insurance Types */}
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <h2 className="text-sm font-semibold text-slate-700 mb-3">Insurance Types</h2>
@@ -530,25 +527,6 @@ export default function MyFormPage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function EmbedCodeSection({ slug, copyToClipboard }: { slug: string; copyToClipboard: (text: string) => void }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://quotzal.com";
-  const embedCode = `<iframe src="${baseUrl}/f/${slug}" width="100%" height="700" frameborder="0" style="border-radius:12px;border:none;" title="Insurance Quote Form"></iframe>`;
-
-  return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4">
-      <h2 className="text-sm font-semibold text-slate-700 mb-1">Embed on Your Website</h2>
-      <p className="text-xs text-slate-500 mb-3">Paste this snippet anywhere on your site to show the form inline.</p>
-      <div className="bg-slate-900 rounded-lg p-3 mb-2 overflow-x-auto">
-        <code className="text-xs text-emerald-400 whitespace-pre font-mono">{embedCode}</code>
-      </div>
-      <div className="flex items-center justify-between">
-        <button onClick={() => copyToClipboard(embedCode)} className="text-xs text-emerald-600 font-medium hover:text-emerald-700">Copy Embed Code</button>
-        <p className="text-[10px] text-slate-500">The form adjusts to any container width automatically.</p>
-      </div>
     </div>
   );
 }

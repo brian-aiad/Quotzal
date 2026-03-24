@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('submissions')
-    .select('*')
+    .select('id, insurance_type, status, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, broker_notes, submitted_at')
     .order('submitted_at', { ascending: false });
 
   if (search) {

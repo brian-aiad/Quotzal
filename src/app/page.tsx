@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { QuotzalLogo } from "@/components/ui/logo";
 
 export default function MarketingPage() {
   return (
@@ -9,9 +10,7 @@ export default function MarketingPage() {
       {/* Nav */}
       <nav className="bg-[#0f172a] border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <span className="text-xl font-bold text-white">
-            <span className="text-emerald-500">●</span> Quotzal
-          </span>
+          <Link href="/"><QuotzalLogo size="sm" dark /></Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-slate-300 hover:text-white transition-colors">
               Log in
@@ -114,9 +113,7 @@ export default function MarketingPage() {
           </p>
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden max-w-lg mx-auto border-l-4 border-l-emerald-500">
             <div className="px-6 py-4 border-b border-slate-100">
-              <span className="text-base font-bold text-slate-900">
-                <span className="text-emerald-500">●</span> Quotzal
-              </span>
+              <QuotzalLogo size="xs" />
             </div>
             <div className="px-6 py-6 space-y-4">
               <h3 className="text-lg font-semibold text-slate-900">New Auto Personal</h3>
@@ -254,9 +251,7 @@ export default function MarketingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <span className="text-lg font-bold text-white">
-                <span className="text-emerald-500">●</span> Quotzal
-              </span>
+              <QuotzalLogo size="sm" dark />
               <p className="text-sm mt-1">Insurance intake, simplified.</p>
             </div>
             <div className="flex flex-wrap items-center gap-6 text-sm">

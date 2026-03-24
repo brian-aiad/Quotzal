@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Dev: "onboarding@resend.dev" — switch to "noreply@quotzal.com" after Resend domain verification (Phase 4)
 const FROM_ADDRESS = "Quotzal <onboarding@resend.dev>";
 
-const BASE_URL = "https://quotzal.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://quotzal.com";
 
 // ============================================================
 // Types

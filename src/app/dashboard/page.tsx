@@ -109,7 +109,7 @@ export default async function DashboardPage() {
   // Fetch first page of submissions for table
   const { data: tableData, count } = await supabase
     .from('submissions')
-    .select('*', { count: 'exact' })
+    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at', { count: 'exact' })
     .order('submitted_at', { ascending: false })
     .range(0, 24);
 
@@ -140,9 +140,6 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Analytics cards */}
-      <AnalyticsCards rows={allRows} />
-
       <OverviewCards stats={stats} />
       <Charts data={charts} />
 
@@ -157,54 +154,3 @@ export default async function DashboardPage() {
   );
 }
 
-function AnalyticsCards({ rows }: { rows: { status: string; insurance_type: string; submitted_at: string }[] }) {
-  const total = rows.length;
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-
-  const thisWeek = rows.filter((r) => new Date(r.submitted_at) >= sevenDaysAgo).length;
-  const lastWeek = rows.filter((r) => {
-    const d = new Date(r.submitted_at);
-    return d >= fourteenDaysAgo && d < sevenDaysAgo;
-  }).length;
-
-  const weekDiff = thisWeek - lastWeek;
-  const weekTrend = weekDiff > 0 ? `+${weekDiff} vs last week` : weekDiff < 0 ? `${weekDiff} vs last week` : "Same as last week";
-  const weekTrendColor = weekDiff > 0 ? "text-emerald-600" : weekDiff < 0 ? "text-red-600" : "text-slate-500";
-
-  // Top insurance type
-  const typeCounts: Record<string, number> = {};
-  for (const r of rows) typeCounts[r.insurance_type] = (typeCounts[r.insurance_type] ?? 0) + 1;
-  const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
-  const topTypeLabel = topType
-    ? topType[0].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-    : "—";
-
-  // Action rate
-  const acted = rows.filter((r) => r.status !== "new").length;
-  const actionRate = total > 0 ? Math.round((acted / total) * 100) : 0;
-
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <p className="text-sm text-slate-500 mb-1">Total Leads</p>
-        <p className="text-3xl font-bold text-slate-900">{total}</p>
-      </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <p className="text-sm text-slate-500 mb-1">This Week</p>
-        <p className="text-3xl font-bold text-slate-900">{thisWeek}</p>
-        <p className={`text-xs mt-1 ${weekTrendColor}`}>{weekTrend}</p>
-      </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <p className="text-sm text-slate-500 mb-1">Top Type</p>
-        <p className="text-lg font-bold text-slate-900 truncate">{topTypeLabel}</p>
-      </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <p className="text-sm text-slate-500 mb-1">Action Rate</p>
-        <p className="text-3xl font-bold text-slate-900">{actionRate}%</p>
-        <p className="text-xs text-slate-500 mt-1">leads acted on</p>
-      </div>
-    </div>
-  );
-}

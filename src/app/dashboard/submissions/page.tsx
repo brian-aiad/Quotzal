@@ -17,7 +17,7 @@ export default async function SubmissionsPage() {
 
   const { data: tableData, count } = await supabase
     .from('submissions')
-    .select('*', { count: 'exact' })
+    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at', { count: 'exact' })
     .order('submitted_at', { ascending: false })
     .range(0, 24);
 

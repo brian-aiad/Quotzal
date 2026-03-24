@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { QuotzalLogo } from "@/components/ui/logo";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -21,11 +22,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Sidebar */}
       <aside className="hidden md:flex md:w-60 lg:w-64 flex-col bg-slate-900 border-r border-slate-800 min-h-screen">
         <div className="flex flex-col h-full">
-          <div className="px-5 py-5 border-b border-slate-800">
-            <span className="text-lg font-bold text-white">
-              <span className="text-emerald-500">●</span> Quotzal
-            </span>
-            <span className="ml-2 text-xs font-medium text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">
+          <div className="px-5 py-5 border-b border-slate-800 flex items-center gap-2">
+            <QuotzalLogo size="sm" dark />
+            <span className="text-xs font-medium text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">
               ADMIN
             </span>
           </div>
@@ -70,9 +69,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center gap-3">
-        <span className="text-lg font-bold text-white">
-          <span className="text-emerald-500">●</span> Quotzal
-        </span>
+        <QuotzalLogo size="xs" dark />
         <span className="text-xs font-medium text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">
           ADMIN
         </span>

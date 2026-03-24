@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
+import { QuotzalLogo } from '@/components/ui/logo';
 
 interface SidebarProps {
   brokerName: string;
@@ -36,9 +37,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-700">
-        <span className="text-lg font-bold text-white">
-          <span className="text-emerald-500">●</span> Quotzal
-        </span>
+        <QuotzalLogo size="sm" dark />
       </div>
 
       {/* Nav links */}
@@ -95,9 +94,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
 
       {/* Mobile hamburger */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between border-b border-slate-700" style={{ backgroundColor: '#0f172a' }}>
-        <span className="text-lg font-bold text-white">
-          <span className="text-emerald-500">●</span> Quotzal
-        </span>
+        <QuotzalLogo size="xs" dark />
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}

@@ -51,7 +51,8 @@ export async function POST(
       .single<{ brokerage_name: string }>();
 
     const brokerName = broker?.brokerage_name ?? 'Your insurance broker';
-    const formUrl = `https://quotzal.com/f/${link.slug}`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://quotzal.com";
+    const formUrl = `${baseUrl}/f/${link.slug}`;
     const safeName = escapeHtml(submission.first_name);
     const safeBrokerName = escapeHtml(brokerName);
 

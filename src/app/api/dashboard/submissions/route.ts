@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('submissions')
-    .select('*', { count: 'exact' });
+    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at, first_opened_at', { count: 'exact' });
 
   // Search (escape special PostgREST pattern chars)
   if (search) {

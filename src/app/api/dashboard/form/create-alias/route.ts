@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeText } from "@/lib/sanitize";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -19,7 +20,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Pro plan required" }, { status: 403 });
   }
 
-  const { slug, label } = await request.json();
+  const raw = await request.json();
+  const slug = sanitizeText(raw.slug || "", 30).toLowerCase();
+  const label = sanitizeText(raw.label || "", 100);
   if (!slug || !label) {
     return NextResponse.json({ error: "Slug and label required" }, { status: 400 });
   }

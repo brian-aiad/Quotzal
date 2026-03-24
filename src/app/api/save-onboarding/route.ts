@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sanitizeText } from "@/lib/sanitize";
 import type { InsuranceType } from "@/lib/types/intake-form";
 
 interface SaveOnboardingBody {
@@ -40,15 +41,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Sanitize inputs
+  const brokerageName = sanitizeText(body.brokerageName, 200);
+  const phone = sanitizeText(body.phone, 20);
+  const address = sanitizeText(body.address, 500);
+  const slug = sanitizeText(body.slug, 30).toLowerCase();
+
   const admin = createAdminClient();
 
   const { error } = await admin.from("brokers").insert({
     id: user.id,
     email: user.email,
-    brokerage_name: body.brokerageName,
-    phone: body.phone,
-    address: body.address,
-    slug: body.slug,
+    brokerage_name: brokerageName,
+    phone,
+    address,
+    slug,
     insurance_types_enabled: body.insuranceTypes,
     plan: body.plan,
     status: "trialing",

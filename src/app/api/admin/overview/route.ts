@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { escapePostgrestPattern } from "@/lib/sanitize";
 
 export async function GET(request: NextRequest) {
   // Verify admin
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
   // Get all brokers
   let query = admin.from("brokers").select("id, email, brokerage_name, plan, status, created_at");
   if (search) {
-    query = query.or(`brokerage_name.ilike.%${search}%,email.ilike.%${search}%`);
+    const s = escapePostgrestPattern(search);
+    query = query.or(`brokerage_name.ilike.%${s}%,email.ilike.%${s}%`);
   }
   if (status) {
     query = query.eq("status", status);

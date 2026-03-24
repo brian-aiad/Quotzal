@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { escapeHtml } from "@/lib/sanitize";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -79,7 +80,7 @@ function sectionHeading(text: string): string {
 }
 
 function infoRow(label: string, value: string): string {
-  return `<p style="margin:4px 0;font-size:14px;color:#374151;"><strong style="color:#6b7280;">${label}:</strong> ${value}</p>`;
+  return `<p style="margin:4px 0;font-size:14px;color:#374151;"><strong style="color:#6b7280;">${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
 }
 
 function formatInsuranceType(type: string): string {

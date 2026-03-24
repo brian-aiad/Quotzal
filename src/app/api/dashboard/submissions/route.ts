@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { escapePostgrestPattern } from '@/lib/sanitize';
 import type { SubmissionRow } from '@/lib/types/dashboard';
 
 export async function GET(request: Request) {
@@ -26,10 +27,11 @@ export async function GET(request: Request) {
     .from('submissions')
     .select('*', { count: 'exact' });
 
-  // Search
+  // Search (escape special PostgREST pattern chars)
   if (search) {
+    const s = escapePostgrestPattern(search);
     query = query.or(
-      `first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`
+      `first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%`
     );
   }
 

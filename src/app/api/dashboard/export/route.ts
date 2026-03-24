@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { escapePostgrestPattern } from '@/lib/sanitize';
 import type { SubmissionRow } from '@/lib/types/dashboard';
 
 function escapeCsv(value: string): string {
@@ -49,8 +50,9 @@ export async function GET(request: Request) {
     .order('submitted_at', { ascending: false });
 
   if (search) {
+    const s = escapePostgrestPattern(search);
     query = query.or(
-      `first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`
+      `first_name.ilike.%${s}%,last_name.ilike.%${s}%,email.ilike.%${s}%`
     );
   }
   if (types) {

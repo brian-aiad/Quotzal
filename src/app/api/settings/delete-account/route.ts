@@ -60,6 +60,11 @@ export async function POST(request: NextRequest) {
     .update({ status: "cancelled" })
     .eq("id", user.id);
 
+  // Audit log for legal protection
+  console.error(
+    `[AUDIT] Account deletion: broker_id=${user.id} email=${user.email} timestamp=${new Date().toISOString()}`
+  );
+
   // Sign out the user
   await supabase.auth.signOut();
 

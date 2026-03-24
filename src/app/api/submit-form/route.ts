@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
   sendNewSubmissionEmail,
   sendCustomerConfirmationEmail,
 } from '@/lib/emails';
 import type { SubmissionEmailData } from '@/lib/emails';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { sanitizeText } from '@/lib/sanitize';
 
 interface SubmitFormBody {
   brokerId: string;
@@ -26,8 +28,22 @@ interface SubmitFormBody {
   };
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 10 submissions per IP per hour
+    const ip = getClientIp(request.headers);
+    const { allowed } = checkRateLimit(ip, 'submit-form', {
+      maxRequests: 10,
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = (await request.json()) as SubmitFormBody;
     const {
       brokerId,
@@ -53,6 +69,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Sanitize text inputs
+    const firstName = sanitizeText(personalInfo.firstName, 100);
+    const lastName = sanitizeText(personalInfo.lastName, 100);
+    const email = sanitizeText(personalInfo.email, 254);
+    const phone = sanitizeText(personalInfo.phone || '', 20);
+    const dateOfBirth = sanitizeText(personalInfo.dateOfBirth || '', 10);
+    const currentCarrier = sanitizeText(currentInsurance.currentCarrier || '', 200);
+    const currentLimits = sanitizeText(currentInsurance.currentCoverageLimits || '', 200);
+    const policyExpiry = sanitizeText(currentInsurance.policyExpiryDate || '', 10);
+
     const supabase = createAdminClient();
 
     // Look up broker for email + logo
@@ -76,15 +102,15 @@ export async function POST(request: Request) {
         broker_id: brokerId,
         link_id: linkId,
         insurance_type: insuranceType,
-        first_name: personalInfo.firstName,
-        last_name: personalInfo.lastName,
-        email: personalInfo.email,
-        phone: personalInfo.phone,
-        date_of_birth: personalInfo.dateOfBirth || null,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone: phone || null,
+        date_of_birth: dateOfBirth || null,
         has_current_insurance: currentInsurance.hasCurrentInsurance,
-        current_carrier: currentInsurance.currentCarrier || null,
-        current_limits: currentInsurance.currentCoverageLimits || null,
-        policy_expiry: currentInsurance.policyExpiryDate || null,
+        current_carrier: currentCarrier || null,
+        current_limits: currentLimits || null,
+        policy_expiry: policyExpiry || null,
         form_data: typeSpecificData,
       })
       .select('id')
@@ -100,15 +126,15 @@ export async function POST(request: Request) {
     const submissionData: SubmissionEmailData = {
       id: inserted.id,
       insuranceType,
-      firstName: personalInfo.firstName,
-      lastName: personalInfo.lastName,
-      email: personalInfo.email,
-      phone: personalInfo.phone,
-      dateOfBirth: personalInfo.dateOfBirth,
+      firstName,
+      lastName,
+      email,
+      phone,
+      dateOfBirth,
       hasCurrentInsurance: currentInsurance.hasCurrentInsurance,
-      currentCarrier: currentInsurance.currentCarrier,
-      currentCoverageLimits: currentInsurance.currentCoverageLimits,
-      policyExpiryDate: currentInsurance.policyExpiryDate,
+      currentCarrier: currentCarrier || undefined,
+      currentCoverageLimits: currentLimits || undefined,
+      policyExpiryDate: policyExpiry || undefined,
       formData: typeSpecificData,
     };
 
@@ -116,7 +142,7 @@ export async function POST(request: Request) {
     await Promise.all([
       sendNewSubmissionEmail(broker.email, submissionData),
       sendCustomerConfirmationEmail(
-        personalInfo.email,
+        email,
         submissionData,
         broker.brokerage_name,
         broker.email,

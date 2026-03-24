@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { sendBroadcastEmail } from "@/lib/emails";
+import { sanitizeText } from "@/lib/sanitize";
 
 async function verifyAdmin() {
   const supabase = await createClient();
@@ -52,7 +53,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { subject, body, filter } = await request.json();
+  const raw = await request.json();
+  const subject = sanitizeText(raw.subject || "", 200);
+  const body = sanitizeText(raw.body || "", 10000);
+  const filter = raw.filter;
   if (!subject || !body) {
     return NextResponse.json({ error: "Subject and body required" }, { status: 400 });
   }

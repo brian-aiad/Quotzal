@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { sanitizeText } from '@/lib/sanitize';
 
 export async function PATCH(
   request: Request,
@@ -20,8 +21,17 @@ export async function PATCH(
 
   // Only allow updating status and broker_notes
   const updates: Record<string, unknown> = {};
-  if ('status' in body) updates.status = body.status;
-  if ('broker_notes' in body) updates.broker_notes = body.broker_notes;
+  if ('status' in body) {
+    const validStatuses = ['new', 'reviewed', 'archived'];
+    if (validStatuses.includes(body.status as string)) {
+      updates.status = body.status;
+    }
+  }
+  if ('broker_notes' in body) {
+    updates.broker_notes = typeof body.broker_notes === 'string'
+      ? sanitizeText(body.broker_notes as string, 5000)
+      : null;
+  }
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });

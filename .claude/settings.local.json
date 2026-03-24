@@ -24,7 +24,15 @@
       "Bash(node:*)",
       "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name *schema* -o -name *migration* \\\\\\))",
       "Bash(npx supabase:*)",
-      "Bash(npx next:*)"
-    ]
+      "Bash(npx next:*)",
+      "Bash(grep -rn \"type Response\\\\|interface Response\" C:/Users/kingt/Desktop/quotzal/node_modules/stripe/types/*.d.ts)",
+      "Skill(update-config)",
+      "Bash(xxd \"C:/Users/kingt/Desktop/quotzal/BUILD.md\")",
+      "Bash(find /c/Users/kingt/Desktop/quotzal -name *.sql -o -name supabase.json)",
+      "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name types.ts -o -name *.d.ts -o -name supabase* \\\\\\))",
+      "Bash(find /c/Users/kingt/Desktop/quotzal/src/app/f/[slug] -type f)",
+      "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name schema* -o -name *migration* \\\\\\))"
+    ],
+    "defaultMode": "acceptEdits"
   }
 }

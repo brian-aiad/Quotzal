@@ -79,5 +79,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Create primary broker_links row (REQUIRED — /f/[slug] depends on this)
+  // Per DONT_DO.md: broker_links.slug must differ from brokers.slug
+  const linkSlug = `${slug}-link`;
+  const { error: linkError } = await admin.from("broker_links").insert({
+    broker_id: user.id,
+    slug: linkSlug,
+    label: "Primary Link",
+    is_primary: true,
+    is_active: true,
+  });
+
+  if (linkError) {
+    // If link creation fails, clean up the broker row
+    await admin.from("brokers").delete().eq("id", user.id);
+    return NextResponse.json(
+      { error: "Failed to create form link. Please try again." },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ success: true });
 }

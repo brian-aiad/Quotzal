@@ -169,6 +169,15 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const isAutoType = hasVehicleStep(insType);
   const skipCurrentInsurance = !fc.fields.current_insurance.enabled;
 
+  // Build the actual step sequence for progress tracking
+  const activeSteps: number[] = [0, 1, 2]; // type, personal, type-details
+  if (isAutoType) activeSteps.push(3); // vehicles
+  if (!skipCurrentInsurance) activeSteps.push(4); // current insurance
+  activeSteps.push(5); // review
+  const effectiveTotalSteps = activeSteps.length;
+  const effectiveCurrentStep = activeSteps.indexOf(currentStep);
+  const progressStep = effectiveCurrentStep >= 0 ? effectiveCurrentStep : 0;
+
   // Visible custom fields for current insurance type
   const visibleCustomFields = fc.custom_fields.filter((cf) =>
     cf.applies_to === 'all' ||
@@ -257,6 +266,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
   function handleInsuranceTypeSelect(type: InsuranceType) {
     const needsReset = formData.insuranceType !== type;
+    if (needsReset) {
+      setCustomFieldValues({});
+      setTypeSpecificError('');
+    }
     setFormData((prev) => ({
       ...prev,
       insuranceType: type,
@@ -370,8 +383,8 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       <main className="flex-1 px-4 py-6 md:py-10">
         <div className="max-w-2xl mx-auto">
           <ProgressBar
-            currentStep={currentStep}
-            totalSteps={TOTAL_STEPS}
+            currentStep={progressStep}
+            totalSteps={effectiveTotalSteps}
             brandColor={brandColor}
           />
 
@@ -503,6 +516,9 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 data={formData}
                 onEdit={handleEditFromReview}
                 brandColor={brandColor}
+                skipCurrentInsurance={skipCurrentInsurance}
+                customFieldValues={customFieldValues}
+                customFields={visibleCustomFields}
               />
             )}
 

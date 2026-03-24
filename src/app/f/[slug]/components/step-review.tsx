@@ -1,12 +1,15 @@
 'use client';
 
-import type { IntakeFormData, InsuranceType } from '@/lib/types/intake-form';
+import type { IntakeFormData, InsuranceType, CustomField } from '@/lib/types/intake-form';
 import { getInsuranceTypeLabel } from '@/lib/constants/insurance-types';
 
 interface StepReviewProps {
   data: IntakeFormData;
   onEdit: (step: number) => void;
   brandColor?: string | null;
+  skipCurrentInsurance?: boolean;
+  customFieldValues?: Record<string, string>;
+  customFields?: CustomField[];
 }
 
 interface SectionProps {
@@ -55,6 +58,8 @@ function renderTypeSpecificSummary(
 
   for (const [key, value] of entries) {
     if (value === null || value === undefined || value === '') continue;
+    // Skip custom_fields — rendered separately
+    if (key === 'custom_fields') continue;
 
     const label = key
       .replace(/([A-Z])/g, ' $1')
@@ -63,7 +68,6 @@ function renderTypeSpecificSummary(
 
     if (Array.isArray(value)) {
       if (value.length === 0) continue;
-      // Drivers or vehicles array
       if (key === 'drivers') {
         items.push(
           <div key={key} className="pt-2">
@@ -74,9 +78,7 @@ function renderTypeSpecificSummary(
               <div key={i} className="ml-4 mt-1 text-xs bg-slate-50 rounded p-2">
                 {d.fullName as string}
                 {d.dateOfBirth ? ` | DOB: ${d.dateOfBirth as string}` : ''}
-                {d.licenseState
-                  ? ` | License: ${d.licenseState as string}`
-                  : ''}
+                {d.licenseState ? ` | License: ${d.licenseState as string}` : ''}
               </div>
             ))}
           </div>
@@ -104,35 +106,39 @@ function renderTypeSpecificSummary(
             {(value as Array<Record<string, unknown>>).map((v, i) => (
               <div key={i} className="ml-4 mt-1 text-xs bg-slate-50 rounded p-2">
                 {v.type as string}
-                {v.month && v.year
-                  ? ` | ${v.month as string}/${v.year as string}`
-                  : ''}
+                {v.month && v.year ? ` | ${v.month as string}/${v.year as string}` : ''}
               </div>
             ))}
           </div>
         );
       }
     } else if (typeof value === 'boolean') {
-      items.push(
-        <Field key={key} label={label} value={value ? 'Yes' : 'No'} />
-      );
+      items.push(<Field key={key} label={label} value={value ? 'Yes' : 'No'} />);
     } else {
-      items.push(
-        <Field key={key} label={label} value={String(value)} />
-      );
+      items.push(<Field key={key} label={label} value={String(value)} />);
     }
   }
 
   if (items.length === 0) {
-    return <p className="text-slate-400 italic">No details provided</p>;
+    return <p className="text-slate-500 italic">No details provided</p>;
   }
 
   return <>{items}</>;
 }
 
-export function StepReview({ data, onEdit, brandColor }: StepReviewProps) {
+export function StepReview({
+  data,
+  onEdit,
+  brandColor,
+  skipCurrentInsurance = false,
+  customFieldValues = {},
+  customFields = [],
+}: StepReviewProps) {
   const accentColor = brandColor ?? '#059669';
   void accentColor;
+
+  const hasCustomFieldData = customFields.length > 0 &&
+    customFields.some((cf) => customFieldValues[cf.id]?.trim());
 
   return (
     <div>
@@ -162,6 +168,16 @@ export function StepReview({ data, onEdit, brandColor }: StepReviewProps) {
           <Field label="Date of Birth" value={data.personalInfo.dateOfBirth} />
           <Field label="Phone" value={data.personalInfo.phone} />
           <Field label="Email" value={data.personalInfo.email} />
+          {/* Custom field values */}
+          {hasCustomFieldData && (
+            <div className="mt-2 pt-2 border-t border-slate-100">
+              {customFields.map((cf) => {
+                const val = customFieldValues[cf.id];
+                if (!val?.trim()) return null;
+                return <Field key={cf.id} label={cf.label} value={val} />;
+              })}
+            </div>
+          )}
         </Section>
 
         {/* Type-Specific Details */}
@@ -171,34 +187,27 @@ export function StepReview({ data, onEdit, brandColor }: StepReviewProps) {
                 data.insuranceType as InsuranceType,
                 data.typeSpecificData as unknown as Record<string, unknown>
               )
-            : <p className="text-slate-400 italic">No details provided</p>}
+            : <p className="text-slate-500 italic">No details provided</p>}
         </Section>
 
-        {/* Current Insurance */}
-        <Section title="Current Insurance" step={4} onEdit={onEdit}>
-          <Field
-            label="Currently Insured"
-            value={
-              data.currentInsurance.hasCurrentInsurance ? 'Yes' : 'No'
-            }
-          />
-          {data.currentInsurance.hasCurrentInsurance && (
-            <>
-              <Field
-                label="Carrier"
-                value={data.currentInsurance.currentCarrier}
-              />
-              <Field
-                label="Coverage Limits"
-                value={data.currentInsurance.currentCoverageLimits}
-              />
-              <Field
-                label="Policy Expires"
-                value={data.currentInsurance.policyExpiryDate}
-              />
-            </>
-          )}
-        </Section>
+        {/* Current Insurance — only show if not skipped */}
+        {!skipCurrentInsurance && (
+          <Section title="Current Insurance" step={4} onEdit={onEdit}>
+            <Field
+              label="Currently Insured"
+              value={
+                data.currentInsurance.hasCurrentInsurance ? 'Yes' : 'No'
+              }
+            />
+            {data.currentInsurance.hasCurrentInsurance && (
+              <>
+                <Field label="Carrier" value={data.currentInsurance.currentCarrier} />
+                <Field label="Coverage Limits" value={data.currentInsurance.currentCoverageLimits} />
+                <Field label="Policy Expires" value={data.currentInsurance.policyExpiryDate} />
+              </>
+            )}
+          </Section>
+        )}
       </div>
     </div>
   );

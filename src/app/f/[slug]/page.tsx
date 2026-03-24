@@ -3,7 +3,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { IntakeForm } from './intake-form';
 import { InactivePage } from './components/inactive-page';
 import { ExpiredPage } from './components/expired-page';
-import type { BrokerData, InsuranceType } from '@/lib/types/intake-form';
+import type { BrokerData, InsuranceType, FormConfig } from '@/lib/types/intake-form';
+import { DEFAULT_FORM_CONFIG } from '@/lib/types/intake-form';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -19,6 +20,7 @@ interface BrokerRow {
   plan: string;
   status: string;
   insurance_types_enabled: string[];
+  form_config: FormConfig | null;
 }
 
 interface BrokerLinkRow {
@@ -118,6 +120,7 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     status: broker.status,
     insuranceTypesEnabled: broker.insurance_types_enabled as InsuranceType[],
     linkId,
+    formConfig: (broker.form_config as FormConfig) ?? DEFAULT_FORM_CONFIG,
   };
 
   return <IntakeForm broker={brokerData} preview={isPreview} />;

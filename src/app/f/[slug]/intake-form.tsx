@@ -13,6 +13,9 @@ import type {
   AutoPersonalData,
   AutoCommercialData,
   Driver,
+  FormConfig,
+  CustomField,
+  CustomFieldType,
 } from '@/lib/types/intake-form';
 import { ProgressBar } from './components/progress-bar';
 import { StepInsuranceType } from './components/step-insurance-type';
@@ -61,14 +64,24 @@ function validateDob(dob: string): string | null {
   return null;
 }
 
-function validatePersonalInfo(data: PersonalInfo): Record<string, string> {
+function validatePersonalInfo(data: PersonalInfo, fc: FormConfig): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!data.firstName.trim()) errors.firstName = 'First name is required';
   if (!data.lastName.trim()) errors.lastName = 'Last name is required';
-  const dobError = validateDob(data.dateOfBirth);
-  if (dobError) errors.dateOfBirth = dobError;
-  if (!data.phone || data.phone.replace(/\D/g, '').length < 10)
-    errors.phone = 'Valid phone number is required';
+
+  if (fc.fields.date_of_birth.enabled) {
+    if (fc.fields.date_of_birth.required || data.dateOfBirth) {
+      const dobError = validateDob(data.dateOfBirth);
+      if (dobError && fc.fields.date_of_birth.required) errors.dateOfBirth = dobError;
+    }
+  }
+
+  if (fc.fields.phone.enabled) {
+    if (fc.fields.phone.required && (!data.phone || data.phone.replace(/\D/g, '').length < 10)) {
+      errors.phone = 'Valid phone number is required';
+    }
+  }
+
   if (!data.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
     errors.email = 'Valid email is required';
   return errors;
@@ -136,6 +149,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     Record<string, string>
   >({});
   const [typeSpecificError, setTypeSpecificError] = useState('');
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<IntakeFormData>({
     insuranceType: '',
@@ -148,20 +162,37 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     broker.plan === 'pro' &&
     ['active', 'trialing', 'past_due'].includes(broker.status);
   const brandColor = isPro ? broker.brandColor : null;
-  const accentColor = brandColor ?? '#2563eb';
+  const accentColor = brandColor ?? '#059669';
+  const fc = broker.formConfig;
 
   const insType = formData.insuranceType as InsuranceType;
   const isAutoType = hasVehicleStep(insType);
+  const skipCurrentInsurance = !fc.fields.current_insurance.enabled;
+
+  // Visible custom fields for current insurance type
+  const visibleCustomFields = fc.custom_fields.filter((cf) =>
+    cf.applies_to === 'all' ||
+    (Array.isArray(cf.applies_to) && (insType ? cf.applies_to.includes(insType) : true))
+  );
 
   function handleNext() {
     // Step 0: Insurance Type
     if (currentStep === 0 && !formData.insuranceType) return;
 
-    // Step 1: Personal Info
+    // Step 1: Personal Info + custom fields
     if (currentStep === 1) {
-      const errors = validatePersonalInfo(formData.personalInfo);
+      const errors = validatePersonalInfo(formData.personalInfo, fc);
       setPersonalInfoErrors(errors);
-      if (Object.keys(errors).length > 0) return;
+      // Validate required custom fields
+      for (const cf of visibleCustomFields) {
+        if (cf.required && !customFieldValues[cf.id]?.trim()) {
+          errors[`custom_${cf.id}`] = `${cf.label} is required`;
+        }
+      }
+      if (Object.keys(errors).length > 0) {
+        setPersonalInfoErrors(errors);
+        return;
+      }
     }
 
     // Step 2: Drivers / type-specific details
@@ -186,7 +217,20 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
     // For non-auto types, skip the vehicles step (step 3)
     if (currentStep === 2 && !isAutoType) {
-      setCurrentStep(4); // skip to current insurance
+      setCurrentStep(skipCurrentInsurance ? 5 : 4);
+      return;
+    }
+
+    // Skip current insurance if disabled
+    if (currentStep === 3 && skipCurrentInsurance) {
+      setCurrentStep(5); // jump to review
+      return;
+    }
+
+    const nextStep = currentStep + 1;
+    // Also skip current insurance when advancing from step 3 vehicles
+    if (nextStep === 4 && skipCurrentInsurance) {
+      setCurrentStep(5);
       return;
     }
 
@@ -194,6 +238,11 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   }
 
   function handleBack() {
+    // Skip current insurance going back
+    if (currentStep === 5 && skipCurrentInsurance) {
+      setCurrentStep(isAutoType ? 3 : 2);
+      return;
+    }
     // For non-auto types, skip back over vehicles step
     if (currentStep === 4 && !isAutoType) {
       setCurrentStep(2);
@@ -244,8 +293,13 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
           linkId: broker.linkId,
           insuranceType: formData.insuranceType,
           personalInfo: formData.personalInfo,
-          typeSpecificData: formData.typeSpecificData,
-          currentInsurance: formData.currentInsurance,
+          typeSpecificData: {
+            ...(formData.typeSpecificData as unknown as Record<string, unknown>),
+            custom_fields: Object.keys(customFieldValues).length > 0 ? customFieldValues : undefined,
+          },
+          currentInsurance: skipCurrentInsurance
+            ? { hasCurrentInsurance: false }
+            : formData.currentInsurance,
         }),
       });
 
@@ -266,9 +320,9 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-slate-50 flex flex-col">
         <div className="flex-1 flex items-center justify-center px-4">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
             <ThankYou
               brokerageName={broker.brokerageName}
               brandColor={brandColor}
@@ -283,7 +337,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const hasHomeType = broker.insuranceTypesEnabled.includes('home');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {hasHomeType && (
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places`}
@@ -291,7 +345,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
         />
       )}
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-4">
+      <header className="bg-white border-b border-slate-200 px-4 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {isPro && broker.logoUrl ? (
@@ -301,13 +355,13 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 className="h-8 w-auto object-contain"
               />
             ) : (
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-slate-900">
                 {broker.brokerageName}
               </span>
             )}
           </div>
           {!isPro && (
-            <span className="text-xs text-gray-400">Powered by Quotzal</span>
+            <span className="text-xs text-slate-400">Powered by Quotzal</span>
           )}
         </div>
       </header>
@@ -321,7 +375,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
             brandColor={brandColor}
           />
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-8">
             {/* Step 0: Insurance Type */}
             {currentStep === 0 && (
               <StepInsuranceType
@@ -334,11 +388,76 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
             {/* Step 1: Personal Info */}
             {currentStep === 1 && (
-              <StepPersonalInfo
-                data={formData.personalInfo}
-                onChange={handlePersonalInfoChange}
-                errors={personalInfoErrors}
-              />
+              <div>
+                <StepPersonalInfo
+                  data={formData.personalInfo}
+                  onChange={handlePersonalInfoChange}
+                  errors={personalInfoErrors}
+                  formConfig={fc}
+                />
+                {/* Custom fields */}
+                {visibleCustomFields.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-slate-200 space-y-4">
+                    <p className="text-sm font-medium text-slate-700">Additional Information</p>
+                    {visibleCustomFields.map((cf) => (
+                      <div key={cf.id}>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                          {cf.label}
+                          {cf.required && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        {cf.type === 'text' && (
+                          <input
+                            type="text"
+                            value={customFieldValues[cf.id] ?? ''}
+                            onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
+                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                          />
+                        )}
+                        {cf.type === 'textarea' && (
+                          <textarea
+                            value={customFieldValues[cf.id] ?? ''}
+                            onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
+                            rows={3}
+                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white resize-none"
+                          />
+                        )}
+                        {cf.type === 'select' && (
+                          <select
+                            value={customFieldValues[cf.id] ?? ''}
+                            onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
+                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                          >
+                            <option value="">Select...</option>
+                            {cf.options.map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        )}
+                        {cf.type === 'yes_no' && (
+                          <div className="flex gap-4">
+                            {['Yes', 'No'].map((opt) => (
+                              <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name={`custom_${cf.id}`}
+                                  value={opt}
+                                  checked={customFieldValues[cf.id] === opt}
+                                  onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
+                                  className="text-emerald-600 focus:ring-emerald-500"
+                                />
+                                <span className="text-sm text-slate-700">{opt}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                        {personalInfoErrors[`custom_${cf.id}`] && (
+                          <p className="mt-1 text-xs text-red-600">{personalInfoErrors[`custom_${cf.id}`]}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Step 2: Drivers / type-specific details */}
@@ -393,7 +512,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Back
                 </button>
@@ -448,7 +567,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 function Footer() {
   return (
     <footer className="py-4 text-center">
-      <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
         <svg
           className="w-3.5 h-3.5"
           fill="none"
@@ -464,10 +583,10 @@ function Footer() {
         </svg>
         Secured by Quotzal
       </div>
-      <p className="text-xs text-gray-500 text-center mt-2">
+      <p className="text-xs text-slate-500 text-center mt-2">
         Your information is encrypted and only shared with your broker.{' '}
-        <a href="/privacy" className="underline hover:text-gray-700">Privacy Policy</a>{' · '}
-        <a href="/terms" className="underline hover:text-gray-700">Terms</a>
+        <a href="/privacy" className="underline hover:text-slate-700">Privacy Policy</a>{' · '}
+        <a href="/terms" className="underline hover:text-slate-700">Terms</a>
       </p>
     </footer>
   );

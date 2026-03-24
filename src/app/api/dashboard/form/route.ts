@@ -10,7 +10,7 @@ export async function GET() {
 
   const { data: broker } = await supabase
     .from("brokers")
-    .select("slug, plan, insurance_types_enabled")
+    .select("slug, plan, insurance_types_enabled, form_config, logo_url, brand_color")
     .eq("id", user.id)
     .single();
 
@@ -28,6 +28,9 @@ export async function GET() {
     slug: broker.slug,
     plan: broker.plan,
     insurance_types_enabled: broker.insurance_types_enabled,
+    form_config: broker.form_config,
+    logo_url: broker.logo_url,
+    brand_color: broker.brand_color,
     links: links ?? [],
   });
 }

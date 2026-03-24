@@ -269,6 +269,54 @@ export interface IntakeFormData {
   currentInsurance: CurrentInsurance;
 }
 
+// --- Form Config (broker customization) ---
+
+export interface FieldConfig {
+  enabled: boolean;
+  required: boolean;
+}
+
+export type CustomFieldType = 'text' | 'textarea' | 'select' | 'yes_no';
+
+export interface CustomField {
+  id: string;
+  label: string;
+  type: CustomFieldType;
+  options: string[];
+  required: boolean;
+  applies_to: 'all' | InsuranceType[];
+}
+
+export interface FormConfig {
+  fields: {
+    date_of_birth: FieldConfig;
+    phone: FieldConfig;
+    current_insurance: FieldConfig;
+    vin: FieldConfig;
+    driver_license_number: FieldConfig;
+    marital_status: FieldConfig;
+    sr22: FieldConfig;
+    violations: FieldConfig;
+  };
+  custom_fields: CustomField[];
+}
+
+export type ConfigurableFieldKey = keyof FormConfig['fields'];
+
+export const DEFAULT_FORM_CONFIG: FormConfig = {
+  fields: {
+    date_of_birth: { enabled: true, required: false },
+    phone: { enabled: true, required: false },
+    current_insurance: { enabled: true, required: false },
+    vin: { enabled: true, required: false },
+    driver_license_number: { enabled: true, required: false },
+    marital_status: { enabled: true, required: false },
+    sr22: { enabled: true, required: false },
+    violations: { enabled: true, required: false },
+  },
+  custom_fields: [],
+};
+
 // --- Broker Data from Server ---
 
 export interface BrokerData {
@@ -281,4 +329,5 @@ export interface BrokerData {
   status: string;
   insuranceTypesEnabled: InsuranceType[];
   linkId: string;
+  formConfig: FormConfig;
 }

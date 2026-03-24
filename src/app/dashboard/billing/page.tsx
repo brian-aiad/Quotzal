@@ -32,12 +32,12 @@ const PLAN_PRICES: Record<string, number> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  active: 'bg-emerald-50 text-emerald-700',
-  trialing: 'bg-emerald-50 text-emerald-700',
-  past_due: 'bg-amber-50 text-amber-700',
-  cancelled: 'bg-red-50 text-red-700',
-  paid: 'bg-emerald-50 text-emerald-700',
-  failed: 'bg-red-50 text-red-700',
+  active: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  trialing: 'bg-amber-50 text-amber-700 border border-amber-200',
+  past_due: 'bg-red-50 text-red-700 border border-red-200',
+  cancelled: 'bg-gray-100 text-gray-500 border border-gray-200',
+  paid: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  failed: 'bg-red-50 text-red-700 border border-red-200',
 };
 
 export default function BillingPage() {
@@ -79,16 +79,44 @@ export default function BillingPage() {
   }
 
   if (!subscription) {
+    // Trial users have no subscription yet — show helpful trial state
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600">
-        Failed to load billing information. Please refresh the page.
+      <div className="space-y-8">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Billing</h1>
+        <div className="bg-white border border-slate-200 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-50 text-amber-700 border border-amber-200">Trial</span>
+            <h2 className="text-lg font-semibold text-slate-900">Free Trial Active</h2>
+          </div>
+          <p className="text-sm text-slate-600 mb-6">
+            You&apos;re on a free 30-day trial. Subscribe to a plan before your trial ends to keep your form link active.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="border border-slate-200 rounded-xl p-5">
+              <h3 className="font-semibold text-slate-900 mb-1">Starter</h3>
+              <p className="text-2xl font-bold text-slate-900 mb-3">$19<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <button onClick={async () => {
+                const res = await fetch('/api/create-checkout-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'starter' }) });
+                if (res.ok) { const data = await res.json(); window.location.href = data.url; }
+              }} className="w-full py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors text-sm">Choose Starter</button>
+            </div>
+            <div className="border-2 border-emerald-600 rounded-xl p-5">
+              <h3 className="font-semibold text-slate-900 mb-1">Pro</h3>
+              <p className="text-2xl font-bold text-slate-900 mb-3">$39<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <button onClick={async () => {
+                const res = await fetch('/api/create-checkout-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'pro' }) });
+                if (res.ok) { const data = await res.json(); window.location.href = data.url; }
+              }} className="w-full py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors text-sm">Choose Pro</button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-slate-900">Billing</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-gray-900">Billing</h1>
 
       {toast && (
         <div

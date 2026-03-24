@@ -3,9 +3,9 @@
 import type { SubmissionStatus } from '@/lib/types/dashboard';
 
 const STATUS_STYLES: Record<SubmissionStatus, string> = {
-  new: 'bg-emerald-100 text-emerald-700',
-  reviewed: 'bg-slate-100 text-slate-600',
-  archived: 'bg-slate-50 text-slate-400',
+  new: 'bg-blue-50 text-blue-700 border border-blue-200',
+  reviewed: 'bg-gray-100 text-gray-600 border border-gray-200',
+  archived: 'bg-gray-50 text-gray-400 border border-gray-100',
 };
 
 const STATUS_LABELS: Record<SubmissionStatus, string> = {
@@ -23,7 +23,7 @@ export function StatusTag({ status }: StatusTagProps) {
   const label = STATUS_LABELS[status] ?? status;
 
   return (
-    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
+    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${style}`}>
       {label}
     </span>
   );

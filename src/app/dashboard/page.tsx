@@ -18,12 +18,16 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Fetch broker status
+  // Fetch broker status and trial info
   const { data: broker } = await supabase
     .from('brokers')
-    .select('status')
+    .select('status, trial_ends_at')
     .eq('id', user.id)
-    .single<{ status: string }>();
+    .single<{ status: string; trial_ends_at: string | null }>();
+
+  const trialDaysLeft = broker?.trial_ends_at
+    ? Math.ceil((new Date(broker.trial_ends_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
 
   // Fetch all submissions for stats + charts (RLS enforced)
   const { data: allSubmissions } = await supabase
@@ -86,13 +90,34 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+
+      {/* Past due banner */}
+      {broker?.status === 'past_due' && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+            <p className="text-sm text-red-800"><strong>Payment failed.</strong> Your form link will be deactivated soon. Please update your payment method.</p>
+          </div>
+          <a href="/dashboard/billing" className="shrink-0 text-sm font-medium text-red-700 hover:text-red-900 underline">Fix billing</a>
+        </div>
+      )}
+
+      {/* Trial ending banner */}
+      {broker?.status === 'trialing' && trialDaysLeft !== null && trialDaysLeft <= 7 && trialDaysLeft > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-amber-800">
+            <strong>Your trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}.</strong> Subscribe to keep your form link active.
+          </p>
+          <a href="/dashboard/billing" className="shrink-0 text-sm font-medium text-amber-700 hover:text-amber-900 underline">Subscribe now</a>
+        </div>
+      )}
 
       <OverviewCards stats={stats} />
       <Charts data={charts} />
 
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Submissions</h2>
+        <h2 className="text-base font-semibold text-gray-900 mb-3">Submissions</h2>
         <SubmissionsTable
           initialSubmissions={submissions}
           initialTotal={count ?? 0}

@@ -4,14 +4,14 @@ import { getInsuranceTypeLabel } from '@/lib/constants/insurance-types';
 import type { InsuranceType } from '@/lib/types/intake-form';
 
 const TYPE_COLORS: Record<string, string> = {
-  auto_personal: 'bg-blue-100 text-blue-700',
-  auto_commercial: 'bg-indigo-100 text-indigo-700',
-  home: 'bg-emerald-100 text-emerald-700',
-  life: 'bg-rose-100 text-rose-700',
-  motorcycle: 'bg-orange-100 text-orange-700',
-  boat: 'bg-cyan-100 text-cyan-700',
-  rv: 'bg-amber-100 text-amber-700',
-  other: 'bg-gray-100 text-gray-700',
+  auto_personal: 'bg-blue-50 text-blue-700 border border-blue-100',
+  auto_commercial: 'bg-indigo-50 text-indigo-700 border border-indigo-100',
+  home: 'bg-orange-50 text-orange-700 border border-orange-100',
+  life: 'bg-pink-50 text-pink-700 border border-pink-100',
+  motorcycle: 'bg-red-50 text-red-700 border border-red-100',
+  boat: 'bg-cyan-50 text-cyan-700 border border-cyan-100',
+  rv: 'bg-violet-50 text-violet-700 border border-violet-100',
+  other: 'bg-gray-100 text-gray-600 border border-gray-200',
 };
 
 interface InsuranceTypePillProps {
@@ -23,7 +23,7 @@ export function InsuranceTypePill({ type }: InsuranceTypePillProps) {
   const label = getInsuranceTypeLabel(type as InsuranceType);
 
   return (
-    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${colors}`}>
+    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${colors}`}>
       {label}
     </span>
   );

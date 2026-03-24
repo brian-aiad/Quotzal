@@ -43,26 +43,29 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
 
       {/* Nav links */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.map((item, idx) => {
           const isActive =
             item.href === '/dashboard'
               ? pathname === '/dashboard'
               : pathname.startsWith(item.href);
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-emerald-950 text-emerald-400 border-l-2 border-emerald-400 -ml-px'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-              }`}
-            >
-              <item.icon active={isActive} />
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              {/* Separator before Settings group */}
+              {idx === 3 && <div className="border-t border-white/5 my-3" />}
+              <Link
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-emerald-950 text-emerald-400 border-l-2 border-emerald-400 -ml-px'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                }`}
+              >
+                <item.icon active={isActive} />
+                {item.label}
+              </Link>
+            </div>
           );
         })}
       </nav>

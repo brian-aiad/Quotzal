@@ -267,8 +267,9 @@ export default function MarketingPage() {
               <Link href="/privacy" className="text-slate-300 hover:text-white transition-colors">Privacy</Link>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} Quotzal. All rights reserved.
+          <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <span>&copy; {new Date().getFullYear()} Quotzal. All rights reserved.</span>
+            <a href="mailto:hello@quotzal.com" className="text-slate-400 hover:text-white transition-colors">hello@quotzal.com</a>
           </div>
         </div>
       </footer>
@@ -313,7 +314,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-5 py-4 text-left"
       >
-        <span className="text-sm font-medium text-slate-900">{question}</span>
+        <span className="text-base font-medium text-slate-900">{question}</span>
         <svg
           className={`w-5 h-5 text-emerald-600 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"

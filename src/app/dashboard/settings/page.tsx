@@ -88,7 +88,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-gray-900">Settings</h1>
 
       {toast && (
         <div
@@ -153,7 +153,8 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
 
   return (
     <section className="bg-white border border-slate-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Business Info</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-1">Business Info</h2>
+      <p className="text-sm text-slate-500 mb-4 pb-4 border-b border-slate-100">Your brokerage details shown on correspondence</p>
       <div className="space-y-4 max-w-lg">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Brokerage Name</label>

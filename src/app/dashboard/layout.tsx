@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
@@ -5,6 +6,11 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { Sidebar } from './components/sidebar';
 import { AdminBanner } from './components/admin-banner';
 import type { BrokerProfile } from '@/lib/types/dashboard';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Manage your Quotzal intake forms, submissions, and settings',
+};
 
 export default async function DashboardLayout({
   children,

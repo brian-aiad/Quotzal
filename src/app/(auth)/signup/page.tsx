@@ -63,7 +63,7 @@ function SignupForm() {
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
         <p className="mt-2 text-sm text-gray-600">
-          Start your 14-day free trial of Quotzal
+          Start your 30-day free trial of Quotzal
         </p>
       </div>
 

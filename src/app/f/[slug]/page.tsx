@@ -7,6 +7,7 @@ import type { BrokerData, InsuranceType } from '@/lib/types/intake-form';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }
 
 interface BrokerRow {
@@ -35,8 +36,10 @@ interface DemoRequestRow {
   converted: boolean;
 }
 
-export default async function IntakeFormPage({ params }: PageProps) {
+export default async function IntakeFormPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "true";
   const supabase = createAdminClient();
 
   // 1. Try broker_links first
@@ -117,5 +120,5 @@ export default async function IntakeFormPage({ params }: PageProps) {
     linkId,
   };
 
-  return <IntakeForm broker={brokerData} />;
+  return <IntakeForm broker={brokerData} preview={isPreview} />;
 }

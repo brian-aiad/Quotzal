@@ -28,6 +28,7 @@ import { ThankYou } from './components/thank-you';
 
 interface IntakeFormProps {
   broker: BrokerData;
+  preview?: boolean;
 }
 
 const TOTAL_STEPS = 6;
@@ -126,7 +127,7 @@ function validateTypeSpecificVehicles(
   return null;
 }
 
-export function IntakeForm({ broker }: IntakeFormProps) {
+export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -230,6 +231,7 @@ export function IntakeForm({ broker }: IntakeFormProps) {
   }
 
   async function handleSubmit() {
+    if (preview) return;
     setSubmitting(true);
     setSubmitError('');
 

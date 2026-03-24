@@ -205,11 +205,16 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-gray-400">
-                    Loading...
-                  </td>
-                </tr>
+                <>
+                  {[...Array(5)].map((_, i) => (
+                    <tr key={i} className="border-b border-gray-100">
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-32" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></td>
+                    </tr>
+                  ))}
+                </>
               ) : submissions.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-4 py-10 text-center text-gray-400">

@@ -37,7 +37,7 @@ export function StepPersonalInfo({
               type="text"
               value={data.firstName}
               onChange={(e) => update('firstName', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+              className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
                 errors.firstName ? 'border-red-400' : 'border-gray-300'
               }`}
             />
@@ -54,7 +54,7 @@ export function StepPersonalInfo({
               type="text"
               value={data.lastName}
               onChange={(e) => update('lastName', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+              className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
                 errors.lastName ? 'border-red-400' : 'border-gray-300'
               }`}
             />
@@ -72,7 +72,7 @@ export function StepPersonalInfo({
             type="date"
             value={data.dateOfBirth}
             onChange={(e) => update('dateOfBirth', e.target.value)}
-            className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+            className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
               errors.dateOfBirth ? 'border-red-400' : 'border-gray-300'
             }`}
           />
@@ -95,7 +95,7 @@ export function StepPersonalInfo({
             type="email"
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
-            className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+            className={`w-full border rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
               errors.email ? 'border-red-400' : 'border-gray-300'
             }`}
           />

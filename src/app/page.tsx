@@ -25,7 +25,7 @@ export default function MarketingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-[#0f172a] text-white py-20 sm:py-28">
+      <section id="main-content" className="bg-[#0f172a] text-white py-20 sm:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
             Send a link.
@@ -285,7 +285,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       >
         <span className="text-sm font-medium text-gray-900">{question}</span>
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`w-5 h-5 text-gray-500 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

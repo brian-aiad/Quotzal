@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 mt-14 md:mt-0">
+      <main id="main-content" className="flex-1 mt-14 md:mt-0">
         <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">{children}</div>
       </main>
     </div>

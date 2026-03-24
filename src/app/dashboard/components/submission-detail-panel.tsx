@@ -96,13 +96,14 @@ export function SubmissionDetailPanel({
               </h2>
               <div className="flex items-center gap-2 mt-1">
                 <InsuranceTypePill type={submission.insurance_type} />
-                <span className="text-xs text-gray-400">{formatDate(submission.submitted_at)}</span>
+                <span className="text-xs text-gray-500">{formatDate(submission.submitted_at)}</span>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+              aria-label="Close details"
+              className="text-gray-500 hover:text-gray-700 text-xl leading-none"
             >
               &times;
             </button>
@@ -196,10 +197,10 @@ export function SubmissionDetailPanel({
               onChange={(e) => setNotes(e.target.value)}
               onBlur={handleNotesSave}
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none"
               placeholder="Add notes about this submission..."
             />
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-gray-500 mt-0.5">
               {saving ? 'Saving...' : notesSaved ? `Saved ${notesSaved}` : ''}
             </div>
           </div>

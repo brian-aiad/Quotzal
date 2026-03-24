@@ -102,7 +102,7 @@ export function StepBusinessInfo({
               }
             }}
             placeholder="Acme Insurance Group"
-            className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 ${
+            className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 ${
               errors.brokerageName
                 ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -126,7 +126,7 @@ export function StepBusinessInfo({
             value={phone}
             onChange={(e) => handlePhoneChange(e.target.value)}
             placeholder="(555) 123-4567"
-            className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 ${
+            className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 ${
               errors.phone
                 ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -159,7 +159,7 @@ export function StepBusinessInfo({
                 }
               }}
               placeholder="123 Main St, City, State ZIP"
-              className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 ${
+              className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 ${
                 errors.address
                   ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"

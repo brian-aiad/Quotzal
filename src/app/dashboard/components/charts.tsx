@@ -39,7 +39,7 @@ export function Charts({ data }: ChartsProps) {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-sm text-gray-400 py-10 text-center">No data yet</p>
+          <p className="text-sm text-gray-500 py-10 text-center">No data yet</p>
         )}
       </div>
 
@@ -72,7 +72,7 @@ export function Charts({ data }: ChartsProps) {
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-sm text-gray-400 py-10 text-center">No data yet</p>
+          <p className="text-sm text-gray-500 py-10 text-center">No data yet</p>
         )}
       </div>
     </div>

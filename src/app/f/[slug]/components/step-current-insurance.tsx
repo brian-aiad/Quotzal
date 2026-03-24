@@ -69,7 +69,7 @@ export function StepCurrentInsurance({
                 value={data.currentCarrier ?? ''}
                 onChange={(e) => update('currentCarrier', e.target.value)}
                 placeholder="e.g., State Farm, GEICO"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
               <datalist id="carriers-list">
                 <option value="State Farm" />
@@ -112,7 +112,7 @@ export function StepCurrentInsurance({
                   update('currentCoverageLimits', e.target.value)
                 }
                 placeholder="e.g., 100/300/100"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
               <datalist id="limits-list">
                 <option value="15/30/5" />
@@ -136,7 +136,7 @@ export function StepCurrentInsurance({
                 type="date"
                 value={data.policyExpiryDate ?? ''}
                 onChange={(e) => update('policyExpiryDate', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
             </div>
           </div>

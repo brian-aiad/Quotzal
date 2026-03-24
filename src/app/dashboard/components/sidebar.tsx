@@ -68,7 +68,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
       {/* Broker info + logout */}
       <div className="px-4 py-4 border-t border-gray-200">
         <p className="text-sm font-medium text-gray-900 truncate">{brokerName}</p>
-        <p className="text-xs text-gray-400 truncate">{brokerEmail}</p>
+        <p className="text-xs text-gray-500 truncate">{brokerEmail}</p>
         <button
           type="button"
           onClick={handleLogout}
@@ -94,6 +94,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
           className="p-2 text-gray-600 hover:text-gray-900"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

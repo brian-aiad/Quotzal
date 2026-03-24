@@ -62,7 +62,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
             type="text"
             value={data.year}
             onChange={(e) => update('year', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
         <div>
@@ -73,7 +73,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
             type="text"
             value={data.make}
             onChange={(e) => update('make', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
         <div>
@@ -84,7 +84,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
             type="text"
             value={data.model}
             onChange={(e) => update('model', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
       </div>
@@ -99,7 +99,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
             value={data.boatLength}
             onChange={(e) => update('boatLength', e.target.value)}
             placeholder="22"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
 
@@ -110,7 +110,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
           <select
             value={data.hullType}
             onChange={(e) => update('hullType', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Select</option>
             {HULL_TYPES.map((ht) => (
@@ -128,7 +128,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
           <select
             value={data.storedLocation}
             onChange={(e) => update('storedLocation', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Select</option>
             {STORED_LOCATIONS.map((sl) => (
@@ -146,7 +146,7 @@ export function BoatFields({ data, onChange }: BoatFieldsProps) {
           <select
             value={data.coverageType}
             onChange={(e) => update('coverageType', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Select</option>
             <option value="full">Full Coverage</option>

@@ -113,7 +113,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search by name or email..."
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           />
           <div className="flex gap-2 flex-wrap">
             {/* Type filter */}
@@ -217,7 +217,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                 </>
               ) : submissions.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={4} className="px-4 py-10 text-center text-gray-500">
                     No submissions found
                   </td>
                 </tr>
@@ -232,7 +232,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                       <div className="font-medium text-gray-900">
                         {sub.first_name} {sub.last_name}
                       </div>
-                      <div className="text-xs text-gray-400">{sub.email}</div>
+                      <div className="text-xs text-gray-500">{sub.email}</div>
                     </td>
                     <td className="px-4 py-3">
                       <InsuranceTypePill type={sub.insurance_type} />

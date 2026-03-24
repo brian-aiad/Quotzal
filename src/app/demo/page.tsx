@@ -126,7 +126,7 @@ export default function DemoPage() {
 
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone <span className="text-gray-400">(optional)</span>
+              Phone <span className="text-gray-500">(optional)</span>
             </label>
             <input
               id="phone"

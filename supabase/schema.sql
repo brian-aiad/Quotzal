@@ -25,6 +25,7 @@ CREATE TABLE brokers (
   stripe_customer_id text,
   stripe_subscription_id text,
   trial_ends_at timestamptz,
+  sent_trial_reminders jsonb DEFAULT '[]',
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

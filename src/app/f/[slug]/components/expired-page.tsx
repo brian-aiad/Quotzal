@@ -20,17 +20,17 @@ export function ExpiredPage() {
           </svg>
         </div>
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
-          This demo link has expired
+          This demo has expired
         </h1>
         <p className="text-gray-600 mb-6">
-          The trial period for this form has ended. Ask your broker to upgrade to
-          continue accepting submissions.
+          Ready to get your real Quotzal link? Sign up for a free 30-day trial
+          and start collecting client info today.
         </p>
         <a
-          href="https://quotzal.com"
+          href="/signup"
           className="inline-flex items-center justify-center px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Learn more about Quotzal
+          Sign Up Free
         </a>
       </div>
     </div>

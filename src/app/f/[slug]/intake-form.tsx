@@ -525,7 +525,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                   type="button"
                   onClick={handleNext}
                   disabled={currentStep === 0 && !formData.insuranceType}
-                  className="px-6 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-6 py-3 text-base font-semibold text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{ backgroundColor: accentColor }}
                 >
                   Next
@@ -535,7 +535,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="px-6 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-60"
+                  className="px-6 py-3 text-base font-semibold text-white rounded-lg transition-colors disabled:opacity-60"
                   style={{ backgroundColor: accentColor }}
                 >
                   {submitting ? (

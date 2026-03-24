@@ -32,11 +32,11 @@ const PLAN_PRICES: Record<string, number> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  active: 'bg-green-50 text-green-700',
-  trialing: 'bg-blue-50 text-blue-700',
+  active: 'bg-emerald-50 text-emerald-700',
+  trialing: 'bg-emerald-50 text-emerald-700',
   past_due: 'bg-amber-50 text-amber-700',
   cancelled: 'bg-red-50 text-red-700',
-  paid: 'bg-green-50 text-green-700',
+  paid: 'bg-emerald-50 text-emerald-700',
   failed: 'bg-red-50 text-red-700',
 };
 
@@ -73,7 +73,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -88,13 +88,13 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
+      <h1 className="text-2xl font-bold text-slate-900">Billing</h1>
 
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
             toast.type === 'success'
-              ? 'bg-green-50 text-green-700 border border-green-200'
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
               : 'bg-red-50 text-red-700 border border-red-200'
           }`}
         >
@@ -144,27 +144,29 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
     : null;
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Plan</h2>
+    <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 h-1" />
+      <div className="p-6">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4">Current Plan</h2>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <span className="text-xl font-bold text-gray-900 capitalize">
+            <span className="text-2xl font-bold text-slate-900 capitalize">
               {subscription.plan}
             </span>
-            <span className="text-lg text-gray-500">
+            <span className="text-lg text-slate-600">
               ${PLAN_PRICES[subscription.plan]}/month
             </span>
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                STATUS_STYLES[subscription.status] || 'bg-gray-100 text-gray-700'
+                STATUS_STYLES[subscription.status] || 'bg-slate-100 text-slate-700'
               }`}
             >
               {subscription.status.replace('_', ' ')}
             </span>
           </div>
           {nextBillingDate && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               {subscription.cancel_at_period_end
                 ? `Cancels on ${nextBillingDate}`
                 : `Next billing date: ${nextBillingDate}`}
@@ -180,10 +182,11 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
           type="button"
           onClick={handleManagePayment}
           disabled={managingPayment}
-          className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 shrink-0"
+          className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 shrink-0"
         >
           {managingPayment ? 'Opening...' : 'Manage payment method'}
         </button>
+      </div>
       </div>
     </section>
   );
@@ -233,14 +236,14 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
   }
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Manage Subscription</h2>
+    <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4">Manage Subscription</h2>
       <div className="flex flex-wrap gap-3">
         {subscription.plan === 'starter' && (
           <button
             type="button"
             onClick={() => setShowUpgradeModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700"
           >
             Upgrade to Pro — $39/mo
           </button>
@@ -249,7 +252,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
           <button
             type="button"
             onClick={() => setShowDowngradeModal(true)}
-            className="px-4 py-2 text-sm text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm text-slate-700 font-medium border border-slate-300 rounded-lg hover:bg-slate-50"
           >
             Downgrade to Starter — $19/mo
           </button>
@@ -259,7 +262,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
             type="button"
             onClick={() => handleAction('reactivate')}
             disabled={processing}
-            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
           >
             {processing ? 'Processing...' : 'Reactivate subscription'}
           </button>
@@ -280,7 +283,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
           title="Upgrade to Pro"
           description="You'll be upgraded to the Pro plan ($39/month). The price difference will be prorated for the current billing period. You'll get access to branding customization, extended data retention, and more."
           confirmLabel={processing ? 'Upgrading...' : 'Confirm upgrade'}
-          confirmStyle="bg-blue-600 hover:bg-blue-700"
+          confirmStyle="bg-emerald-600 hover:bg-emerald-700"
           onConfirm={() => handleAction('upgrade', 'pro')}
           onCancel={() => setShowUpgradeModal(false)}
           disabled={processing}
@@ -335,13 +338,13 @@ function ConfirmModal({ title, description, confirmLabel, confirmStyle, onConfir
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/30" onClick={onCancel} />
       <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 mb-4">{description}</p>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
+        <p className="text-sm text-slate-600 mb-4">{description}</p>
         <div className="flex gap-2 justify-end">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-100"
+            className="px-4 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100"
           >
             Go back
           </button>
@@ -370,9 +373,14 @@ interface PaymentHistoryProps {
 function PaymentHistory({ payments }: PaymentHistoryProps) {
   if (payments.length === 0) {
     return (
-      <section className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h2>
-        <p className="text-sm text-gray-500">No payments recorded yet.</p>
+      <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Payment History</h2>
+        <div className="text-center py-6">
+          <svg className="w-10 h-10 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+          <p className="text-sm text-slate-500">No payments yet — your first charge will appear here after your trial ends.</p>
+        </div>
       </section>
     );
   }
@@ -390,30 +398,30 @@ function PaymentHistory({ payments }: PaymentHistoryProps) {
   }
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h2>
+    <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4">Payment History</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-medium text-gray-500">Date</th>
-              <th className="text-left py-3 px-2 font-medium text-gray-500">Amount</th>
-              <th className="text-left py-3 px-2 font-medium text-gray-500">Period</th>
-              <th className="text-left py-3 px-2 font-medium text-gray-500">Status</th>
+            <tr className="border-b border-slate-200">
+              <th className="text-left py-3 px-2 font-medium text-slate-500">Date</th>
+              <th className="text-left py-3 px-2 font-medium text-slate-500">Amount</th>
+              <th className="text-left py-3 px-2 font-medium text-slate-500">Period</th>
+              <th className="text-left py-3 px-2 font-medium text-slate-500">Status</th>
             </tr>
           </thead>
           <tbody>
             {payments.map((payment) => (
-              <tr key={payment.id} className="border-b border-gray-100">
-                <td className="py-3 px-2 text-gray-900">{formatDate(payment.created_at)}</td>
-                <td className="py-3 px-2 text-gray-900 font-medium">{formatAmount(payment.amount)}</td>
-                <td className="py-3 px-2 text-gray-500">
+              <tr key={payment.id} className="border-b border-slate-100">
+                <td className="py-3 px-2 text-slate-900">{formatDate(payment.created_at)}</td>
+                <td className="py-3 px-2 text-slate-900 font-medium">{formatAmount(payment.amount)}</td>
+                <td className="py-3 px-2 text-slate-500">
                   {formatDate(payment.period_start)} — {formatDate(payment.period_end)}
                 </td>
                 <td className="py-3 px-2">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                      STATUS_STYLES[payment.status] || 'bg-gray-100 text-gray-700'
+                      STATUS_STYLES[payment.status] || 'bg-slate-100 text-slate-700'
                     }`}
                   >
                     {payment.status}

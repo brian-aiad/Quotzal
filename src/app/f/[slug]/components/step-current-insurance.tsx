@@ -17,10 +17,10 @@ export function StepCurrentInsurance({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
+      <h2 className="text-xl font-semibold text-slate-900 mb-2">
         Current Insurance
       </h2>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-slate-500 mb-6">
         Do you currently have insurance for this?
       </p>
 
@@ -31,8 +31,8 @@ export function StepCurrentInsurance({
             onClick={() => update('hasCurrentInsurance', true)}
             className={`flex-1 py-3 px-4 rounded-lg border-2 text-sm font-medium transition-colors ${
               data.hasCurrentInsurance === true
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                : 'border-slate-200 text-slate-700 hover:border-slate-300'
             }`}
           >
             Yes
@@ -49,8 +49,8 @@ export function StepCurrentInsurance({
             }
             className={`flex-1 py-3 px-4 rounded-lg border-2 text-sm font-medium transition-colors ${
               data.hasCurrentInsurance === false
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                : 'border-slate-200 text-slate-700 hover:border-slate-300'
             }`}
           >
             No
@@ -60,7 +60,7 @@ export function StepCurrentInsurance({
         {data.hasCurrentInsurance && (
           <div className="space-y-4 pt-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Current Carrier
               </label>
               <input
@@ -69,7 +69,7 @@ export function StepCurrentInsurance({
                 value={data.currentCarrier ?? ''}
                 onChange={(e) => update('currentCarrier', e.target.value)}
                 placeholder="e.g., State Farm, GEICO"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               />
               <datalist id="carriers-list">
                 <option value="State Farm" />
@@ -101,7 +101,7 @@ export function StepCurrentInsurance({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Current Coverage Limits
               </label>
               <input
@@ -112,7 +112,7 @@ export function StepCurrentInsurance({
                   update('currentCoverageLimits', e.target.value)
                 }
                 placeholder="e.g., 100/300/100"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               />
               <datalist id="limits-list">
                 <option value="15/30/5" />
@@ -129,14 +129,14 @@ export function StepCurrentInsurance({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Policy Expiry Date
               </label>
               <input
                 type="date"
                 value={data.policyExpiryDate ?? ''}
                 onChange={(e) => update('policyExpiryDate', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               />
             </div>
           </div>

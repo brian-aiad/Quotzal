@@ -86,13 +86,13 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
 
       <OverviewCards stats={stats} />
       <Charts data={charts} />
 
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Submissions</h2>
+        <h2 className="text-lg font-semibold text-slate-900 mb-3">Submissions</h2>
         <SubmissionsTable
           initialSubmissions={submissions}
           initialTotal={count ?? 0}

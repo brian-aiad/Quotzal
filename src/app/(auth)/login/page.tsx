@@ -35,8 +35,8 @@ export default function LoginPage() {
   return (
     <div>
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
+        <p className="mt-2 text-sm text-slate-600">
           Sign in to your Quotzal account
         </p>
       </div>
@@ -49,7 +49,7 @@ export default function LoginPage() {
         )}
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700">
             Email
           </label>
           <input
@@ -58,13 +58,13 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-sm font-medium text-slate-700">
             Password
           </label>
           <input
@@ -73,7 +73,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="••••••••"
           />
         </div>
@@ -81,15 +81,15 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
         >
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-slate-600">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+        <Link href="/signup" className="font-medium text-emerald-600 hover:text-emerald-700">
           Sign up
         </Link>
       </p>

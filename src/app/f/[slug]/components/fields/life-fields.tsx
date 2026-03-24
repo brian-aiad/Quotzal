@@ -61,19 +61,19 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">
+      <h3 className="text-lg font-semibold text-slate-900">
         Life Insurance Details
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Coverage Amount
           </label>
           <select
             value={data.coverageAmount}
             onChange={(e) => update('coverageAmount', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Select</option>
             {COVERAGE_AMOUNTS.map((ca) => (
@@ -85,13 +85,13 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Policy Type
           </label>
           <select
             value={data.policyType}
             onChange={(e) => update('policyType', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Select</option>
             {POLICY_TYPES.map((pt) => (
@@ -104,13 +104,13 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
 
         {data.policyType === 'term' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Term Length
             </label>
             <select
               value={data.termLength ?? ''}
               onChange={(e) => update('termLength', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
             >
               <option value="">Select</option>
               {TERM_LENGTHS.map((tl) => (
@@ -124,25 +124,25 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
       </div>
 
       <div className="space-y-3 pt-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={data.isSmoker}
             onChange={(e) => update('isSmoker', e.target.checked)}
-            className="rounded border-gray-300"
+            className="rounded border-slate-300"
           />
           Smoker?
         </label>
 
         <div>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
               checked={data.hasHealthConditions}
               onChange={(e) =>
                 update('hasHealthConditions', e.target.checked)
               }
-              className="rounded border-gray-300"
+              className="rounded border-slate-300"
             />
             Major health conditions?
           </label>
@@ -156,9 +156,9 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
                 maxLength={300}
                 rows={3}
                 placeholder="Please describe..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white resize-none"
               />
-              <p className="text-xs text-gray-400 text-right">
+              <p className="text-xs text-slate-400 text-right">
                 {(data.healthConditionsDescription ?? '').length}/300
               </p>
             </div>
@@ -168,13 +168,13 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Height (feet)
           </label>
           <select
             value={data.heightFeet}
             onChange={(e) => update('heightFeet', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Feet</option>
             {feetOptions().map((f) => (
@@ -186,13 +186,13 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Height (inches)
           </label>
           <select
             value={data.heightInches}
             onChange={(e) => update('heightInches', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Inches</option>
             {inchesOptions().map((i) => (
@@ -204,7 +204,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Weight (lbs)
           </label>
           <input
@@ -212,26 +212,26 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
             value={data.weight}
             onChange={(e) => update('weight', e.target.value)}
             placeholder="150"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Beneficiary Name
           </label>
           <input
             type="text"
             value={data.beneficiaryName}
             onChange={(e) => update('beneficiaryName', e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Beneficiary Relationship
           </label>
           <select
@@ -239,7 +239,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
             onChange={(e) =>
               update('beneficiaryRelationship', e.target.value)
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Select</option>
             {BENEFICIARY_RELATIONSHIPS.map((br) => (

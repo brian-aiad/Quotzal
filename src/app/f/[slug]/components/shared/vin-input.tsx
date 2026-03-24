@@ -109,7 +109,7 @@ export function VinInput({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-slate-700 mb-1">
         {label}{required ? ' — Required for accurate quote' : ''} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
@@ -119,13 +119,13 @@ export function VinInput({
           onChange={handleChange}
           maxLength={expectedLength}
           placeholder={`Enter ${expectedLength}-character ${label}`}
-          className={`w-full px-3 py-2 border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-500 ${
-            error ? 'border-red-400 focus:ring-red-400' : 'border-gray-300'
+          className={`w-full px-3 py-2 border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900 placeholder-slate-500 ${
+            error ? 'border-red-400 focus:ring-red-400' : 'border-slate-300'
           }`}
         />
         {decoding && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
       </div>
@@ -133,7 +133,7 @@ export function VinInput({
       {decodeError && (
         <p className="mt-1 text-xs text-amber-600">{decodeError}</p>
       )}
-      <p className="mt-1 text-xs text-gray-400">
+      <p className="mt-1 text-xs text-slate-400">
         {value.length}/{expectedLength} characters
       </p>
     </div>

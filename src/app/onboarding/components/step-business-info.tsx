@@ -71,10 +71,10 @@ export function StepBusinessInfo({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-slate-900">
           Business Information
         </h2>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-slate-600">
           Tell us about your brokerage
         </p>
       </div>
@@ -83,7 +83,7 @@ export function StepBusinessInfo({
         <div>
           <label
             htmlFor="brokerageName"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700"
           >
             Brokerage Name <span className="text-red-500">*</span>
           </label>
@@ -102,10 +102,10 @@ export function StepBusinessInfo({
               }
             }}
             placeholder="Acme Insurance Group"
-            className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 ${
+            className={`mt-1 block w-full rounded-md border px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 ${
               errors.brokerageName
                 ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                : "border-slate-300 focus:border-emerald-500 focus:ring-emerald-500"
             }`}
           />
           {errors.brokerageName && (
@@ -116,7 +116,7 @@ export function StepBusinessInfo({
         <div>
           <label
             htmlFor="phone"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700"
           >
             Phone <span className="text-red-500">*</span>
           </label>
@@ -126,10 +126,10 @@ export function StepBusinessInfo({
             value={phone}
             onChange={(e) => handlePhoneChange(e.target.value)}
             placeholder="(555) 123-4567"
-            className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 ${
+            className={`mt-1 block w-full rounded-md border px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 ${
               errors.phone
                 ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                : "border-slate-300 focus:border-emerald-500 focus:ring-emerald-500"
             }`}
           />
           {errors.phone && (
@@ -140,7 +140,7 @@ export function StepBusinessInfo({
         <div>
           <label
             htmlFor="address"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700"
           >
             Business Address <span className="text-red-500">*</span>
           </label>
@@ -159,10 +159,10 @@ export function StepBusinessInfo({
                 }
               }}
               placeholder="123 Main St, City, State ZIP"
-              className={`mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 ${
+              className={`mt-1 block w-full rounded-md border px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 ${
                 errors.address
                   ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  : "border-slate-300 focus:border-emerald-500 focus:ring-emerald-500"
               }`}
             />
           {errors.address && (
@@ -175,7 +175,7 @@ export function StepBusinessInfo({
         <button
           type="button"
           onClick={handleNext}
-          className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="rounded-md bg-emerald-600 px-6 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
         >
           Continue
         </button>

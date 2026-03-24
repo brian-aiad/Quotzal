@@ -6,7 +6,7 @@ interface ThankYouProps {
 }
 
 export function ThankYou({ brokerageName, brandColor }: ThankYouProps) {
-  const accentColor = brandColor ?? '#2563eb';
+  const accentColor = brandColor ?? '#059669';
 
   return (
     <div className="text-center py-12">
@@ -29,15 +29,15 @@ export function ThankYou({ brokerageName, brandColor }: ThankYouProps) {
         </svg>
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-3">
+      <h1 className="text-2xl font-bold text-slate-900 mb-3">
         Thank You!
       </h1>
-      <p className="text-gray-600 mb-2 max-w-md mx-auto">
+      <p className="text-slate-600 mb-2 max-w-md mx-auto">
         Your quote request has been submitted successfully.{' '}
-        <span className="font-medium text-gray-800">{brokerageName}</span> will
+        <span className="font-medium text-slate-800">{brokerageName}</span> will
         review your information and get back to you shortly.
       </p>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-500">
         A confirmation email has been sent to your inbox.
       </p>
     </div>

@@ -27,10 +27,10 @@ export function ProgressIndicator({
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
                     isCompleted
-                      ? "bg-blue-600 text-white"
+                      ? "bg-emerald-600 text-white"
                       : isCurrent
-                        ? "border-2 border-blue-600 bg-white text-blue-600"
-                        : "border-2 border-gray-300 bg-white text-gray-400"
+                        ? "border-2 border-emerald-600 bg-white text-emerald-600"
+                        : "border-2 border-slate-300 bg-white text-slate-400"
                   }`}
                 >
                   {isCompleted ? (
@@ -42,8 +42,8 @@ export function ProgressIndicator({
                 <span
                   className={`mt-2 text-xs font-medium hidden sm:block ${
                     isCompleted || isCurrent
-                      ? "text-blue-600"
-                      : "text-gray-400"
+                      ? "text-emerald-600"
+                      : "text-slate-400"
                   }`}
                 >
                   {stepLabels[i]}
@@ -52,7 +52,7 @@ export function ProgressIndicator({
               {step < totalSteps && (
                 <div
                   className={`mx-2 h-0.5 flex-1 transition-colors ${
-                    isCompleted ? "bg-blue-600" : "bg-gray-300"
+                    isCompleted ? "bg-emerald-600" : "bg-slate-200"
                   }`}
                 />
               )}

@@ -50,9 +50,9 @@ const LICENSE_TYPES = [
   'Expired',
 ];
 
-const INPUT_CLASS = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
-const SELECT_CLASS = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
-const ERROR_INPUT_CLASS = 'w-full border border-red-400 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400 bg-white';
+const INPUT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
+const SELECT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
+const ERROR_INPUT_CLASS = 'w-full border border-red-400 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-400 bg-white';
 
 function getAgeFromDob(dob: string): number | null {
   if (!dob) return null;
@@ -103,9 +103,9 @@ export function DriverCard({
   const hasNoUsLicense = driver.noUsLicense === true;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-4">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-800">
+        <h4 className="text-sm font-semibold text-slate-800">
           {isPrimary ? 'Primary Driver' : `Driver ${index + 1}`}
         </h4>
         {onRemove && (
@@ -122,7 +122,7 @@ export function DriverCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* 1. Full Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Full Name
           </label>
           <input
@@ -135,10 +135,10 @@ export function DriverCard({
 
         {/* 2. Date of Birth with age display */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Date of Birth
             {age !== null && !dobError && (
-              <span className="ml-2 text-gray-400 font-normal">Age: {age}</span>
+              <span className="ml-2 text-slate-400 font-normal">Age: {age}</span>
             )}
           </label>
           <input
@@ -155,7 +155,7 @@ export function DriverCard({
         {/* 3. License State — only if has US license */}
         {!hasNoUsLicense && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               License State
             </label>
             <select
@@ -176,7 +176,7 @@ export function DriverCard({
         {/* 4. License Number — only if has US license */}
         {!hasNoUsLicense && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               License Number <span className="text-red-500">*</span>
             </label>
             <input
@@ -191,7 +191,7 @@ export function DriverCard({
             {errors?.licenseNumber ? (
               <p className="text-red-500 text-sm mt-1">{errors.licenseNumber}</p>
             ) : (
-              <p className="text-xs text-gray-400 mt-1">Required for accurate quote — typically 6-8 characters</p>
+              <p className="text-xs text-slate-400 mt-1">Required for accurate quote — typically 6-8 characters</p>
             )}
           </div>
         )}
@@ -199,7 +199,7 @@ export function DriverCard({
         {/* 5. Relationship (personal) or Role (commercial) */}
         {mode === 'personal' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Relationship
             </label>
             <select
@@ -218,7 +218,7 @@ export function DriverCard({
 
         {mode === 'commercial' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Role
             </label>
             <select
@@ -237,7 +237,7 @@ export function DriverCard({
 
         {/* 6. Marital Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Marital Status
           </label>
           <select
@@ -256,7 +256,7 @@ export function DriverCard({
 
       {/* No US License checkbox */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={hasNoUsLicense}
@@ -270,19 +270,19 @@ export function DriverCard({
                 licenseType: checked ? driver.licenseType : undefined,
               });
             }}
-            className="rounded border-gray-300"
+            className="rounded border-slate-300"
           />
           No US driver&apos;s license
         </label>
         {hasNoUsLicense && (
           <div className="ml-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               License Type
             </label>
             <select
               value={driver.licenseType ?? 'No License'}
               onChange={(e) => update('licenseType', e.target.value)}
-              className={`w-full md:w-1/2 border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
+              className={`w-full md:w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white`}
             >
               {LICENSE_TYPES.map((lt) => (
                 <option key={lt} value={lt}>{lt}</option>
@@ -294,12 +294,12 @@ export function DriverCard({
 
       {/* Good Student Discount — only for child under 25 */}
       {showGoodStudent && (
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={driver.goodStudentDiscount ?? false}
             onChange={(e) => update('goodStudentDiscount', e.target.checked)}
-            className="rounded border-gray-300"
+            className="rounded border-slate-300"
           />
           Good student discount (B average or better)
         </label>
@@ -307,12 +307,12 @@ export function DriverCard({
 
       {/* 7. SR-22 */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={driver.sr22Required}
             onChange={(e) => update('sr22Required', e.target.checked)}
-            className="rounded border-gray-300"
+            className="rounded border-slate-300"
           />
           SR-22 Required
         </label>
@@ -320,7 +320,7 @@ export function DriverCard({
           <select
             value={driver.sr22State ?? ''}
             onChange={(e) => update('sr22State', e.target.value)}
-            className={`w-full md:w-1/2 border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
+            className={`w-full md:w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white`}
           >
             <option value=""></option>
             {US_STATES.map((s) => (
@@ -334,7 +334,7 @@ export function DriverCard({
 
       {/* 8. Violations — auto-add blank on check, clear on uncheck */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={driver.hasViolations}
@@ -346,7 +346,7 @@ export function DriverCard({
                 violations: checked ? [emptyViolation()] : [],
               });
             }}
-            className="rounded border-gray-300"
+            className="rounded border-slate-300"
           />
           Violations in last 5 years
         </label>

@@ -10,15 +10,15 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-        <Link href="/" className="text-sm text-blue-600 hover:text-blue-700 mb-8 block">
+        <Link href="/" className="text-sm text-emerald-600 hover:text-emerald-700 mb-8 block">
           ← Back to home
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
-        <p className="text-sm text-gray-500 mb-8">Last updated: March 24, 2026</p>
+        <h1 className="text-3xl font-bold text-slate-900 mb-8">Privacy Policy</h1>
+        <p className="text-sm text-slate-500 mb-8">Last updated: March 24, 2026</p>
 
-        <div className="prose prose-gray max-w-none space-y-6 text-sm text-gray-700 leading-relaxed">
+        <div className="prose prose-gray max-w-none space-y-6 text-sm text-slate-700 leading-relaxed">
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">1. Information We Collect</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">1. Information We Collect</h2>
             <p>
               <strong>Broker accounts:</strong> When you create an account, we collect your email address,
               brokerage name, phone number, and address.
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">2. How We Use Your Information</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">2. How We Use Your Information</h2>
             <p>We use the information we collect to:</p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>Provide and maintain the Service</li>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">3. Data Sharing</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">3. Data Sharing</h2>
             <p>
               Form submission data is shared only with the broker whose intake form was used. We do not
               sell, rent, or share personal information with third parties for marketing purposes.
@@ -62,7 +62,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">4. Data Security</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">4. Data Security</h2>
             <p>
               All data is transmitted over HTTPS encryption. Our database uses row-level security
               to ensure brokers can only access their own data. We implement industry-standard
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">5. Data Retention</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">5. Data Retention</h2>
             <p>
               Submission data is retained according to the broker&apos;s plan: 12 months for Starter plans
               and 24 months for Pro plans. After the retention period, data is automatically and
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">6. Your Rights</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">6. Your Rights</h2>
             <p>You have the right to:</p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>Access your data at any time through the dashboard</li>
@@ -95,7 +95,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">7. Cookies</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">7. Cookies</h2>
             <p>
               We use essential cookies for authentication and session management. We do not use
               tracking cookies or third-party analytics cookies.
@@ -103,7 +103,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">8. Changes to This Policy</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">8. Changes to This Policy</h2>
             <p>
               We may update this privacy policy from time to time. We will notify account holders
               of significant changes via email.
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Contact</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">Contact</h2>
             <p>
               For privacy-related questions, contact us at support@quotzal.com.
             </p>

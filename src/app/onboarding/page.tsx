@@ -268,13 +268,13 @@ function OnboardingWizard() {
 
   if (checkoutProcessing) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-          <p className="mt-4 text-lg font-medium text-gray-900">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+          <p className="mt-4 text-lg font-medium text-slate-900">
             Setting up your account...
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             This will only take a moment
           </p>
           {error && (
@@ -290,18 +290,18 @@ function OnboardingWizard() {
   const displaySlug = data.slug || generateSlugFromName(data.brokerageName) || "your-brokerage";
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-gray-50 px-4 py-8 sm:py-12">
+    <div className="flex min-h-screen items-start justify-center bg-slate-50 px-4 py-8 sm:py-12">
       <div className="w-full max-w-2xl">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-900">
             Welcome to Quotzal
           </h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-slate-600">
             Let&apos;s get your brokerage set up in a few steps
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <ProgressIndicator
             currentStep={step}
             totalSteps={3}
@@ -355,8 +355,8 @@ export default function OnboardingPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gray-50">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="flex min-h-screen items-center justify-center bg-slate-50">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
         </div>
       }
     >

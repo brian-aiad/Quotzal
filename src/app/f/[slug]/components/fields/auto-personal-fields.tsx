@@ -94,7 +94,7 @@ export function AutoPersonalFields({
     <div className="space-y-6">
       {/* Drivers Section */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Drivers</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-3">Drivers</h3>
         <div className="space-y-4">
           {data.drivers.map((driver, i) => (
             <DriverCard
@@ -112,7 +112,7 @@ export function AutoPersonalFields({
           <button
             type="button"
             onClick={addDriver}
-            className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
           >
             + Add Driver
           </button>
@@ -121,7 +121,7 @@ export function AutoPersonalFields({
 
       {/* Vehicles Section */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Vehicles</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-3">Vehicles</h3>
         <div className="space-y-4">
           {data.vehicles.map((vehicle, i) => (
             <VehicleCard
@@ -138,7 +138,7 @@ export function AutoPersonalFields({
           <button
             type="button"
             onClick={addVehicle}
-            className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
           >
             + Add Vehicle
           </button>

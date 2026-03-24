@@ -60,7 +60,7 @@ export default function AdminOverviewPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
           <StatCard label="Total Brokers" value={stats.totalBrokers} />
           <StatCard label="Active" value={stats.active} color="text-green-400" />
-          <StatCard label="Trialing" value={stats.trialing} color="text-blue-400" />
+          <StatCard label="Trialing" value={stats.trialing} color="text-emerald-400" />
           <StatCard label="Past Due" value={stats.pastDue} color="text-yellow-400" />
           <StatCard label="Cancelled" value={stats.cancelledSuspended} color="text-red-400" />
           <StatCard label="Submissions" value={stats.totalSubmissions} />
@@ -75,12 +75,12 @@ export default function AdminOverviewPage() {
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="all">All Statuses</option>
           <option value="trialing">Trialing</option>
@@ -92,7 +92,7 @@ export default function AdminOverviewPage() {
         <select
           value={planFilter}
           onChange={(e) => setPlanFilter(e.target.value)}
-          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="all">All Plans</option>
           <option value="starter">Starter</option>
@@ -101,52 +101,52 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* Brokers table */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="text-left px-4 py-3 text-gray-400 font-medium">Brokerage</th>
-                <th className="text-left px-4 py-3 text-gray-400 font-medium">Email</th>
-                <th className="text-left px-4 py-3 text-gray-400 font-medium">Plan</th>
-                <th className="text-left px-4 py-3 text-gray-400 font-medium">Status</th>
-                <th className="text-left px-4 py-3 text-gray-400 font-medium">Submissions</th>
-                <th className="text-left px-4 py-3 text-gray-400 font-medium">Joined</th>
+              <tr className="border-b border-slate-800">
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Brokerage</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Email</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Plan</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Status</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Submissions</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium">Joined</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                     Loading...
                   </td>
                 </tr>
               ) : brokers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                     No brokers found.
                   </td>
                 </tr>
               ) : (
                 brokers.map((broker) => (
-                  <tr key={broker.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <tr key={broker.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/brokers/${broker.id}`}
-                        className="text-blue-400 hover:text-blue-300 font-medium"
+                        className="text-emerald-400 hover:text-emerald-300 font-medium"
                       >
                         {broker.brokerage_name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{broker.email}</td>
+                    <td className="px-4 py-3 text-slate-300">{broker.email}</td>
                     <td className="px-4 py-3">
                       <PlanPill plan={broker.plan} />
                     </td>
                     <td className="px-4 py-3">
                       <StatusPill status={broker.status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{broker.submission_count}</td>
-                    <td className="px-4 py-3 text-gray-400">
+                    <td className="px-4 py-3 text-slate-300">{broker.submission_count}</td>
+                    <td className="px-4 py-3 text-slate-400">
                       {new Date(broker.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -170,8 +170,8 @@ function StatCard({
   color?: string;
 }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
+    <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3">
+      <p className="text-xs text-slate-500 mb-1">{label}</p>
       <p className={`text-xl font-bold ${color}`}>{value}</p>
     </div>
   );
@@ -181,7 +181,7 @@ function PlanPill({ plan }: { plan: string }) {
   const styles =
     plan === "pro"
       ? "bg-purple-400/10 text-purple-400"
-      : "bg-blue-400/10 text-blue-400";
+      : "bg-emerald-400/10 text-emerald-400";
   return (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${styles}`}>
       {plan.charAt(0).toUpperCase() + plan.slice(1)}
@@ -192,12 +192,12 @@ function PlanPill({ plan }: { plan: string }) {
 function StatusPill({ status }: { status: string }) {
   const colorMap: Record<string, string> = {
     active: "bg-green-400/10 text-green-400",
-    trialing: "bg-blue-400/10 text-blue-400",
+    trialing: "bg-emerald-400/10 text-emerald-400",
     past_due: "bg-yellow-400/10 text-yellow-400",
     cancelled: "bg-red-400/10 text-red-400",
     suspended: "bg-red-400/10 text-red-400",
   };
-  const styles = colorMap[status] || "bg-gray-400/10 text-gray-400";
+  const styles = colorMap[status] || "bg-gray-400/10 text-slate-400";
   const label = status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${styles}`}>

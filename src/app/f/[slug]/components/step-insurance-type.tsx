@@ -16,17 +16,17 @@ export function StepInsuranceType({
   onSelect,
   brandColor,
 }: StepInsuranceTypeProps) {
-  const accentColor = brandColor ?? '#2563eb';
+  const accentColor = brandColor ?? '#059669';
   const filteredOptions = INSURANCE_TYPE_OPTIONS.filter((opt) =>
     enabledTypes.includes(opt.value)
   );
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
+      <h2 className="text-xl font-semibold text-slate-900 mb-2">
         What type of insurance do you need?
       </h2>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-slate-500 mb-6">
         Select one to get started.
       </p>
 
@@ -41,7 +41,7 @@ export function StepInsuranceType({
               className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all text-center hover:shadow-md ${
                 isSelected
                   ? 'shadow-md'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
               style={
                 isSelected
@@ -55,7 +55,7 @@ export function StepInsuranceType({
               <span className="text-2xl">{opt.icon}</span>
               <span
                 className={`text-sm font-medium ${
-                  isSelected ? '' : 'text-gray-700'
+                  isSelected ? '' : 'text-slate-700'
                 }`}
                 style={isSelected ? { color: accentColor } : undefined}
               >

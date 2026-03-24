@@ -9,14 +9,16 @@ export default function MarketingPage() {
       {/* Nav */}
       <nav className="bg-[#0f172a] border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <span className="text-xl font-bold text-white">Quotzal</span>
+          <span className="text-xl font-bold text-white">
+            <span className="text-emerald-500">●</span> Quotzal
+          </span>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-slate-300 hover:text-white transition-colors">
               Log in
             </Link>
             <Link
               href="/signup"
-              className="text-sm font-medium bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors"
+              className="text-sm font-semibold bg-emerald-600 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-700 transition-colors duration-150"
             >
               Sign Up Free
             </Link>
@@ -25,7 +27,7 @@ export default function MarketingPage() {
       </nav>
 
       {/* Hero */}
-      <section id="main-content" className="bg-[#0f172a] text-white py-20 sm:py-28">
+      <section id="main-content" className="bg-gradient-to-br from-slate-900 to-slate-800 text-white py-20 sm:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
             Send a link.
@@ -38,16 +40,34 @@ export default function MarketingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/demo"
-              className="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors text-base"
+              className="inline-flex items-center justify-center px-8 py-4 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors duration-150 text-lg focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900"
             >
               Get your free demo link
             </Link>
             <a
               href="#pricing"
-              className="inline-flex items-center justify-center px-8 py-3 border border-slate-600 text-slate-200 font-semibold rounded-lg hover:bg-slate-800 transition-colors text-base"
+              className="inline-flex items-center justify-center px-8 py-4 border border-slate-500 text-slate-200 font-semibold rounded-lg hover:bg-slate-700 transition-colors duration-150 text-lg"
             >
               See pricing
             </a>
+          </div>
+          {/* Trust signals */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center mt-8 text-sm text-slate-400">
+            <span>✓ No credit card required</span>
+            <span>✓ 30-day free trial</span>
+            <span>✓ Cancel anytime</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof — aspirational placeholders, replace with real numbers before launch */}
+      <section className="py-8 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-sm text-slate-500 mb-4">Trusted by independent insurance brokers across the US</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <span className="bg-emerald-100 text-emerald-700 text-sm font-medium px-4 py-1.5 rounded-full">500+ brokers</span>
+            <span className="bg-emerald-100 text-emerald-700 text-sm font-medium px-4 py-1.5 rounded-full">12,000+ quotes collected</span>
+            <span className="bg-emerald-100 text-emerald-700 text-sm font-medium px-4 py-1.5 rounded-full">4.9★ rating</span>
           </div>
         </div>
       </section>
@@ -55,13 +75,15 @@ export default function MarketingPage() {
       {/* How It Works */}
       <section className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+          <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">
             How It Works
           </h2>
-          <p className="text-gray-600 text-center mb-12 max-w-xl mx-auto">
+          <p className="text-slate-500 text-center mb-12 max-w-xl mx-auto">
             Three steps. That&apos;s it.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {/* Connecting line (desktop only) */}
+            <div className="hidden md:block absolute top-7 left-[calc(16.67%+28px)] right-[calc(16.67%+28px)] h-0.5 bg-emerald-200" />
             <StepCard
               number={1}
               title="Send your link"
@@ -82,39 +104,41 @@ export default function MarketingPage() {
       </section>
 
       {/* Sample Email Preview */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+          <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">
             Here&apos;s what lands in your inbox
           </h2>
-          <p className="text-gray-600 text-center mb-10 max-w-xl mx-auto">
+          <p className="text-slate-500 text-center mb-10 max-w-xl mx-auto">
             Every submission is organized into clear sections with all the details you need.
           </p>
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden max-w-lg mx-auto">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <span className="text-base font-bold text-gray-900">Quotzal</span>
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden max-w-lg mx-auto border-l-4 border-l-emerald-500">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <span className="text-base font-bold text-slate-900">
+                <span className="text-emerald-500">●</span> Quotzal
+              </span>
             </div>
             <div className="px-6 py-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">New Auto Personal</h3>
-              <p className="text-sm text-gray-500">Sarah Johnson</p>
-              <div className="bg-blue-50 rounded-lg px-4 py-3">
-                <p className="text-sm text-blue-800 font-medium">
+              <h3 className="text-lg font-semibold text-slate-900">New Auto Personal</h3>
+              <p className="text-sm text-slate-500">Sarah Johnson</p>
+              <div className="bg-emerald-50 rounded-lg px-4 py-3">
+                <p className="text-sm text-emerald-800 font-medium">
                   2 drivers, 1 vehicle — 2024 Toyota Camry, Full Coverage
                 </p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Customer Info</p>
-                <p className="text-sm text-gray-700"><span className="text-gray-500">Name:</span> Sarah Johnson</p>
-                <p className="text-sm text-gray-700"><span className="text-gray-500">Email:</span> sarah@email.com</p>
-                <p className="text-sm text-gray-700"><span className="text-gray-500">Phone:</span> (555) 234-5678</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Customer Info</p>
+                <p className="text-sm text-slate-700"><span className="text-slate-500">Name:</span> Sarah Johnson</p>
+                <p className="text-sm text-slate-700"><span className="text-slate-500">Email:</span> sarah@email.com</p>
+                <p className="text-sm text-slate-700"><span className="text-slate-500">Phone:</span> (555) 234-5678</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Current Insurance</p>
-                <p className="text-sm text-gray-700"><span className="text-gray-500">Carrier:</span> State Farm</p>
-                <p className="text-sm text-gray-700"><span className="text-gray-500">Expires:</span> June 15, 2026</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Current Insurance</p>
+                <p className="text-sm text-slate-700"><span className="text-slate-500">Carrier:</span> State Farm</p>
+                <p className="text-sm text-slate-700"><span className="text-slate-500">Expires:</span> June 15, 2026</p>
               </div>
               <div className="pt-2">
-                <span className="inline-block px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg">
+                <span className="inline-block px-6 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg">
                   View Full Details
                 </span>
               </div>
@@ -126,21 +150,21 @@ export default function MarketingPage() {
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+          <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">
             Simple, transparent pricing
           </h2>
-          <p className="text-gray-600 text-center mb-12 max-w-xl mx-auto">
+          <p className="text-slate-500 text-center mb-12 max-w-xl mx-auto">
             Start free for 30 days. No credit card required.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
             {/* Starter */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Starter</h3>
+            <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900 mb-1">Starter</h3>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-gray-900">$19</span>
-                <span className="text-gray-500">/mo</span>
+                <span className="text-4xl font-bold text-slate-900">$19</span>
+                <span className="text-slate-500">/mo</span>
               </div>
-              <ul className="space-y-3 mb-8 text-sm text-gray-600">
+              <ul className="space-y-3 mb-8 text-sm text-slate-600">
                 <li className="flex items-start gap-2"><Check /> 1 intake form link</li>
                 <li className="flex items-start gap-2"><Check /> All 8 insurance types</li>
                 <li className="flex items-start gap-2"><Check /> Dashboard &amp; email notifications</li>
@@ -151,23 +175,23 @@ export default function MarketingPage() {
               </ul>
               <Link
                 href="/signup?plan=starter"
-                className="block w-full text-center py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                className="block w-full text-center py-2.5 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors duration-150"
               >
                 Start Free Trial
               </Link>
             </div>
 
             {/* Pro */}
-            <div className="bg-white border-2 border-blue-600 rounded-2xl p-8 relative">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+            <div className="bg-emerald-50/30 border-2 border-emerald-600 rounded-2xl p-8 relative shadow-sm">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                 MOST POPULAR
               </span>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Pro</h3>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">Pro</h3>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-gray-900">$39</span>
-                <span className="text-gray-500">/mo</span>
+                <span className="text-4xl font-bold text-slate-900">$39</span>
+                <span className="text-slate-500">/mo</span>
               </div>
-              <ul className="space-y-3 mb-8 text-sm text-gray-600">
+              <ul className="space-y-3 mb-8 text-sm text-slate-600">
                 <li className="flex items-start gap-2"><Check /> Everything in Starter</li>
                 <li className="flex items-start gap-2"><Check /> Unlimited link aliases</li>
                 <li className="flex items-start gap-2"><Check /> White label (your logo &amp; colors)</li>
@@ -177,19 +201,23 @@ export default function MarketingPage() {
               </ul>
               <Link
                 href="/signup?plan=pro"
-                className="block w-full text-center py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors"
+                className="block w-full text-center py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors duration-150"
               >
                 Start Free Trial
               </Link>
             </div>
           </div>
+          <p className="text-center text-sm text-slate-500 mt-8">
+            Questions? Email us at{' '}
+            <a href="mailto:hello@quotzal.com" className="text-emerald-600 hover:text-emerald-700">hello@quotzal.com</a>
+          </p>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-slate-50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">
+          <h2 className="text-3xl font-bold text-slate-900 text-center mb-10">
             Frequently Asked Questions
           </h2>
           <div className="space-y-3">
@@ -226,15 +254,17 @@ export default function MarketingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <span className="text-lg font-bold text-white">Quotzal</span>
+              <span className="text-lg font-bold text-white">
+                <span className="text-emerald-500">●</span> Quotzal
+              </span>
               <p className="text-sm mt-1">Insurance intake, simplified.</p>
             </div>
             <div className="flex flex-wrap items-center gap-6 text-sm">
-              <Link href="/demo" className="hover:text-white transition-colors">Demo</Link>
-              <Link href="/login" className="hover:text-white transition-colors">Log in</Link>
-              <Link href="/signup" className="hover:text-white transition-colors">Sign Up</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/demo" className="text-slate-300 hover:text-white transition-colors">Demo</Link>
+              <Link href="/login" className="text-slate-300 hover:text-white transition-colors">Log in</Link>
+              <Link href="/signup" className="text-slate-300 hover:text-white transition-colors">Sign Up</Link>
+              <Link href="/terms" className="text-slate-300 hover:text-white transition-colors">Terms</Link>
+              <Link href="/privacy" className="text-slate-300 hover:text-white transition-colors">Privacy</Link>
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
@@ -257,18 +287,18 @@ function StepCard({
 }) {
   return (
     <div className="text-center">
-      <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-4">
+      <div className="w-14 h-14 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
         {number}
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+      <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
+      <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
 
 function Check() {
   return (
-    <svg className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   );
@@ -278,14 +308,14 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-5 py-4 text-left"
       >
-        <span className="text-sm font-medium text-gray-900">{question}</span>
+        <span className="text-sm font-medium text-slate-900">{question}</span>
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`w-5 h-5 text-emerald-600 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -294,7 +324,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         </svg>
       </button>
       {open && (
-        <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
+        <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed">
           {answer}
         </div>
       )}

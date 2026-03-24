@@ -2,11 +2,11 @@
 
 export function InactivePage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
-            className="w-8 h-8 text-gray-400"
+            className="w-8 h-8 text-slate-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -19,10 +19,10 @@ export function InactivePage() {
             />
           </svg>
         </div>
-        <h1 className="text-xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-xl font-semibold text-slate-900 mb-2">
           This form is currently inactive
         </h1>
-        <p className="text-gray-600">
+        <p className="text-slate-600">
           Please contact your broker directly for assistance with your insurance
           needs.
         </p>

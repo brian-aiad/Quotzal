@@ -41,9 +41,9 @@ function generateYears(): string[] {
 
 const YEAR_OPTIONS = generateYears();
 
-const INPUT_CLASS = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
-const SELECT_CLASS = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
-const READONLY_CLASS = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-gray-700 bg-gray-50 focus:outline-none cursor-not-allowed';
+const INPUT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
+const SELECT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
+const READONLY_CLASS = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-700 bg-slate-50 focus:outline-none cursor-not-allowed';
 
 interface NHTSAModelResult {
   Make_ID: number;
@@ -158,9 +158,9 @@ export function VehicleCard({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-4">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-800">
+        <h4 className="text-sm font-semibold text-slate-800">
           Vehicle {index + 1}
         </h4>
         {onRemove && (
@@ -191,7 +191,7 @@ export function VehicleCard({
           &#10003; Vehicle confirmed — Year, Make, and Model have been auto-filled from your VIN.
         </div>
       ) : (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           &#128161; Entering your VIN ensures your quote reflects your vehicle&apos;s exact features, safety equipment, and history. Find it on your dashboard (driver&apos;s side) or vehicle registration.
         </div>
       )}
@@ -199,7 +199,7 @@ export function VehicleCard({
       {/* Year / Make / Model */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Year <span className="text-red-500">*</span>
           </label>
           {isLocked ? (
@@ -219,7 +219,7 @@ export function VehicleCard({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Make <span className="text-red-500">*</span>
           </label>
           {isLocked ? (
@@ -242,15 +242,15 @@ export function VehicleCard({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Model <span className="text-red-500">*</span>
           </label>
           {isLocked ? (
             <input type="text" value={vehicle.model} readOnly className={READONLY_CLASS} />
           ) : loadingModels ? (
             <div className={`${SELECT_CLASS} flex items-center gap-2`}>
-              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm text-gray-500">Loading models...</span>
+              <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm text-slate-500">Loading models...</span>
             </div>
           ) : modelFetchFailed || vehicle.make === 'Other' ? (
             <input
@@ -281,8 +281,8 @@ export function VehicleCard({
 
       {/* Trim */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Trim / Package <span className="text-gray-400 font-normal">(optional)</span>
+        <label className="block text-sm font-medium text-slate-700 mb-1">
+          Trim / Package <span className="text-slate-400 font-normal">(optional)</span>
         </label>
         <input
           type="text"
@@ -295,7 +295,7 @@ export function VehicleCard({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Primary Driver
           </label>
           <select
@@ -312,7 +312,7 @@ export function VehicleCard({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Coverage Type
           </label>
           <select

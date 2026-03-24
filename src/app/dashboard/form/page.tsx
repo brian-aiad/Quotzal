@@ -361,7 +361,7 @@ export default function MyFormPage() {
                   onClick={() => toggleInsuranceType(type.key)}
                   disabled={isLast || isToggling}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
-                    enabled ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-200 text-slate-500"
+                    enabled ? "bg-emerald-100 border-emerald-500 text-emerald-700" : "bg-white border-slate-200 text-slate-600"
                   } ${isLast ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"}`}
                 >
                   <span>{type.icon}</span>

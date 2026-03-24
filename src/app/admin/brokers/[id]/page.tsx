@@ -111,7 +111,7 @@ export default function BrokerDetailPage({
   }
 
   if (loading) {
-    return <p className="text-gray-500 py-8 text-center">Loading...</p>;
+    return <p className="text-slate-500 py-8 text-center">Loading...</p>;
   }
 
   if (!broker) {
@@ -125,12 +125,12 @@ export default function BrokerDetailPage({
         <div>
           <button
             onClick={() => router.push("/admin")}
-            className="text-sm text-gray-500 hover:text-gray-300 mb-2 block"
+            className="text-sm text-slate-500 hover:text-slate-300 mb-2 block"
           >
             ← Back to Overview
           </button>
           <h1 className="text-2xl font-bold text-white">{broker.brokerage_name}</h1>
-          <p className="text-sm text-gray-400">{broker.email}</p>
+          <p className="text-sm text-slate-400">{broker.email}</p>
         </div>
         <button
           onClick={handleImpersonate}
@@ -168,13 +168,13 @@ export default function BrokerDetailPage({
       {/* Override controls */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Plan override */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Override Plan</h3>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+          <h3 className="text-sm font-medium text-slate-400 mb-3">Override Plan</h3>
           <div className="flex gap-2">
             <select
               value={planOverride}
               onChange={(e) => setPlanOverride(e.target.value)}
-              className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white"
+              className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white"
             >
               <option value="starter">Starter</option>
               <option value="pro">Pro</option>
@@ -182,7 +182,7 @@ export default function BrokerDetailPage({
             <button
               onClick={() => setConfirmAction("plan")}
               disabled={planOverride === broker.plan || saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-blue-500 transition-colors"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-emerald-500 transition-colors"
             >
               Save
             </button>
@@ -190,13 +190,13 @@ export default function BrokerDetailPage({
         </div>
 
         {/* Status override */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Override Status</h3>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+          <h3 className="text-sm font-medium text-slate-400 mb-3">Override Status</h3>
           <div className="flex gap-2">
             <select
               value={statusOverride}
               onChange={(e) => setStatusOverride(e.target.value)}
-              className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white"
+              className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white"
             >
               <option value="trialing">Trialing</option>
               <option value="active">Active</option>
@@ -207,7 +207,7 @@ export default function BrokerDetailPage({
             <button
               onClick={() => setConfirmAction("status")}
               disabled={statusOverride === broker.status || saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-blue-500 transition-colors"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-emerald-500 transition-colors"
             >
               Save
             </button>
@@ -244,26 +244,26 @@ export default function BrokerDetailPage({
       </div>
 
       {/* Payment history */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-800">
-          <h3 className="text-sm font-medium text-gray-400">Payment History</h3>
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-800">
+          <h3 className="text-sm font-medium text-slate-400">Payment History</h3>
         </div>
         {payments.length === 0 ? (
-          <p className="px-4 py-6 text-center text-gray-500 text-sm">No payments yet.</p>
+          <p className="px-4 py-6 text-center text-slate-500 text-sm">No payments yet.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="text-left px-4 py-2 text-gray-500 font-medium">Amount</th>
-                <th className="text-left px-4 py-2 text-gray-500 font-medium">Status</th>
-                <th className="text-left px-4 py-2 text-gray-500 font-medium">Period</th>
-                <th className="text-left px-4 py-2 text-gray-500 font-medium">Date</th>
+              <tr className="border-b border-slate-800">
+                <th className="text-left px-4 py-2 text-slate-500 font-medium">Amount</th>
+                <th className="text-left px-4 py-2 text-slate-500 font-medium">Status</th>
+                <th className="text-left px-4 py-2 text-slate-500 font-medium">Period</th>
+                <th className="text-left px-4 py-2 text-slate-500 font-medium">Date</th>
               </tr>
             </thead>
             <tbody>
               {payments.map((p) => (
-                <tr key={p.id} className="border-b border-gray-800/50">
-                  <td className="px-4 py-2 text-gray-300">${(p.amount / 100).toFixed(2)}</td>
+                <tr key={p.id} className="border-b border-slate-800/50">
+                  <td className="px-4 py-2 text-slate-300">${(p.amount / 100).toFixed(2)}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full ${
@@ -275,11 +275,11 @@ export default function BrokerDetailPage({
                       {p.status}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-gray-400">
+                  <td className="px-4 py-2 text-slate-400">
                     {new Date(p.period_start).toLocaleDateString()} –{" "}
                     {new Date(p.period_end).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-2 text-gray-400">
+                  <td className="px-4 py-2 text-slate-400">
                     {new Date(p.created_at).toLocaleDateString()}
                   </td>
                 </tr>
@@ -292,11 +292,11 @@ export default function BrokerDetailPage({
       {/* Confirmation modal */}
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-sm w-full mx-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-bold text-white mb-2">
               Confirm {confirmAction === "plan" ? "Plan Change" : confirmAction === "status" ? "Status Change" : confirmAction === "suspend" ? "Suspend" : confirmAction === "cancel" ? "Cancel" : "Reactivate"}
             </h3>
-            <p className="text-sm text-gray-400 mb-4">
+            <p className="text-sm text-slate-400 mb-4">
               {confirmAction === "plan"
                 ? `Change plan to "${planOverride}" for ${broker.brokerage_name}?`
                 : confirmAction === "status"
@@ -306,7 +306,7 @@ export default function BrokerDetailPage({
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -319,7 +319,7 @@ export default function BrokerDetailPage({
                   else if (confirmAction === "reactivate") handleStatusAction("active");
                 }}
                 disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-blue-500"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-emerald-500"
               >
                 {saving ? "Saving..." : "Confirm"}
               </button>
@@ -333,9 +333,9 @@ export default function BrokerDetailPage({
 
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-sm text-gray-200 break-all">{value}</p>
+    <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3">
+      <p className="text-xs text-slate-500 mb-1">{label}</p>
+      <p className="text-sm text-slate-200 break-all">{value}</p>
     </div>
   );
 }

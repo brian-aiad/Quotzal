@@ -54,7 +54,7 @@ export default function AdminBroadcastPage() {
     return (
       <div className="max-w-2xl mx-auto py-16 text-center">
         <h1 className="text-2xl font-bold text-white mb-4">Broadcast Sent</h1>
-        <p className="text-gray-400 mb-6">
+        <p className="text-slate-400 mb-6">
           Your email has been sent to {recipientCount} broker{recipientCount !== 1 ? "s" : ""}.
         </p>
         <button
@@ -64,7 +64,7 @@ export default function AdminBroadcastPage() {
             setBody("");
             setRecipientCount(null);
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500"
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-500"
         >
           Send Another
         </button>
@@ -79,14 +79,14 @@ export default function AdminBroadcastPage() {
       <div className="space-y-4">
         {/* Recipient filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-1">Recipients</label>
+          <label className="block text-sm font-medium text-slate-400 mb-1">Recipients</label>
           <select
             value={recipientFilter}
             onChange={(e) => {
               setRecipientFilter(e.target.value as RecipientFilter);
               setRecipientCount(null);
             }}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <option value="all_active">All Active Brokers</option>
             <option value="trialing">Trialing Only</option>
@@ -98,25 +98,25 @@ export default function AdminBroadcastPage() {
 
         {/* Subject */}
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-1">Subject</label>
+          <label className="block text-sm font-medium text-slate-400 mb-1">Subject</label>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Email subject..."
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
 
         {/* Body */}
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-1">Body (HTML supported)</label>
+          <label className="block text-sm font-medium text-slate-400 mb-1">Body (HTML supported)</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={10}
             placeholder="Email body content..."
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+            className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
           />
         </div>
 
@@ -124,7 +124,7 @@ export default function AdminBroadcastPage() {
 
         <button
           onClick={handlePreview}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 transition-colors"
+          className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-500 transition-colors"
         >
           Preview & Send
         </button>
@@ -133,9 +133,9 @@ export default function AdminBroadcastPage() {
       {/* Confirmation modal */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-bold text-white mb-2">Confirm Broadcast</h3>
-            <p className="text-sm text-gray-400 mb-1">
+            <p className="text-sm text-slate-400 mb-1">
               <strong className="text-white">Subject:</strong> {subject}
             </p>
             <p className="text-sm text-yellow-400 mb-4">
@@ -145,7 +145,7 @@ export default function AdminBroadcastPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white"
+                className="px-4 py-2 text-sm text-slate-400 hover:text-white"
               >
                 Cancel
               </button>

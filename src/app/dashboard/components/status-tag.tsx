@@ -3,9 +3,9 @@
 import type { SubmissionStatus } from '@/lib/types/dashboard';
 
 const STATUS_STYLES: Record<SubmissionStatus, string> = {
-  new: 'bg-blue-100 text-blue-700',
-  reviewed: 'bg-green-100 text-green-700',
-  archived: 'bg-gray-100 text-gray-500',
+  new: 'bg-emerald-100 text-emerald-700',
+  reviewed: 'bg-slate-100 text-slate-600',
+  archived: 'bg-slate-50 text-slate-400',
 };
 
 const STATUS_LABELS: Record<SubmissionStatus, string> = {

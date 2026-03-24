@@ -105,15 +105,15 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
 
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-xl">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm">
         {/* Toolbar */}
-        <div className="p-4 border-b border-gray-200 flex flex-col md:flex-row gap-3">
+        <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row gap-3">
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search by name or email..."
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
           <div className="flex gap-2 flex-wrap">
             {/* Type filter */}
@@ -121,19 +121,19 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
               <button
                 type="button"
                 onClick={() => setShowTypeFilter(!showTypeFilter)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-700"
+                className="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-slate-700"
               >
                 Type {selectedTypes.length > 0 && `(${selectedTypes.length})`}
               </button>
               {showTypeFilter && (
-                <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 min-w-[200px]">
+                <div className="absolute top-full mt-1 left-0 bg-white border border-slate-200 rounded-lg shadow-lg z-20 p-2 min-w-[200px]">
                   {INSURANCE_TYPE_OPTIONS.map((opt) => (
-                    <label key={opt.value} className="flex items-center gap-2 px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded cursor-pointer">
+                    <label key={opt.value} className="flex items-center gap-2 px-2 py-1 text-sm text-slate-700 hover:bg-slate-50 rounded cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedTypes.includes(opt.value)}
                         onChange={() => toggleType(opt.value)}
-                        className="rounded border-gray-300"
+                        className="rounded border-slate-300"
                       />
                       {opt.label}
                     </label>
@@ -141,7 +141,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                   <button
                     type="button"
                     onClick={() => { setSelectedTypes([]); setPage(1); }}
-                    className="w-full mt-1 text-xs text-blue-600 hover:text-blue-700 py-1"
+                    className="w-full mt-1 text-xs text-emerald-600 hover:text-emerald-700 py-1"
                   >
                     Clear all
                   </button>
@@ -153,7 +153,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="">All statuses</option>
               <option value="new">New</option>
@@ -165,7 +165,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             <button
               type="button"
               onClick={handleExport}
-              className="px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
+              className="px-3 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg bg-white hover:bg-slate-50"
             >
               Export CSV
             </button>
@@ -176,27 +176,27 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+              <tr className="border-b border-slate-200 bg-slate-50">
                 <th
-                  className="text-left px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
                   onClick={() => handleSort('first_name')}
                 >
                   Customer{sortArrow('first_name')}
                 </th>
                 <th
-                  className="text-left px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
                   onClick={() => handleSort('insurance_type')}
                 >
                   Type{sortArrow('insurance_type')}
                 </th>
                 <th
-                  className="text-left px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
                   onClick={() => handleSort('submitted_at')}
                 >
                   Submitted{sortArrow('submitted_at')}
                 </th>
                 <th
-                  className="text-left px-4 py-3 font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
                   onClick={() => handleSort('status')}
                 >
                   Status{sortArrow('status')}
@@ -207,17 +207,17 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
               {loading ? (
                 <>
                   {[...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-gray-100">
-                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-32" /></td>
-                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></td>
-                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></td>
-                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></td>
+                    <tr key={i} className="border-b border-slate-100">
+                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-32" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-20" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-16" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-12" /></td>
                     </tr>
                   ))}
                 </>
               ) : submissions.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-gray-500">
+                  <td colSpan={4} className="px-4 py-10 text-center text-slate-500">
                     No submissions found
                   </td>
                 </tr>
@@ -226,13 +226,13 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                   <tr
                     key={sub.id}
                     onClick={() => setSelected(sub)}
-                    className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-slate-900">
                         {sub.first_name} {sub.last_name}
                       </div>
-                      <div className="text-xs text-gray-500">{sub.email}</div>
+                      <div className="text-xs text-slate-500">{sub.email}</div>
                     </td>
                     <td className="px-4 py-3">
                       <InsuranceTypePill type={sub.insurance_type} />
@@ -254,8 +254,8 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-gray-200 flex items-center justify-between">
-            <p className="text-xs text-gray-500">
+          <div className="p-4 border-t border-slate-200 flex items-center justify-between">
+            <p className="text-xs text-slate-500">
               Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}
             </p>
             <div className="flex gap-1">
@@ -263,7 +263,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                className="px-3 py-1 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-slate-50"
               >
                 Prev
               </button>
@@ -271,7 +271,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                className="px-3 py-1 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-slate-50"
               >
                 Next
               </button>

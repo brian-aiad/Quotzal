@@ -38,8 +38,8 @@ export function emptyViolation(): Violation {
   return { type: 'speeding_1_10', month: '1', year: currentYear, notes: '' };
 }
 
-const INPUT_CLASS = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
-const SELECT_CLASS = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white';
+const INPUT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
+const SELECT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
 
 export function ViolationEntry({
   violations,
@@ -69,11 +69,11 @@ export function ViolationEntry({
       {violations.map((v, i) => (
         <div key={i}>
           {i > 0 && (
-            <hr className="border-gray-200 mb-3" />
+            <hr className="border-slate-200 mb-3" />
           )}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-3">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-slate-700">
                 Violation {i + 1}
               </span>
               <button
@@ -124,7 +124,7 @@ export function ViolationEntry({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Description
               </label>
               <textarea
@@ -135,7 +135,7 @@ export function ViolationEntry({
                 rows={2}
                 className={`${INPUT_CLASS} resize-none`}
               />
-              <p className="text-xs text-gray-400 text-right">
+              <p className="text-xs text-slate-400 text-right">
                 {v.notes.length}/200
               </p>
             </div>
@@ -147,7 +147,7 @@ export function ViolationEntry({
         <button
           type="button"
           onClick={addViolation}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
         >
           + Add Another Violation
         </button>

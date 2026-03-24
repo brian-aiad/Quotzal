@@ -14,13 +14,13 @@ export function OtherFields({ data, onChange }: OtherFieldsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Other Insurance</h3>
-      <p className="text-sm text-gray-500">
+      <h3 className="text-lg font-semibold text-slate-900">Other Insurance</h3>
+      <p className="text-sm text-slate-500">
         Please describe the type of insurance you need.
       </p>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -29,15 +29,15 @@ export function OtherFields({ data, onChange }: OtherFieldsProps) {
           maxLength={500}
           rows={5}
           placeholder="Describe the insurance coverage you are looking for..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
         />
-        <p className="text-xs text-gray-400 text-right">
+        <p className="text-xs text-slate-400 text-right">
           {data.description.length}/500
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           Estimated Value (optional)
         </label>
         <input
@@ -45,7 +45,7 @@ export function OtherFields({ data, onChange }: OtherFieldsProps) {
           value={data.estimatedValue}
           onChange={(e) => update('estimatedValue', e.target.value)}
           placeholder="e.g., $50,000"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
         />
       </div>
     </div>

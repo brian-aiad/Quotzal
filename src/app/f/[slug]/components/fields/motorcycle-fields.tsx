@@ -29,7 +29,7 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">
+      <h3 className="text-lg font-semibold text-slate-900">
         Motorcycle Details
       </h3>
 
@@ -51,49 +51,49 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Year
           </label>
           <input
             type="text"
             value={data.year}
             onChange={(e) => update('year', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Make
           </label>
           <input
             type="text"
             value={data.make}
             onChange={(e) => update('make', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Model
           </label>
           <input
             type="text"
             value={data.model}
             onChange={(e) => update('model', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Ownership
           </label>
           <select
             value={data.ownership}
             onChange={(e) => update('ownership', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Select</option>
             {OWNERSHIP_OPTIONS.map((o) => (
@@ -106,26 +106,26 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
 
         {(data.ownership === 'financed' || data.ownership === 'leased') && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Lienholder Name
             </label>
             <input
               type="text"
               value={data.lienholderName ?? ''}
               onChange={(e) => update('lienholderName', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
             />
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Stored Location
           </label>
           <select
             value={data.storedLocation}
             onChange={(e) => update('storedLocation', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Select</option>
             {STORED_LOCATIONS.map((sl) => (
@@ -137,13 +137,13 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Coverage Type
           </label>
           <select
             value={data.coverageType}
             onChange={(e) => update('coverageType', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           >
             <option value="">Select</option>
             <option value="full">Full Coverage</option>
@@ -154,7 +154,7 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
 
       {/* Violations */}
       <div className="space-y-2 pt-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={data.hasViolations}
@@ -162,7 +162,7 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
               update('hasViolations', e.target.checked);
               if (!e.target.checked) update('violations', []);
             }}
-            className="rounded border-gray-300"
+            className="rounded border-slate-300"
           />
           Violations in last 5 years?
         </label>

@@ -464,6 +464,11 @@ function Footer() {
         </svg>
         Secured by Quotzal
       </div>
+      <p className="text-xs text-gray-500 text-center mt-2">
+        Your information is encrypted and only shared with your broker.{' '}
+        <a href="/privacy" className="underline hover:text-gray-700">Privacy Policy</a>{' · '}
+        <a href="/terms" className="underline hover:text-gray-700">Terms</a>
+      </p>
     </footer>
   );
 }

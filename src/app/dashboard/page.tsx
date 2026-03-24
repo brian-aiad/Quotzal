@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import type { SubmissionRow, DashboardStats, ChartData, WeeklyCount, TypeBreakdown } from '@/lib/types/dashboard';
 import { getInsuranceTypeLabel } from '@/lib/constants/insurance-types';
@@ -21,13 +22,39 @@ export default async function DashboardPage() {
   // Fetch broker status and trial info
   const { data: broker } = await supabase
     .from('brokers')
-    .select('status, trial_ends_at')
+    .select('status, trial_ends_at, slug')
     .eq('id', user.id)
-    .single<{ status: string; trial_ends_at: string | null }>();
+    .single<{ status: string; trial_ends_at: string | null; slug: string }>();
 
   const trialDaysLeft = broker?.trial_ends_at
     ? Math.ceil((new Date(broker.trial_ends_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
+
+  // Auto-repair: ensure primary broker_links row exists
+  if (broker) {
+    const admin = createAdminClient();
+    const { data: primaryLink } = await admin
+      .from('broker_links')
+      .select('id')
+      .eq('broker_id', user.id)
+      .eq('is_primary', true)
+      .maybeSingle();
+
+    if (!primaryLink) {
+      try {
+        const repairSlug = `${broker.slug}-primary`;
+        await admin.from('broker_links').insert({
+          broker_id: user.id,
+          slug: repairSlug,
+          label: 'Primary Link',
+          is_primary: true,
+          is_active: true,
+        });
+      } catch {
+        console.error(`[REPAIR] Failed to auto-create primary link for broker ${user.id}`);
+      }
+    }
+  }
 
   // Fetch all submissions for stats + charts (RLS enforced)
   const { data: allSubmissions } = await supabase
@@ -113,6 +140,9 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Analytics cards */}
+      <AnalyticsCards rows={allRows} />
+
       <OverviewCards stats={stats} />
       <Charts data={charts} />
 
@@ -122,6 +152,58 @@ export default async function DashboardPage() {
           initialSubmissions={submissions}
           initialTotal={count ?? 0}
         />
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsCards({ rows }: { rows: { status: string; insurance_type: string; submitted_at: string }[] }) {
+  const total = rows.length;
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  const thisWeek = rows.filter((r) => new Date(r.submitted_at) >= sevenDaysAgo).length;
+  const lastWeek = rows.filter((r) => {
+    const d = new Date(r.submitted_at);
+    return d >= fourteenDaysAgo && d < sevenDaysAgo;
+  }).length;
+
+  const weekDiff = thisWeek - lastWeek;
+  const weekTrend = weekDiff > 0 ? `+${weekDiff} vs last week` : weekDiff < 0 ? `${weekDiff} vs last week` : "Same as last week";
+  const weekTrendColor = weekDiff > 0 ? "text-emerald-600" : weekDiff < 0 ? "text-red-600" : "text-slate-500";
+
+  // Top insurance type
+  const typeCounts: Record<string, number> = {};
+  for (const r of rows) typeCounts[r.insurance_type] = (typeCounts[r.insurance_type] ?? 0) + 1;
+  const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
+  const topTypeLabel = topType
+    ? topType[0].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "—";
+
+  // Action rate
+  const acted = rows.filter((r) => r.status !== "new").length;
+  const actionRate = total > 0 ? Math.round((acted / total) * 100) : 0;
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <p className="text-sm text-slate-500 mb-1">Total Leads</p>
+        <p className="text-3xl font-bold text-slate-900">{total}</p>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <p className="text-sm text-slate-500 mb-1">This Week</p>
+        <p className="text-3xl font-bold text-slate-900">{thisWeek}</p>
+        <p className={`text-xs mt-1 ${weekTrendColor}`}>{weekTrend}</p>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <p className="text-sm text-slate-500 mb-1">Top Type</p>
+        <p className="text-lg font-bold text-slate-900 truncate">{topTypeLabel}</p>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <p className="text-sm text-slate-500 mb-1">Action Rate</p>
+        <p className="text-3xl font-bold text-slate-900">{actionRate}%</p>
+        <p className="text-xs text-slate-500 mt-1">leads acted on</p>
       </div>
     </div>
   );

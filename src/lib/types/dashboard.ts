@@ -38,6 +38,7 @@ export interface BrokerProfile {
   insurance_types_enabled: string[];
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  trial_ends_at: string | null;
   created_at: string;
 }
 

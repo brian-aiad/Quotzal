@@ -1,38 +1,15 @@
 {
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
-      "Bash(npm install:*)",
-      "Bash(npx tsc:*)",
-      "Bash(mkdir -p src/app/\\\\\\(auth\\\\\\)/login)",
-      "Bash(mkdir -p src/app/\\\\\\(auth\\\\\\)/signup)",
-      "Bash(mkdir -p src/app/auth/callback)",
-      "Bash(mv app/\\\\\\(auth\\\\\\)/layout.tsx src/app/\\\\\\(auth\\\\\\)/layout.tsx)",
-      "Bash(mv app/\\\\\\(auth\\\\\\)/login/page.tsx src/app/\\\\\\(auth\\\\\\)/login/page.tsx)",
-      "Bash(cd:*)",
-      "Bash(npm run:*)",
-      "Bash(taskkill //F //IM node.exe)",
-      "Bash(rm -rf .next)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(curl:*)",
-      "Bash(find /c/Users/kingt/Desktop/quotzal/src/app/f/[slug] -type f -name \"*.tsx\")",
-      "Bash(ls:*)",
-      "Bash(npx playwright:*)",
-      "Bash(npx -y @anthropic-ai/claude-code mcp add --help)",
-      "Bash(npm ls:*)",
-      "Bash(node:*)",
-      "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name *schema* -o -name *migration* \\\\\\))",
-      "Bash(npx supabase:*)",
-      "Bash(npx next:*)",
-      "Bash(grep -rn \"type Response\\\\|interface Response\" C:/Users/kingt/Desktop/quotzal/node_modules/stripe/types/*.d.ts)",
-      "Skill(update-config)",
-      "Bash(xxd \"C:/Users/kingt/Desktop/quotzal/BUILD.md\")",
-      "Bash(find /c/Users/kingt/Desktop/quotzal -name *.sql -o -name supabase.json)",
-      "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name types.ts -o -name *.d.ts -o -name supabase* \\\\\\))",
-      "Bash(find /c/Users/kingt/Desktop/quotzal/src/app/f/[slug] -type f)",
-      "Bash(find /c/Users/kingt/Desktop/quotzal -type f \\\\\\(-name *.sql -o -name schema* -o -name *migration* \\\\\\))"
+      "Bash(*)"
     ],
-    "defaultMode": "acceptEdits"
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(del /f /s /q C:\\*)",
+      "Bash(rd /s /q C:\\*)",
+      "Bash(format *)",
+      "Bash(shutdown *)"
+    ]
   }
 }

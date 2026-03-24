@@ -683,3 +683,43 @@ export async function sendBroadcastEmail(
 
   return results;
 }
+
+// ============================================================
+// 10. Webhook Error Alert (admin notification)
+// ============================================================
+
+export async function sendWebhookErrorAlert(
+  error: unknown,
+  eventType: string
+): Promise<void> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) return;
+
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const timestamp = new Date().toISOString();
+
+  const body = `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#dc2626;">Stripe Webhook Error</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:#374151;">
+      A webhook handler failed and needs attention.
+    </p>
+    ${sectionHeading("Details")}
+    ${infoRow("Event Type", escapeHtml(eventType))}
+    ${infoRow("Error", escapeHtml(errorMessage))}
+    ${infoRow("Timestamp", timestamp)}
+    <p style="margin:16px 0 0;font-size:13px;color:#6b7280;">
+      Check the Stripe Dashboard for the full event payload and retry if needed.
+    </p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: adminEmail,
+      subject: "⚠️ Quotzal Stripe webhook error",
+      html: emailLayout(body),
+    });
+  } catch {
+    console.error("[WEBHOOK_ALERT] Failed to send webhook error email");
+  }
+}

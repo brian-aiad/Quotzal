@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,7 +14,6 @@ export default function SignupPage() {
 }
 
 function SignupForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [email, setEmail] = useState("");
@@ -22,6 +21,14 @@ function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,6 +49,7 @@ function SignupForm() {
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding` },
     });
 
     if (signUpError) {
@@ -55,7 +63,37 @@ function SignupForm() {
       localStorage.setItem("quotzal_selected_plan", plan);
     }
 
-    router.push("/onboarding");
+    setEmailSent(true);
+    setLoading(false);
+  }
+
+  async function handleResend() {
+    if (resendCooldown > 0) return;
+    await supabase.auth.resend({ type: "signup", email });
+    setResendCooldown(60);
+  }
+
+  if (emailSent) {
+    return (
+      <div className="text-center">
+        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 mb-2">Check your email</h2>
+        <p className="text-sm text-slate-600 mb-6">
+          We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
+        </p>
+        <button
+          onClick={handleResend}
+          disabled={resendCooldown > 0}
+          className="text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+        >
+          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend email"}
+        </button>
+      </div>
+    );
   }
 
   return (

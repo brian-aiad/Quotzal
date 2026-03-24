@@ -5,6 +5,7 @@ import {
   sendWelcomeEmail,
   sendPaymentFailedEmail,
   sendLinkDeactivatedEmail,
+  sendWebhookErrorAlert,
 } from "@/lib/emails";
 import type Stripe from "stripe";
 
@@ -192,7 +193,9 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     console.error(`[WEBHOOK] Error handling ${event.type}:`, err);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    await sendWebhookErrorAlert(err, event.type);
+    // Always return 200 to Stripe to prevent retries from our own errors
+    return NextResponse.json({ received: true }, { status: 200 });
   }
 
   return NextResponse.json({ received: true });

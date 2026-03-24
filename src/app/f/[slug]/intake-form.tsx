@@ -145,6 +145,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [rateLimited, setRateLimited] = useState(false);
   const [personalInfoErrors, setPersonalInfoErrors] = useState<
     Record<string, string>
   >({});
@@ -317,6 +318,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       });
 
       if (!res.ok) {
+        if (res.status === 429) {
+          setRateLimited(true);
+          return;
+        }
         const body = (await res.json()) as { error?: string };
         throw new Error(body.error ?? 'Submission failed');
       }
@@ -332,17 +337,63 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   }
 
   if (submitted) {
+    const firstName = formData.personalInfo.firstName;
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col">
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-            <ThankYou
-              brokerageName={broker.brokerageName}
-              brandColor={brandColor}
-            />
+        <div className="flex-1 flex items-center justify-center px-4 py-10">
+          <div className="w-full max-w-lg">
+            {/* Animated checkmark */}
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
+                <svg className="w-10 h-10 text-emerald-600 animate-[scale-in_0.3s_ease-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 text-center mb-2">
+              You&apos;re all set{firstName ? `, ${firstName}` : ''}!
+            </h1>
+            <p className="text-sm text-slate-600 text-center mb-6">
+              {broker.brokerageName} received your information and will be in touch shortly.
+            </p>
+
+            {/* Broker contact cards */}
+            <div className="space-y-3 mb-6">
+              {broker.logoUrl && isPro && (
+                <div className="flex justify-center mb-2">
+                  <img src={broker.logoUrl} alt={broker.brokerageName} className="h-10 w-auto object-contain" />
+                </div>
+              )}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                <a href={`mailto:${broker.brokerageName}`} className="flex items-center gap-3 text-sm text-slate-700 hover:text-emerald-700 transition-colors">
+                  <span className="text-lg">✉️</span>
+                  <span>Send us an email</span>
+                </a>
+              </div>
+            </div>
+
+            {/* What happens next */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">What happens next?</h3>
+              <div className="space-y-3">
+                {[
+                  'We review your information within 24 hours',
+                  'We prepare your personalized quote',
+                  'We contact you with your options',
+                ].map((step, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="text-sm text-slate-600">{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-400 text-center mt-6">Powered by Quotzal</p>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -566,7 +617,12 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               )}
             </div>
 
-            {submitError && (
+            {rateLimited && (
+              <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-center">
+                <p className="text-sm text-amber-800">You&apos;ve submitted too many forms recently. Please wait before trying again.</p>
+              </div>
+            )}
+            {submitError && !rateLimited && (
               <p className="mt-3 text-sm text-red-600 text-center">
                 {submitError}
               </p>

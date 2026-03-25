@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { IntakeForm } from './intake-form';
@@ -5,6 +6,34 @@ import { InactivePage } from './components/inactive-page';
 import { ExpiredPage } from './components/expired-page';
 import type { BrokerData, InsuranceType, FormConfig } from '@/lib/types/intake-form';
 import { DEFAULT_FORM_CONFIG } from '@/lib/types/intake-form';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = createAdminClient();
+  const { data: link } = await supabase
+    .from('broker_links')
+    .select('broker_id')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  let brokerName: string | null = null;
+  if (link?.broker_id) {
+    const { data: broker } = await supabase
+      .from('brokers')
+      .select('brokerage_name')
+      .eq('id', link.broker_id)
+      .single();
+    brokerName = broker?.brokerage_name ?? null;
+  }
+
+  return {
+    title: brokerName ? `${brokerName} — Insurance Quote Form` : 'Insurance Quote Form',
+    description: brokerName
+      ? `Request an insurance quote from ${brokerName}. Quick, secure, and easy.`
+      : 'Request an insurance quote. Quick, secure, and easy.',
+  };
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;

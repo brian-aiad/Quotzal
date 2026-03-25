@@ -61,7 +61,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
           value={data.propertyAddress}
           onChange={(e) => update('propertyAddress', e.target.value)}
           placeholder="Start typing your address..."
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+          className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
         />
       </div>
 
@@ -73,7 +73,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
           <select
             value={data.propertyType}
             onChange={(e) => update('propertyType', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Select</option>
             <option value="owned">Owned</option>
@@ -90,7 +90,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
             value={data.yearBuilt}
             onChange={(e) => update('yearBuilt', e.target.value)}
             placeholder="1990"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
 
@@ -103,7 +103,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
             value={data.squareFootage}
             onChange={(e) => update('squareFootage', e.target.value)}
             placeholder="2000"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
 
@@ -114,7 +114,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
           <select
             value={data.stories}
             onChange={(e) => update('stories', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Select</option>
             <option value="1">1</option>
@@ -132,7 +132,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
             value={data.roofAge}
             onChange={(e) => update('roofAge', e.target.value)}
             placeholder="5"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
 
@@ -143,7 +143,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
           <select
             value={data.roofMaterial}
             onChange={(e) => update('roofMaterial', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Select</option>
             {ROOF_MATERIALS.map((rm) => (
@@ -197,7 +197,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
                   type="text"
                   value={data.dogBreed ?? ''}
                   onChange={(e) => update('dogBreed', e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
                 />
               </div>
               <div>
@@ -209,7 +209,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
                   min={1}
                   value={data.numberOfDogs ?? ''}
                   onChange={(e) => update('numberOfDogs', e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
                 />
               </div>
             </div>
@@ -235,7 +235,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
                 type="text"
                 value={data.lenderName ?? ''}
                 onChange={(e) => update('lenderName', e.target.value)}
-                className="w-full md:w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                className="w-full md:w-1/2 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
               />
             </div>
           )}
@@ -284,7 +284,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
                   min={1}
                   value={data.numberOfClaims ?? ''}
                   onChange={(e) => update('numberOfClaims', e.target.value)}
-                  className="w-full md:w-1/3 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  className="w-full md:w-1/3 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
                 />
               </div>
               <div>
@@ -296,7 +296,7 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
                   onChange={(e) => update('claimsDescription', e.target.value)}
                   maxLength={300}
                   rows={3}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white resize-none"
+                  className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 resize-none"
                 />
                 <p className="text-xs text-slate-400 text-right">
                   {(data.claimsDescription ?? '').length}/300

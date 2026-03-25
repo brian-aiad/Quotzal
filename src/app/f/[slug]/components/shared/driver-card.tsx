@@ -50,9 +50,9 @@ const LICENSE_TYPES = [
   'Expired',
 ];
 
-const INPUT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
-const SELECT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
-const ERROR_INPUT_CLASS = 'w-full border border-red-400 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-400 bg-white';
+const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
+const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
+const ERROR_INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-red-300 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-400 transition-all duration-200';
 
 function getAgeFromDob(dob: string): number | null {
   if (!dob) return null;
@@ -103,21 +103,32 @@ export function DriverCard({
   const hasNoUsLicense = driver.noUsLicense === true;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-slate-800">
-          {isPrimary ? 'Primary Driver' : `Driver ${index + 1}`}
-        </h4>
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-50 to-white border-b border-emerald-100/60">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-200">
+            <span className="text-xs font-bold text-white">{index + 1}</span>
+          </div>
+          <div>
+            <span className="text-sm font-bold text-gray-900">
+              {isPrimary ? 'Primary Driver' : `Driver ${index + 1}`}
+            </span>
+            {driver.fullName && (
+              <span className="text-xs text-gray-400 ml-2 font-normal">— {driver.fullName}</span>
+            )}
+          </div>
+        </div>
         {onRemove && (
           <button
             type="button"
             onClick={onRemove}
-            className="text-xs text-red-500 hover:text-red-700 font-medium"
+            className="text-xs font-medium text-red-400 hover:text-red-600 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
           >
             Remove
           </button>
         )}
       </div>
+      <div className="p-5 space-y-4">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* 1. Full Name */}
@@ -282,7 +293,7 @@ export function DriverCard({
             <select
               value={driver.licenseType ?? 'No License'}
               onChange={(e) => update('licenseType', e.target.value)}
-              className={`w-full md:w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white`}
+              className={`w-full md:w-1/2 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200`}
             >
               {LICENSE_TYPES.map((lt) => (
                 <option key={lt} value={lt}>{lt}</option>
@@ -320,7 +331,7 @@ export function DriverCard({
           <select
             value={driver.sr22State ?? ''}
             onChange={(e) => update('sr22State', e.target.value)}
-            className={`w-full md:w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white`}
+            className={`w-full md:w-1/2 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200`}
           >
             <option value=""></option>
             {US_STATES.map((s) => (
@@ -356,6 +367,7 @@ export function DriverCard({
             onChange={(v) => update('violations', v)}
           />
         )}
+      </div>
       </div>
     </div>
   );

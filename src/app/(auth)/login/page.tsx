@@ -25,7 +25,7 @@ export default function LoginPage() {
     });
 
     if (signInError) {
-      setError(signInError.message);
+      setError("Invalid email or password");
       setLoading(false);
       return;
     }
@@ -119,6 +119,12 @@ export default function LoginPage() {
                 className="w-full h-11 px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
+            </div>
+
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
+                Forgot password?
+              </Link>
             </div>
 
             <button

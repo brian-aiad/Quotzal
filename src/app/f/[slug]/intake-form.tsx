@@ -462,7 +462,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
       {/* Main Content */}
       <main className="flex-1 px-4 py-6 md:py-10">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto min-h-[calc(100vh-160px)]">
           <ProgressBar
             currentStep={progressStep}
             totalSteps={effectiveTotalSteps}
@@ -593,14 +593,41 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
             {/* Step 5: Review */}
             {currentStep === 5 && (
-              <StepReview
-                data={formData}
-                onEdit={handleEditFromReview}
-                brandColor={brandColor}
-                skipCurrentInsurance={skipCurrentInsurance}
-                customFieldValues={customFieldValues}
-                customFields={visibleCustomFields}
-              />
+              <>
+                <StepReview
+                  data={formData}
+                  onEdit={handleEditFromReview}
+                  brandColor={brandColor}
+                  skipCurrentInsurance={skipCurrentInsurance}
+                  customFieldValues={customFieldValues}
+                  customFields={visibleCustomFields}
+                />
+
+                {/* Consent + trust badges */}
+                <div className="mt-6 bg-gray-50 border border-gray-200 rounded-2xl p-5">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                    </svg>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      By submitting, you consent to this information being shared with your insurance broker
+                      for quoting purposes. Your data is encrypted and handled securely.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-5 mt-4 pt-4 border-t border-gray-100">
+                  {[
+                    { icon: '🔒', text: 'SSL encrypted' },
+                    { icon: '📧', text: 'Confirmation sent' },
+                    { icon: '🚫', text: 'No spam, ever' },
+                  ].map(item => (
+                    <div key={item.text} className="flex items-center gap-1.5 text-xs text-gray-400">
+                      <span>{item.icon}</span>
+                      <span>{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
 
           </div>

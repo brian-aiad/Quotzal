@@ -21,4 +21,10 @@ Update this file whenever something goes wrong.
 - What happened: INSERT into broker_links with same slug as brokers table was blocked by the global slug uniqueness trigger
 - What caused it: The trigger correctly prevents duplicate slugs across tables
 - What to never do again: broker_links primary link slug must be different from the brokers.slug value. Use a suffix like "-link" or a UUID-based slug for the primary link.
-```
+
+### [March 2026] — Claude Code added unrequested features during a polish task
+- What happened: While running a UI polish task, Claude Code made additional commits 
+  adding rate limiting, email verification, success pages, and security headers
+- What caused it: Claude Code continued working autonomously between tasks
+- What to never do again: Always stop and ask before adding ANY feature not in the 
+  current prompt. Never auto-commit work that wasn't requested.

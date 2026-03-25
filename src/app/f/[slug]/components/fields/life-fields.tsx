@@ -73,7 +73,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
           <select
             value={data.coverageAmount}
             onChange={(e) => update('coverageAmount', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Select</option>
             {COVERAGE_AMOUNTS.map((ca) => (
@@ -91,7 +91,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
           <select
             value={data.policyType}
             onChange={(e) => update('policyType', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Select</option>
             {POLICY_TYPES.map((pt) => (
@@ -110,7 +110,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
             <select
               value={data.termLength ?? ''}
               onChange={(e) => update('termLength', e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
             >
               <option value="">Select</option>
               {TERM_LENGTHS.map((tl) => (
@@ -156,7 +156,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
                 maxLength={300}
                 rows={3}
                 placeholder="Please describe..."
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white resize-none"
+                className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 resize-none"
               />
               <p className="text-xs text-slate-400 text-right">
                 {(data.healthConditionsDescription ?? '').length}/300
@@ -174,7 +174,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
           <select
             value={data.heightFeet}
             onChange={(e) => update('heightFeet', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Feet</option>
             {feetOptions().map((f) => (
@@ -192,7 +192,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
           <select
             value={data.heightInches}
             onChange={(e) => update('heightInches', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Inches</option>
             {inchesOptions().map((i) => (
@@ -212,7 +212,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
             value={data.weight}
             onChange={(e) => update('weight', e.target.value)}
             placeholder="150"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
       </div>
@@ -226,7 +226,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
             type="text"
             value={data.beneficiaryName}
             onChange={(e) => update('beneficiaryName', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
 
@@ -239,7 +239,7 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
             onChange={(e) =>
               update('beneficiaryRelationship', e.target.value)
             }
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           >
             <option value="">Select</option>
             {BENEFICIARY_RELATIONSHIPS.map((br) => (

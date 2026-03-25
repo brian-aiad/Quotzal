@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import type { CurrentInsurance } from '@/lib/types/intake-form';
 
 interface StepCurrentInsuranceProps {
@@ -7,136 +8,156 @@ interface StepCurrentInsuranceProps {
   onChange: (data: CurrentInsurance) => void;
 }
 
-export function StepCurrentInsurance({
-  data,
-  onChange,
-}: StepCurrentInsuranceProps) {
+const CARRIERS = [
+  'State Farm', 'GEICO', 'Progressive', 'Allstate', 'USAA',
+  'Liberty Mutual', 'Farmers', 'Nationwide', 'Travelers', 'American Family',
+  'Erie Insurance', 'The Hartford', 'Amica', 'AAA', 'Esurance',
+  'Safeco', 'Mercury Insurance', '21st Century', 'Bristol West',
+  'Dairyland', 'The General', 'Infinity Insurance', 'National General',
+  'Kemper', 'Gainsco',
+];
+
+const COVERAGE_LIMITS = [
+  'State Minimum', '15/30/5', '25/50/10', '25/50/25', '50/100/25',
+  '50/100/50', '100/300/50', '100/300/100', '250/500/250', '500/500/500',
+];
+
+function Combobox({ value, options, onChange, placeholder, label }: {
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+  placeholder: string;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState(value);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setQuery(value); }, [value]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const filtered = query
+    ? options.filter(o => o.toLowerCase().includes(query.toLowerCase()))
+    : options;
+
+  return (
+    <div className="relative" ref={ref}>
+      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        autoComplete="off"
+        className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+      />
+      {open && filtered.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+          <div className="max-h-52 overflow-y-auto">
+            {filtered.map(item => (
+              <button
+                key={item}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setQuery(item);
+                  onChange(item);
+                  setOpen(false);
+                }}
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors border-b border-gray-50 last:border-0"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function StepCurrentInsurance({ data, onChange }: StepCurrentInsuranceProps) {
   function update(field: keyof CurrentInsurance, value: unknown) {
     onChange({ ...data, [field]: value });
   }
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-slate-900 mb-2">
+      <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1.5">
         Current Insurance
       </h2>
-      <p className="text-sm text-slate-500 mb-6">
+      <p className="text-sm text-gray-500 mb-6">
         Do you currently have insurance for this?
       </p>
 
-      <div className="space-y-4">
-        <div className="flex gap-4">
+      <div className="space-y-5">
+        {/* Yes/No toggle */}
+        <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={() => update('hasCurrentInsurance', true)}
-            className={`flex-1 py-3 px-4 rounded-lg border-2 text-sm font-medium transition-colors ${
+            className={`flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-2xl border-2 transition-all duration-200 text-center ${
               data.hasCurrentInsurance === true
-                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                : 'border-slate-200 text-slate-700 hover:border-slate-300'
+                ? 'bg-emerald-50 border-emerald-500 shadow-md shadow-emerald-100/50'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Yes
+            <span className={`text-lg font-bold ${data.hasCurrentInsurance === true ? 'text-emerald-600' : 'text-gray-300'}`}>✓</span>
+            <span className={`text-sm font-semibold leading-tight ${data.hasCurrentInsurance === true ? 'text-emerald-800' : 'text-gray-500'}`}>
+              Yes, I&apos;m insured
+            </span>
           </button>
           <button
             type="button"
-            onClick={() =>
-              onChange({
-                hasCurrentInsurance: false,
-                currentCarrier: undefined,
-                currentCoverageLimits: undefined,
-                policyExpiryDate: undefined,
-              })
-            }
-            className={`flex-1 py-3 px-4 rounded-lg border-2 text-sm font-medium transition-colors ${
+            onClick={() => onChange({ hasCurrentInsurance: false, currentCarrier: undefined, currentCoverageLimits: undefined, policyExpiryDate: undefined })}
+            className={`flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-2xl border-2 transition-all duration-200 text-center ${
               data.hasCurrentInsurance === false
-                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                : 'border-slate-200 text-slate-700 hover:border-slate-300'
+                ? 'bg-gray-100 border-gray-400 shadow-sm'
+                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             }`}
           >
-            No
+            <span className={`text-lg font-bold ${data.hasCurrentInsurance === false ? 'text-gray-600' : 'text-gray-300'}`}>✗</span>
+            <span className={`text-sm font-semibold leading-tight ${data.hasCurrentInsurance === false ? 'text-gray-700' : 'text-gray-500'}`}>
+              No, I&apos;m uninsured
+            </span>
           </button>
         </div>
 
         {data.hasCurrentInsurance && (
-          <div className="space-y-4 pt-2">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Current Carrier
-              </label>
-              <input
-                type="text"
-                list="carriers-list"
-                value={data.currentCarrier ?? ''}
-                onChange={(e) => update('currentCarrier', e.target.value)}
-                placeholder="e.g., State Farm, GEICO"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-              />
-              <datalist id="carriers-list">
-                <option value="State Farm" />
-                <option value="GEICO" />
-                <option value="Progressive" />
-                <option value="Allstate" />
-                <option value="USAA" />
-                <option value="Liberty Mutual" />
-                <option value="Farmers" />
-                <option value="Nationwide" />
-                <option value="Travelers" />
-                <option value="American Family" />
-                <option value="Erie Insurance" />
-                <option value="The Hartford" />
-                <option value="Amica" />
-                <option value="AAA" />
-                <option value="Esurance" />
-                <option value="Safeco" />
-                <option value="Mercury Insurance" />
-                <option value="21st Century" />
-                <option value="Bristol West" />
-                <option value="Dairyland" />
-                <option value="The General" />
-                <option value="Infinity Insurance" />
-                <option value="National General" />
-                <option value="Kemper" />
-                <option value="Gainsco" />
-              </datalist>
-            </div>
+          <div className="space-y-5 pt-2">
+            <Combobox
+              label="Current Carrier"
+              value={data.currentCarrier ?? ''}
+              options={CARRIERS}
+              onChange={(v) => update('currentCarrier', v)}
+              placeholder="e.g., State Farm, GEICO"
+            />
+
+            <Combobox
+              label="Coverage Limits"
+              value={data.currentCoverageLimits ?? ''}
+              options={COVERAGE_LIMITS}
+              onChange={(v) => update('currentCoverageLimits', v)}
+              placeholder="e.g., 100/300/100"
+            />
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Current Coverage Limits
-              </label>
-              <input
-                type="text"
-                list="limits-list"
-                value={data.currentCoverageLimits ?? ''}
-                onChange={(e) =>
-                  update('currentCoverageLimits', e.target.value)
-                }
-                placeholder="e.g., 100/300/100"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-              />
-              <datalist id="limits-list">
-                <option value="15/30/5" />
-                <option value="25/50/10" />
-                <option value="25/50/25" />
-                <option value="50/100/25" />
-                <option value="50/100/50" />
-                <option value="100/300/50" />
-                <option value="100/300/100" />
-                <option value="250/500/250" />
-                <option value="500/500/500" />
-                <option value="State Minimum" />
-              </datalist>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Policy Expiry Date
               </label>
               <input
                 type="date"
                 value={data.policyExpiryDate ?? ''}
                 onChange={(e) => update('policyExpiryDate', e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
               />
             </div>
           </div>

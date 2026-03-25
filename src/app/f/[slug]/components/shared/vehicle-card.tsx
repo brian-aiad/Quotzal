@@ -41,9 +41,9 @@ function generateYears(): string[] {
 
 const YEAR_OPTIONS = generateYears();
 
-const INPUT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
-const SELECT_CLASS = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white';
-const READONLY_CLASS = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-700 bg-slate-50 focus:outline-none cursor-not-allowed';
+const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
+const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
+const READONLY_CLASS = 'w-full h-11 px-4 text-sm border border-gray-100 rounded-xl text-gray-500 bg-gray-50 focus:outline-none cursor-not-allowed';
 
 interface NHTSAModelResult {
   Make_ID: number;
@@ -158,21 +158,32 @@ export function VehicleCard({
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-slate-800">
-          Vehicle {index + 1}
-        </h4>
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-blue-50 to-white border-b border-blue-100/60">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-white">{index + 1}</span>
+          </div>
+          <div>
+            <span className="text-sm font-bold text-gray-900">Vehicle {index + 1}</span>
+            {vehicle.make && vehicle.model && (
+              <span className="text-xs text-gray-400 ml-2 font-normal">
+                — {vehicle.year} {vehicle.make} {vehicle.model}
+              </span>
+            )}
+          </div>
+        </div>
         {onRemove && (
           <button
             type="button"
             onClick={onRemove}
-            className="text-xs text-red-500 hover:text-red-700 font-medium"
+            className="text-xs font-medium text-red-400 hover:text-red-600 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
           >
             Remove
           </button>
         )}
       </div>
+      <div className="p-5 space-y-4">
 
       {/* VIN */}
       <VinInput
@@ -325,6 +336,7 @@ export function VehicleCard({
             ))}
           </select>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ export function StepPersonalInfo({
               autoComplete="given-name"
               value={data.firstName}
               onChange={(e) => update('firstName', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+              className={`w-full h-11 px-4 text-sm border rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 ${
                 errors.firstName ? 'border-red-400' : 'border-slate-300'
               }`}
             />
@@ -63,7 +63,7 @@ export function StepPersonalInfo({
               autoComplete="family-name"
               value={data.lastName}
               onChange={(e) => update('lastName', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+              className={`w-full h-11 px-4 text-sm border rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 ${
                 errors.lastName ? 'border-red-400' : 'border-slate-300'
               }`}
             />
@@ -85,7 +85,7 @@ export function StepPersonalInfo({
               autoComplete="bday"
               value={data.dateOfBirth}
               onChange={(e) => update('dateOfBirth', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+              className={`w-full h-11 px-4 text-sm border rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 ${
                 errors.dateOfBirth ? 'border-red-400' : 'border-slate-300'
               }`}
             />
@@ -113,7 +113,7 @@ export function StepPersonalInfo({
             autoComplete="email"
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
-            className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+            className={`w-full h-11 px-4 text-sm border rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 ${
               errors.email ? 'border-red-400' : 'border-slate-300'
             }`}
           />

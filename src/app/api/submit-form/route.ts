@@ -7,7 +7,6 @@ import {
 import type { SubmissionEmailData } from '@/lib/emails';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { sanitizeText } from '@/lib/sanitize';
-import { sendLeadSMS } from '@/lib/sms';
 
 interface SubmitFormBody {
   brokerId: string;
@@ -82,12 +81,12 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // Look up broker for email + logo + phone + sms pref
+    // Look up broker for email + logo
     const { data: broker } = await supabase
       .from('brokers')
-      .select('email, brokerage_name, logo_url, phone, sms_notifications')
+      .select('email, brokerage_name, logo_url')
       .eq('id', brokerId)
-      .single<{ email: string; brokerage_name: string; logo_url: string | null; phone: string | null; sms_notifications: boolean | null }>();
+      .single<{ email: string; brokerage_name: string; logo_url: string | null }>();
 
     if (!broker) {
       return NextResponse.json(
@@ -150,21 +149,6 @@ export async function POST(request: NextRequest) {
         broker.logo_url || undefined
       ),
     ]);
-
-    // SMS notification (fire-and-forget)
-    if (broker.sms_notifications && broker.phone) {
-      try {
-        await sendLeadSMS({
-          brokerPhone: broker.phone,
-          leadFirstName: firstName,
-          leadLastName: lastName,
-          insuranceType,
-          leadEmail: email,
-        });
-      } catch {
-        // SMS failure should never block the response
-      }
-    }
 
     return NextResponse.json({ success: true });
   } catch {

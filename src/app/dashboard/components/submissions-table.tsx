@@ -90,7 +90,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
     if (search) params.set('search', search);
     if (selectedTypes.length > 0) params.set('types', selectedTypes.join(','));
     if (statusFilter) params.set('status', statusFilter);
-    window.open(`/api/dashboard/export?${params}`, '_blank');
+    window.open(`/api/dashboard/submissions/export?${params}`, '_blank');
   }
 
   function handleSearchChange(value: string) {

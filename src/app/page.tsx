@@ -25,8 +25,8 @@ export default function MarketingPage() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section id="main-content" className="bg-gray-950 py-20 md:py-28 lg:py-32">
+      {/* Hero — A1: tighter padding */}
+      <section id="main-content" className="bg-gray-950 py-14 md:py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Left column */}
           <div className="flex-1 text-center lg:text-left">
@@ -72,7 +72,7 @@ export default function MarketingPage() {
           {/* Right column — Phone mockup */}
           <div className="hidden lg:flex flex-1 items-center justify-center">
             <div className="relative">
-              <div className="absolute inset-0 bg-emerald-500/10 blur-3xl rounded-full scale-110" />
+              <div className="absolute inset-8 bg-emerald-500/15 blur-2xl rounded-full" />
               <div className="relative w-72 bg-gray-800 rounded-[2.5rem] border-4 border-gray-700 shadow-2xl p-2">
                 <div className="bg-white rounded-[2rem] overflow-hidden">
                   <div className="bg-gray-50 px-4 py-2 flex items-center justify-between border-b border-gray-100">
@@ -145,9 +145,9 @@ export default function MarketingPage() {
         </div>
       </div>
 
-      {/* Pain Section */}
-      <section className="bg-white py-14 md:py-20">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+      {/* Pain Section — E1: white bg, A2: tighter spacing */}
+      <section className="bg-white py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-red-500 mb-4">Sound familiar?</p>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight tracking-tight mb-6">
             You&apos;re losing time<br />every single week.
@@ -161,7 +161,7 @@ export default function MarketingPage() {
               { icon: "📋", pain: "\"Can you resend your license number?\"", desc: "The client sent a photo. You can't read it." },
               { icon: "⏰", pain: "\"I'll get you the policy expiry date tomorrow\"", desc: "That was last Tuesday. Still no quote." },
             ].map(item => (
-              <div key={item.pain} className="bg-red-50 border border-red-100 rounded-2xl p-6">
+              <div key={item.pain} className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
                 <div className="text-2xl mb-3">{item.icon}</div>
                 <p className="text-base font-semibold text-gray-900 mb-2 italic">{item.pain}</p>
                 <p className="text-sm text-gray-500">{item.desc}</p>
@@ -179,9 +179,9 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-14 md:py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-6">
+      {/* How It Works — E1: gray-50 bg, A3: tighter */}
+      <section className="py-12 md:py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4 tracking-tight">
             How Quotzal Works
           </h2>
@@ -205,7 +205,7 @@ export default function MarketingPage() {
             ].map(step => (
               <div key={step.n} className="flex flex-col items-center text-center flex-1 px-4 md:px-6 relative z-10">
                 <div className="mb-5 relative">
-                  <div className="w-14 h-14 rounded-full bg-white absolute inset-0 scale-[1.2]" />
+                  <div className="w-14 h-14 rounded-full absolute inset-0 scale-[1.2]" style={{ backgroundColor: '#f9fafb' }} />
                   <div className="w-14 h-14 rounded-full bg-emerald-600 flex items-center justify-center relative shadow-lg shadow-emerald-200">
                     <span className="text-xl font-bold text-white">{step.n}</span>
                   </div>
@@ -218,9 +218,9 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* What You Get */}
-      <section className="bg-gray-50 py-14 md:py-20">
-        <div className="max-w-6xl mx-auto px-6">
+      {/* What You Get — E1: white bg */}
+      <section className="bg-white py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-3">What lands in your inbox</p>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
@@ -230,7 +230,7 @@ export default function MarketingPage() {
               Here&apos;s exactly what you receive after a client fills out an auto quote.
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             {/* Email preview card */}
             <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
               <div className="bg-gray-100 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
@@ -301,13 +301,13 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="bg-white py-14 md:py-20 border-t border-gray-100">
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 mb-12">
+      {/* Testimonials — E1: gray-50, C4: tighter gap, A4: tighter padding */}
+      <section className="bg-gray-50 py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 mb-8">
             What brokers say after their first week
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
                 quote: "I sent my first Quotzal link on a Monday. By Friday I had three complete auto quotes ready — no follow-up calls, no chasing. That's never happened before.",
@@ -355,9 +355,9 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      {/* Pricing — E1: white, A5: tighter */}
+      <section id="pricing" className="py-12 md:py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">
             Simple, transparent pricing
           </h2>
@@ -383,7 +383,7 @@ export default function MarketingPage() {
               </ul>
               <Link
                 href="/signup?plan=starter"
-                className="block w-full text-center py-2.5 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors duration-150"
+                className="block w-full text-center py-3.5 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors duration-150"
               >
                 Start Free Trial
               </Link>
@@ -409,7 +409,7 @@ export default function MarketingPage() {
               </ul>
               <Link
                 href="/signup?plan=pro"
-                className="block w-full text-center py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors duration-150"
+                className="block w-full text-center py-3.5 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors duration-150"
               >
                 Start Free Trial
               </Link>
@@ -435,8 +435,8 @@ export default function MarketingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-14 md:py-20 bg-slate-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+      <section className="py-14 md:py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl font-bold text-slate-900 text-center mb-10">
             Frequently Asked Questions
           </h2>
@@ -470,7 +470,7 @@ export default function MarketingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#0f172a] text-slate-400 py-12">
+      <footer className="bg-gray-950 text-slate-400 py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>

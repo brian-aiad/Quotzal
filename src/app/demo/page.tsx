@@ -73,17 +73,17 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gray-950 flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gray-950 flex-col p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: 'linear-gradient(rgba(16,185,129,1) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,1) 1px, transparent 1px)',
             backgroundSize: '40px 40px'
           }}
         />
-        <div className="relative z-10">
+        <div className="relative z-10 pt-0">
           <Link href="/"><QuotzalLogo size="md" dark /></Link>
         </div>
-        <div className="relative z-10 max-w-sm">
+        <div className="relative z-10 flex-1 flex flex-col justify-center max-w-sm">
           <h2 className="text-3xl font-bold text-white mb-4 leading-tight">
             See exactly what your clients will see.
           </h2>

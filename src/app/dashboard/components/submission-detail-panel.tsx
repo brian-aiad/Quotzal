@@ -86,7 +86,7 @@ export function SubmissionDetailPanel({
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white shadow-xl overflow-y-auto">
+      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-2xl bg-white shadow-2xl overflow-y-auto">
         <div className="p-5 md:p-6 space-y-6">
           {/* Header */}
           <div className="flex items-start justify-between">

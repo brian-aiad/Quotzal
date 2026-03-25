@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { QuotzalLogo } from "@/components/ui/logo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -9,10 +10,16 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-        <Link href="/" className="text-sm text-emerald-600 hover:text-emerald-700 mb-8 block">
-          ← Back to home
-        </Link>
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/"><QuotzalLogo size="sm" /></Link>
+          <div className="flex items-center gap-4">
+            <Link href="/demo" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">Try demo</Link>
+            <Link href="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Sign up</Link>
+          </div>
+        </div>
+      </header>
+      <div className="max-w-3xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-slate-900 mb-8">Privacy Policy</h1>
         <p className="text-sm text-slate-500 mb-8">Last updated: March 24, 2026</p>
 

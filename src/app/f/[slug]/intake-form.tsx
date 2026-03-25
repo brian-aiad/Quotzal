@@ -350,7 +350,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   if (submitted) {
     const firstName = formData.personalInfo.firstName;
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <div className="flex-1 flex items-center justify-center px-4 py-10">
           <div className="w-full max-w-lg">
             {/* Animated checkmark */}
@@ -361,10 +361,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 </svg>
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 text-center mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight text-center mb-2">
               You&apos;re all set{firstName ? `, ${firstName}` : ''}!
             </h1>
-            <p className="text-sm text-slate-600 text-center mb-6">
+            <p className="text-gray-500 text-sm leading-relaxed text-center mb-6">
               {broker.brokerageName} received your information and will be in touch shortly.
             </p>
 
@@ -392,13 +392,13 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
             </div>
 
             {/* What happens next */}
-            <div className="bg-white border border-slate-200 rounded-xl p-5">
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900 mb-3">What happens next?</h3>
               <div className="space-y-3">
                 {[
-                  'We review your information within 24 hours',
-                  'We prepare your personalized quote',
-                  'We contact you with your options',
+                  'Your broker receives your complete submission instantly',
+                  'They review your information and prepare your quote',
+                  'Expect to hear back within 1–2 business days',
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
@@ -423,7 +423,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const hasHomeType = broker.insuranceTypesEnabled.includes('home');
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {hasHomeType && (
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places`}
@@ -431,27 +431,32 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
         />
       )}
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-4 py-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {isPro && broker.logoUrl ? (
-              <img
-                src={broker.logoUrl}
-                alt={broker.brokerageName}
-                className="h-8 w-auto object-contain"
-              />
-            ) : (
-              <span className="text-lg font-bold text-slate-900">
-                {broker.brokerageName}
-              </span>
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between py-3.5">
+            <div className="flex items-center gap-2.5">
+              {isPro && broker.logoUrl ? (
+                <img
+                  src={broker.logoUrl}
+                  alt={broker.brokerageName}
+                  className="h-7 w-auto object-contain"
+                />
+              ) : (
+                <>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: accentColor }}>
+                    <span className="text-[11px] font-bold text-white">{broker.brokerageName[0].toUpperCase()}</span>
+                  </div>
+                  <span className="font-semibold text-gray-900 text-sm">{broker.brokerageName}</span>
+                </>
+              )}
+            </div>
+            {!isPro && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-gray-400">Powered by</span>
+                <QuotzalLogo size="xs" />
+              </div>
             )}
           </div>
-          {!isPro && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <QuotzalLogo size="xs" variant="icon" />
-              <span>Powered by Quotzal</span>
-            </div>
-          )}
         </div>
       </header>
 
@@ -464,7 +469,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
             brandColor={brandColor}
           />
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-8">
+          <div className="space-y-6">
             {/* Step 0: Insurance Type */}
             {currentStep === 0 && (
               <StepInsuranceType
@@ -598,65 +603,67 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               />
             )}
 
-            {/* Navigation */}
-            <div className="mt-8 flex items-center justify-between">
-              {currentStep > 0 ? (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-                >
-                  Back
-                </button>
-              ) : (
-                <div />
-              )}
-
-              {currentStep < TOTAL_STEPS - 1 ? (
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={currentStep === 0 && !formData.insuranceType}
-                  className="px-6 py-3 text-base font-semibold text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: accentColor }}
-                >
-                  Next
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className="px-6 py-3 text-base font-semibold text-white rounded-lg transition-colors disabled:opacity-60"
-                  style={{ backgroundColor: accentColor }}
-                >
-                  {submitting ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Submitting...
-                    </span>
-                  ) : (
-                    'Submit'
-                  )}
-                </button>
-              )}
-            </div>
-
-            {rateLimited && (
-              <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-center">
-                <p className="text-sm text-amber-800">You&apos;ve submitted too many forms recently. Please wait before trying again.</p>
-              </div>
-            )}
-            {submitError && !rateLimited && (
-              <p className="mt-3 text-sm text-red-600 text-center">
-                {submitError}
-              </p>
-            )}
           </div>
+          <div className="h-32" />
         </div>
       </main>
 
-      <Footer />
+      {/* Sticky bottom navigation */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.06)' }}>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center gap-3">
+            {currentStep > 0 ? (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="h-11 px-5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shrink-0"
+              >
+                ← Back
+              </button>
+            ) : <div />}
+
+            {currentStep < TOTAL_STEPS - 1 ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={currentStep === 0 && !formData.insuranceType}
+                className="flex-1 h-11 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ backgroundColor: accentColor }}
+              >
+                Continue →
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex-1 h-11 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-60"
+                style={{ backgroundColor: accentColor }}
+              >
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Submitting...
+                  </span>
+                ) : (
+                  'Submit my information →'
+                )}
+              </button>
+            )}
+          </div>
+
+          {submitError && (
+            <p className="mt-2 text-xs text-red-500 text-center">{submitError}</p>
+          )}
+
+          <div className="flex items-center justify-center gap-1.5 mt-2.5">
+            <svg className="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+            </svg>
+            <span className="text-[11px] text-gray-300">Your information is encrypted and secure</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

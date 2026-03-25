@@ -24,12 +24,20 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [selectedPlan, setSelectedPlan] = useState<'starter' | 'pro'>('starter');
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [resendCooldown]);
+
+  useEffect(() => {
+    const plan = searchParams.get('plan');
+    if (plan === 'starter' || plan === 'pro') {
+      setSelectedPlan(plan);
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,10 +67,7 @@ function SignupForm() {
       return;
     }
 
-    const plan = searchParams.get("plan");
-    if (plan) {
-      localStorage.setItem("quotzal_selected_plan", plan);
-    }
+    localStorage.setItem("quotzal_selected_plan", selectedPlan);
 
     setEmailSent(true);
     setLoading(false);
@@ -133,21 +138,50 @@ function SignupForm() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 bg-white flex flex-col justify-center px-8 md:px-12 lg:px-16 py-12">
-        <div className="max-w-sm w-full mx-auto">
+      <div className="flex-1 bg-white flex flex-col justify-center px-8 md:px-14 lg:px-20 py-12">
+        <div className="max-w-md w-full mx-auto">
           <div className="lg:hidden mb-10">
             <Link href="/"><QuotzalLogo size="md" /></Link>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Start your free trial</h1>
+          <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-1">Start your free trial</h1>
           <p className="text-emerald-600 text-sm font-medium mb-8">30 days free — no credit card required</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
                 {error}
               </div>
             )}
+
+            <div className="mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Choose your plan</label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { value: 'starter' as const, label: 'Starter', price: '$19/mo' },
+                  { value: 'pro' as const, label: 'Pro', price: '$39/mo' },
+                ] as const).map((plan) => (
+                  <button
+                    key={plan.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPlan(plan.value);
+                      localStorage.setItem('quotzal_selected_plan', plan.value);
+                    }}
+                    className={`py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all ${
+                      selectedPlan === plan.value
+                        ? 'bg-emerald-600 border-emerald-600 text-white'
+                        : 'bg-white border-gray-200 text-gray-700 hover:border-emerald-300'
+                    }`}
+                  >
+                    <div>{plan.label}</div>
+                    <div className={`text-xs font-normal mt-0.5 ${selectedPlan === plan.value ? 'text-emerald-100' : 'text-gray-400'}`}>
+                      {plan.price}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
@@ -157,7 +191,7 @@ function SignupForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                className="w-full h-11 px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="you@example.com"
               />
             </div>
@@ -170,7 +204,7 @@ function SignupForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                className="w-full h-11 px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -183,7 +217,7 @@ function SignupForm() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                className="w-full h-11 px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
             </div>

@@ -19,13 +19,13 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
       <Card
-        label="Total Submissions"
+        label="Submissions"
         value={String(stats.total)}
         iconBg="bg-emerald-50"
         icon={<svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>}
       />
       <Card
-        label="New (Unreviewed)"
+        label="Unreviewed"
         value={String(stats.newCount)}
         highlight={stats.newCount > 0}
         iconBg="bg-amber-50"
@@ -37,7 +37,7 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
         iconBg="bg-blue-50"
         icon={<svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
       />
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between mb-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Account Status</p>
         </div>
@@ -57,7 +57,7 @@ function Card({ label, value, highlight, iconBg, icon }: {
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">{label}</p>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>

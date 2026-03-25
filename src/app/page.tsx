@@ -130,14 +130,14 @@ export default function MarketingPage() {
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-600 mb-6">
             Trusted by independent brokers across the US
           </p>
-          <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
+          <div className="flex items-center justify-center gap-12 md:gap-20">
             {[
               { number: "500+", label: "active brokers" },
-              { number: "12k+", label: "quotes collected" },
+              { number: "12,000+", label: "quotes collected" },
               { number: "4.9★", label: "average rating" },
             ].map(stat => (
               <div key={stat.number} className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">{stat.number}</div>
+                <div className="text-2xl md:text-3xl font-bold text-white leading-none mb-1">{stat.number}</div>
                 <div className="text-xs text-gray-500">{stat.label}</div>
               </div>
             ))}
@@ -146,7 +146,7 @@ export default function MarketingPage() {
       </div>
 
       {/* Pain Section */}
-      <section className="bg-white py-20 md:py-28">
+      <section className="bg-white py-14 md:py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-red-500 mb-4">Sound familiar?</p>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight tracking-tight mb-6">
@@ -180,7 +180,7 @@ export default function MarketingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 md:py-28 bg-white">
+      <section className="py-14 md:py-20 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4 tracking-tight">
             How Quotzal Works
@@ -189,15 +189,26 @@ export default function MarketingPage() {
             Three steps. That&apos;s it.
           </p>
           <div className="relative flex flex-col md:flex-row items-start justify-between max-w-3xl mx-auto gap-12 md:gap-0">
-            <div className="absolute top-7 left-[10%] right-[10%] h-px bg-emerald-200 hidden md:block" />
+            <div className="hidden md:block absolute"
+              style={{
+                top: '28px',
+                left: 'calc(16.67% + 28px)',
+                right: 'calc(16.67% + 28px)',
+                height: '1px',
+                background: 'linear-gradient(90deg, #d1fae5, #6ee7b7, #d1fae5)',
+              }}
+            />
             {[
               { n: 1, title: "Send your link", desc: "Text, email, or add it to your website. One link, every client, every insurance type." },
               { n: 2, title: "Client fills it out", desc: "Smart questions for auto, home, life, motorcycle, boat, RV. VINs decoded automatically." },
               { n: 3, title: "You get everything", desc: "A structured email hits your inbox. Open your dashboard and quote immediately." },
             ].map(step => (
               <div key={step.n} className="flex flex-col items-center text-center flex-1 px-4 md:px-6 relative z-10">
-                <div className="w-14 h-14 rounded-full bg-emerald-600 flex items-center justify-center mb-5 ring-4 ring-white shadow-lg shadow-emerald-100">
-                  <span className="text-xl font-bold text-white">{step.n}</span>
+                <div className="mb-5 relative">
+                  <div className="w-14 h-14 rounded-full bg-white absolute inset-0 scale-[1.2]" />
+                  <div className="w-14 h-14 rounded-full bg-emerald-600 flex items-center justify-center relative shadow-lg shadow-emerald-200">
+                    <span className="text-xl font-bold text-white">{step.n}</span>
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
@@ -208,7 +219,7 @@ export default function MarketingPage() {
       </section>
 
       {/* What You Get */}
-      <section className="bg-gray-50 py-20 md:py-28">
+      <section className="bg-gray-50 py-14 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-3">What lands in your inbox</p>
@@ -291,7 +302,7 @@ export default function MarketingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-white py-20 md:py-28 border-t border-gray-100">
+      <section className="bg-white py-14 md:py-20 border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 mb-12">
             What brokers say after their first week
@@ -408,11 +419,23 @@ export default function MarketingPage() {
             Questions? Email us at{' '}
             <a href="mailto:hello@quotzal.com" className="text-emerald-600 hover:text-emerald-700">hello@quotzal.com</a>
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
+            {[
+              { icon: "🔒", text: "SSL encrypted" },
+              { icon: "💳", text: "Powered by Stripe" },
+              { icon: "🚫", text: "Cancel anytime" },
+            ].map(b => (
+              <div key={b.text} className="flex items-center gap-2 text-sm text-gray-400">
+                <span>{b.icon}</span>
+                <span>{b.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-14 md:py-20 bg-slate-50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl font-bold text-slate-900 text-center mb-10">
             Frequently Asked Questions

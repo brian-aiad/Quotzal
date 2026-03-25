@@ -161,7 +161,7 @@ export function VehicleCard({
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
       <div className="flex items-center justify-between px-5 py-4 bg-blue-50 border-b border-blue-100">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
             <span className="text-xs font-bold text-white">{index + 1}</span>
           </div>
           <div>

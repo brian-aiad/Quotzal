@@ -170,12 +170,13 @@ export function DriverCard({
               License State
             </label>
             <select
-              value={driver.licenseState}
+              value={driver.licenseState || 'CA'}
               onChange={(e) => update('licenseState', e.target.value)}
               className={SELECT_CLASS}
             >
-              <option value=""></option>
-              {US_STATES.map((s) => (
+              <option value="CA">California</option>
+              <option disabled>──────────</option>
+              {US_STATES.filter(s => s.value !== 'CA').map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>
@@ -281,7 +282,7 @@ export function DriverCard({
                 licenseType: checked ? driver.licenseType : undefined,
               });
             }}
-            className="rounded border-slate-300"
+            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
           />
           No US driver&apos;s license
         </label>
@@ -310,37 +311,23 @@ export function DriverCard({
             type="checkbox"
             checked={driver.goodStudentDiscount ?? false}
             onChange={(e) => update('goodStudentDiscount', e.target.checked)}
-            className="rounded border-slate-300"
+            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
           />
           Good student discount (B average or better)
         </label>
       )}
 
       {/* 7. SR-22 */}
-      <div className="space-y-2">
+      <div>
         <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={driver.sr22Required}
             onChange={(e) => update('sr22Required', e.target.checked)}
-            className="rounded border-slate-300"
+            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
           />
           SR-22 Required
         </label>
-        {driver.sr22Required && (
-          <select
-            value={driver.sr22State ?? ''}
-            onChange={(e) => update('sr22State', e.target.value)}
-            className={`w-full md:w-1/2 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200`}
-          >
-            <option value=""></option>
-            {US_STATES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
       {/* 8. Violations — auto-add blank on check, clear on uncheck */}
@@ -357,7 +344,7 @@ export function DriverCard({
                 violations: checked ? [emptyViolation()] : [],
               });
             }}
-            className="rounded border-slate-300"
+            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
           />
           Violations in last 5 years
         </label>

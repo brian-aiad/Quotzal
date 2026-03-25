@@ -98,6 +98,10 @@ export function VinInput({
     [expectedLength, onChange, year, make, model]
   );
 
+  const isValidLength = value.length === expectedLength;
+  const hasInvalidChars = /[IOQ]/i.test(value);
+  const isValid = isValidLength && !hasInvalidChars;
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const newVin = e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
     onChange({ vin: newVin });
@@ -109,8 +113,9 @@ export function VinInput({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label}{required ? ' — Required for accurate quote' : ''} {required && <span className="text-red-500">*</span>}
+      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+        {label} {required && <span className="text-red-400">*</span>}
+        {required && <span className="text-gray-400 font-normal ml-1">— Required for accurate quote</span>}
       </label>
       <div className="relative">
         <input
@@ -119,8 +124,12 @@ export function VinInput({
           onChange={handleChange}
           maxLength={expectedLength}
           placeholder={`Enter ${expectedLength}-character ${label}`}
-          className={`w-full px-3 py-2 border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900 placeholder-slate-500 ${
-            error ? 'border-red-400 focus:ring-red-400' : 'border-slate-300'
+          className={`w-full h-11 px-4 text-sm font-mono tracking-wider border rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all duration-200 ${
+            error
+              ? 'border-red-300 focus:ring-red-500/30 focus:border-red-400'
+              : isValid
+              ? 'border-emerald-300 focus:ring-emerald-500/30 focus:border-emerald-500'
+              : 'border-gray-200 focus:ring-emerald-500/30 focus:border-emerald-500'
           }`}
         />
         {decoding && (
@@ -128,14 +137,26 @@ export function VinInput({
             <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
+        {isValid && !decoding && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+          </div>
+        )}
       </div>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1"><span>⚠</span> {error}</p>}
       {decodeError && (
-        <p className="mt-1 text-xs text-amber-600">{decodeError}</p>
+        <p className="mt-1.5 text-xs text-amber-600">{decodeError}</p>
       )}
-      <p className="mt-1 text-xs text-slate-400">
-        {value.length}/{expectedLength} characters
-      </p>
+      <div className="flex items-center justify-between mt-1.5">
+        <p className="text-xs text-gray-400">
+          {isValid ? '✓ Valid VIN' : value.length > 0 ? 'VIN decodes automatically at 17 characters' : 'Find it on your dashboard or registration'}
+        </p>
+        <span className={`text-xs ${isValid ? 'text-emerald-600 font-medium' : 'text-gray-400'}`}>
+          {value.length}/{expectedLength}
+        </span>
+      </div>
     </div>
   );
 }

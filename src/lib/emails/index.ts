@@ -3,7 +3,6 @@ import { escapeHtml } from "@/lib/sanitize";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Dev: "onboarding@resend.dev" — switch to "noreply@quotzal.com" after Resend domain verification (Phase 4)
 const FROM_ADDRESS = "Quotzal <onboarding@resend.dev>";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://quotzal.com";
@@ -28,65 +27,90 @@ export interface SubmissionEmailData {
 }
 
 // ============================================================
-// Shared Layout
+// Design System
 // ============================================================
 
-function emailLayout(body: string, footerExtra?: string): string {
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;padding:32px 16px;">
-    <tr>
-      <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-          <!-- Header -->
-          <tr>
-            <td style="padding:24px 32px;border-bottom:1px solid #e5e7eb;">
-              <span style="font-size:20px;font-weight:700;color:#111827;">Quotzal</span>
-            </td>
-          </tr>
-          <!-- Body -->
-          <tr>
-            <td style="padding:32px;">
-              ${body}
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td style="padding:24px 32px;border-top:1px solid #e5e7eb;background-color:#f9fafb;">
-              ${footerExtra || ""}
-              <p style="margin:8px 0 0;font-size:12px;color:#9ca3af;">Powered by <a href="${BASE_URL}" style="color:#9ca3af;">Quotzal</a></p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+const C_PRIMARY = "#10b981";
+const C_TEXT = "#374151";
+const C_HEADING = "#111827";
+const C_MUTED = "#6b7280";
+const C_BG = "#f8fafc";
+const C_CARD = "#ffffff";
+const C_BORDER = "#e5e7eb";
+const C_RED = "#ef4444";
+const C_AMBER = "#f59e0b";
+
+function emailLayout(body: string, options?: { accentColor?: string; footerHtml?: string }): string {
+  const accent = options?.accentColor ?? C_PRIMARY;
+  const footer = options?.footerHtml ?? `<p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <a href="${BASE_URL}" style="color:#9ca3af;text-decoration:none;">Quotzal</a> &middot; <a href="${BASE_URL}" style="color:#9ca3af;text-decoration:none;">quotzal.com</a></p>`;
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
+<body style="margin:0;padding:0;background-color:${C_BG};font-family:${FONT};">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:${C_BG};padding:40px 16px;">
+<tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+  <!-- Header -->
+  <tr><td style="padding:20px 0;text-align:center;">
+    <span style="font-size:22px;font-weight:800;color:${C_PRIMARY};letter-spacing:-0.5px;">Quotzal</span>
+  </td></tr>
+  <!-- Card -->
+  <tr><td>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:${C_CARD};border-radius:8px;overflow:hidden;border:1px solid ${C_BORDER};">
+      <tr><td style="height:4px;background-color:${accent};font-size:0;line-height:0;">&nbsp;</td></tr>
+      <tr><td style="padding:40px 36px;">${body}</td></tr>
+    </table>
+  </td></tr>
+  <!-- Footer -->
+  <tr><td style="padding:24px 0;text-align:center;">${footer}</td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
 }
 
-function ctaButton(text: string, href: string, color: string = "#2563eb"): string {
-  return `<a href="${href}" style="display:inline-block;padding:12px 28px;background-color:${color};color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">${text}</a>`;
+function btn(text: string, href: string, color: string = C_PRIMARY): string {
+  return `<a href="${href}" style="display:inline-block;padding:14px 28px;background-color:${color};color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;font-family:${FONT};">${text}</a>`;
+}
+
+function heading(text: string): string {
+  return `<h2 style="margin:0 0 12px;font-size:24px;font-weight:700;color:${C_HEADING};line-height:1.3;">${text}</h2>`;
+}
+
+function para(text: string): string {
+  return `<p style="margin:0 0 20px;font-size:16px;color:${C_TEXT};line-height:1.6;">${text}</p>`;
+}
+
+function muted(text: string): string {
+  return `<p style="margin:0;font-size:14px;color:${C_MUTED};line-height:1.6;">${text}</p>`;
+}
+
+function divider(): string {
+  return `<hr style="border:none;border-top:1px solid ${C_BORDER};margin:28px 0;"/>`;
+}
+
+function infoTable(rows: [string, string][]): string {
+  const trs = rows
+    .filter(([, v]) => v && v !== "—")
+    .map(([label, value]) => `<tr>
+      <td style="padding:8px 12px;font-size:14px;color:${C_MUTED};font-weight:500;white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
+      <td style="padding:8px 12px;font-size:14px;color:${C_TEXT};font-weight:400;">${escapeHtml(value)}</td>
+    </tr>`)
+    .join("");
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background-color:#f9fafb;border-radius:6px;overflow:hidden;margin:16px 0;">${trs}</table>`;
 }
 
 function sectionHeading(text: string): string {
-  return `<h3 style="margin:24px 0 8px;font-size:14px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:0.05em;">${text}</h3>`;
+  return `<h3 style="margin:24px 0 8px;font-size:13px;font-weight:600;color:${C_MUTED};text-transform:uppercase;letter-spacing:0.05em;">${text}</h3>`;
 }
 
 function infoRow(label: string, value: string): string {
-  return `<p style="margin:4px 0;font-size:14px;color:#374151;"><strong style="color:#6b7280;">${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
+  return `<p style="margin:4px 0;font-size:14px;color:${C_TEXT};"><strong style="color:${C_MUTED};">${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
 }
 
 function formatInsuranceType(type: string): string {
-  return type
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ============================================================
@@ -104,11 +128,7 @@ function generateTypeSummary(insuranceType: string, formData: Record<string, unk
       const firstVehicle = vehicles?.[0];
       let summary = `${driverCount} driver${driverCount !== 1 ? "s" : ""}, ${vehicleCount} vehicle${vehicleCount !== 1 ? "s" : ""}`;
       if (firstVehicle) {
-        const year = firstVehicle.year || "";
-        const make = firstVehicle.make || "";
-        const model = firstVehicle.model || "";
-        const coverage = firstVehicle.coverageType === "full" ? "Full Coverage" : "Liability Only";
-        summary += ` — ${year} ${make} ${model}, ${coverage}`;
+        summary += ` — ${firstVehicle.year || ""} ${firstVehicle.make || ""} ${firstVehicle.model || ""}`;
       }
       if (insuranceType === "auto_commercial") {
         const bizName = formData.businessName as string | undefined;
@@ -119,72 +139,24 @@ function generateTypeSummary(insuranceType: string, formData: Record<string, unk
     case "home": {
       const addr = (formData.propertyAddress as string) || "Address not provided";
       const sqft = formData.squareFootage as string | undefined;
-      const yearBuilt = formData.yearBuilt as string | undefined;
-      const propType = (formData.propertyType as string) || "";
-      let summary = addr;
-      if (sqft) summary += `, ${sqft} sqft`;
-      if (yearBuilt) summary += `, built ${yearBuilt}`;
-      if (propType) summary += ` (${propType})`;
-      return summary;
+      return sqft ? `${addr}, ${sqft} sqft` : addr;
     }
     case "life": {
-      const coverageMap: Record<string, string> = {
-        under_100k: "Under $100K",
-        "100k_250k": "$100K–$250K",
-        "250k_500k": "$250K–$500K",
-        "500k_1m": "$500K–$1M",
-        over_1m: "Over $1M",
-      };
-      const coverage = coverageMap[formData.coverageAmount as string] || "Not specified";
-      const policyType = formData.policyType as string | undefined;
-      const typeLabel = policyType === "term" ? "Term Life" : policyType === "whole" ? "Whole Life" : "Type TBD";
-      const smoker = formData.isSmoker ? "Smoker" : "Non-smoker";
-      return `${coverage} ${typeLabel}, ${smoker}`;
+      const coverageMap: Record<string, string> = { under_100k: "Under $100K", "100k_250k": "$100K–$250K", "250k_500k": "$250K–$500K", "500k_1m": "$500K–$1M", over_1m: "Over $1M" };
+      return coverageMap[formData.coverageAmount as string] || "Coverage not specified";
     }
-    case "motorcycle": {
-      const year = (formData.year as string) || "";
-      const make = (formData.make as string) || "";
-      const model = (formData.model as string) || "";
-      const coverage = formData.coverageType === "full" ? "Full Coverage" : "Liability Only";
-      return `${year} ${make} ${model}, ${coverage}`;
-    }
-    case "boat": {
-      const year = (formData.year as string) || "";
-      const make = (formData.make as string) || "";
-      const model = (formData.model as string) || "";
-      const length = formData.boatLength as string | undefined;
-      let summary = `${year} ${make} ${model}`;
-      if (length) summary += `, ${length}ft`;
-      return summary;
-    }
+    case "motorcycle":
+    case "boat":
     case "rv": {
-      const year = (formData.year as string) || "";
-      const make = (formData.make as string) || "";
-      const model = (formData.model as string) || "";
-      const rvClassMap: Record<string, string> = {
-        class_a: "Class A",
-        class_b: "Class B",
-        class_c: "Class C",
-        travel_trailer: "Travel Trailer",
-        "5th_wheel": "5th Wheel",
-        other: "Other",
-      };
-      const rvClass = rvClassMap[formData.rvClass as string] || "";
-      return `${year} ${make} ${model}${rvClass ? ` (${rvClass})` : ""}`;
+      return `${formData.year || ""} ${formData.make || ""} ${formData.model || ""}`.trim() || "Details in dashboard";
     }
     case "other": {
-      const desc = (formData.description as string) || "No description";
-      const value = formData.estimatedValue as string | undefined;
-      return value ? `${desc} — Est. value: $${value}` : desc;
+      return (formData.description as string) || "See details in dashboard";
     }
     default:
       return "See full details in dashboard";
   }
 }
-
-// ============================================================
-// Type-Specific Detail Sections (for customer confirmation)
-// ============================================================
 
 function generateDetailSections(insuranceType: string, formData: Record<string, unknown>): string {
   switch (insuranceType) {
@@ -200,7 +172,7 @@ function generateDetailSections(insuranceType: string, formData: Record<string, 
       if (drivers?.length) {
         html += sectionHeading("Drivers");
         drivers.forEach((d, i) => {
-          html += `<p style="margin:8px 0 4px;font-size:13px;font-weight:600;color:#111827;">Driver ${i + 1}: ${d.fullName || "—"}</p>`;
+          html += `<p style="margin:8px 0 4px;font-size:13px;font-weight:600;color:${C_HEADING};">Driver ${i + 1}: ${d.fullName || "—"}</p>`;
           html += infoRow("DOB", (d.dateOfBirth as string) || "—");
           html += infoRow("License", `${d.licenseNumber || "—"} (${d.licenseState || "—"})`);
           html += infoRow("SR-22", d.sr22Required ? "Yes" : "No");
@@ -210,7 +182,7 @@ function generateDetailSections(insuranceType: string, formData: Record<string, 
       if (vehicles?.length) {
         html += sectionHeading("Vehicles");
         vehicles.forEach((v, i) => {
-          html += `<p style="margin:8px 0 4px;font-size:13px;font-weight:600;color:#111827;">Vehicle ${i + 1}: ${v.year || ""} ${v.make || ""} ${v.model || ""}</p>`;
+          html += `<p style="margin:8px 0 4px;font-size:13px;font-weight:600;color:${C_HEADING};">Vehicle ${i + 1}: ${v.year || ""} ${v.make || ""} ${v.model || ""}</p>`;
           html += infoRow("VIN", (v.vin as string) || "—");
           html += infoRow("Coverage", v.coverageType === "full" ? "Full Coverage" : "Liability Only");
         });
@@ -222,73 +194,45 @@ function generateDetailSections(insuranceType: string, formData: Record<string, 
       html += infoRow("Address", (formData.propertyAddress as string) || "—");
       html += infoRow("Type", (formData.propertyType as string) || "—");
       html += infoRow("Year Built", (formData.yearBuilt as string) || "—");
-      html += infoRow("Square Footage", (formData.squareFootage as string) || "—");
-      html += infoRow("Stories", (formData.stories as string) || "—");
-      html += infoRow("Roof Age", (formData.roofAge as string) || "—");
-      html += infoRow("Roof Material", ((formData.roofMaterial as string) || "—").replace(/_/g, " "));
+      html += infoRow("Sq Ft", (formData.squareFootage as string) || "—");
       html += infoRow("Pool", formData.hasPool ? "Yes" : "No");
-      html += infoRow("Trampoline", formData.hasTrampoline ? "Yes" : "No");
-      html += infoRow("Dogs", formData.hasDogs ? `Yes${formData.dogBreed ? ` (${formData.dogBreed})` : ""}` : "No");
-      html += infoRow("Flood Zone", (formData.floodZone as string) || "—");
       html += infoRow("Prior Claims", formData.hasPriorClaims ? `Yes (${formData.numberOfClaims || "?"})` : "No");
-      if (formData.hasLienholder) {
-        html += infoRow("Lender", (formData.lenderName as string) || "—");
-      }
       return html;
     }
     case "life": {
-      const coverageMap: Record<string, string> = {
-        under_100k: "Under $100K",
-        "100k_250k": "$100K–$250K",
-        "250k_500k": "$250K–$500K",
-        "500k_1m": "$500K–$1M",
-        over_1m: "Over $1M",
-      };
-      let html = sectionHeading("Life Insurance Details");
-      html += infoRow("Coverage Amount", coverageMap[formData.coverageAmount as string] || "—");
-      html += infoRow("Policy Type", (formData.policyType as string) || "—");
-      if (formData.termLength) html += infoRow("Term Length", `${formData.termLength} years`);
+      const coverageMap: Record<string, string> = { under_100k: "Under $100K", "100k_250k": "$100K–$250K", "250k_500k": "$250K–$500K", "500k_1m": "$500K–$1M", over_1m: "Over $1M" };
+      let html = sectionHeading("Life Insurance");
+      html += infoRow("Coverage", coverageMap[formData.coverageAmount as string] || "—");
+      html += infoRow("Type", (formData.policyType as string) || "—");
       html += infoRow("Smoker", formData.isSmoker ? "Yes" : "No");
-      html += infoRow("Health Conditions", formData.hasHealthConditions ? (formData.healthConditionsDescription as string) || "Yes" : "No");
-      html += infoRow("Height", `${formData.heightFeet || "?"}' ${formData.heightInches || "?"}`);
-      html += infoRow("Weight", `${formData.weight || "?"} lbs`);
-      html += infoRow("Beneficiary", `${formData.beneficiaryName || "—"} (${(formData.beneficiaryRelationship as string) || "—"})`);
+      html += infoRow("Beneficiary", `${formData.beneficiaryName || "—"}`);
       return html;
     }
     case "motorcycle": {
-      let html = sectionHeading("Motorcycle Details");
+      let html = sectionHeading("Motorcycle");
       html += infoRow("Vehicle", `${formData.year || ""} ${formData.make || ""} ${formData.model || ""}`);
       html += infoRow("VIN", (formData.vin as string) || "—");
-      html += infoRow("Ownership", (formData.ownership as string) || "—");
-      html += infoRow("Stored", (formData.storedLocation as string) || "—");
       html += infoRow("Coverage", formData.coverageType === "full" ? "Full Coverage" : "Liability Only");
       return html;
     }
     case "boat": {
-      let html = sectionHeading("Boat Details");
+      let html = sectionHeading("Boat");
       html += infoRow("Vessel", `${formData.year || ""} ${formData.make || ""} ${formData.model || ""}`);
       html += infoRow("HIN", (formData.hin as string) || "—");
       html += infoRow("Length", `${formData.boatLength || "?"}ft`);
-      html += infoRow("Hull Type", ((formData.hullType as string) || "—").replace(/_/g, " "));
-      html += infoRow("Stored", (formData.storedLocation as string) || "—");
-      html += infoRow("Financed", formData.isFinanced ? `Yes — ${formData.lienholderName || "—"}` : "No");
       return html;
     }
     case "rv": {
-      let html = sectionHeading("RV Details");
+      let html = sectionHeading("RV");
       html += infoRow("Vehicle", `${formData.year || ""} ${formData.make || ""} ${formData.model || ""}`);
       html += infoRow("VIN", (formData.vin as string) || "—");
       html += infoRow("Class", ((formData.rvClass as string) || "—").replace(/_/g, " "));
-      html += infoRow("Ownership", (formData.ownership as string) || "—");
-      html += infoRow("Stored", (formData.storedLocation as string) || "—");
-      html += infoRow("Full-Time Residence", formData.isFullTimeResidence ? "Yes" : "No");
-      html += infoRow("Coverage", formData.coverageType === "full" ? "Full Coverage" : "Liability Only");
       return html;
     }
     case "other": {
       let html = sectionHeading("Details");
       html += infoRow("Description", (formData.description as string) || "—");
-      html += infoRow("Estimated Value", formData.estimatedValue ? `$${formData.estimatedValue}` : "—");
+      html += infoRow("Est. Value", formData.estimatedValue ? `$${formData.estimatedValue}` : "—");
       return html;
     }
     default:
@@ -306,42 +250,32 @@ export async function sendNewSubmissionEmail(
 ) {
   const typeLabel = formatInsuranceType(submission.insuranceType);
   const summary = generateTypeSummary(submission.insuranceType, submission.formData);
-
-  let currentInsuranceHtml = "";
-  if (submission.hasCurrentInsurance) {
-    currentInsuranceHtml = sectionHeading("Current Insurance");
-    currentInsuranceHtml += infoRow("Carrier", submission.currentCarrier || "—");
-    currentInsuranceHtml += infoRow("Limits", submission.currentCoverageLimits || "—");
-    if (submission.policyExpiryDate) {
-      currentInsuranceHtml += infoRow("Expires", submission.policyExpiryDate);
-    }
-  }
+  const now = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 
   const body = `
-    <h2 style="margin:0 0 4px;font-size:20px;color:#111827;">New ${typeLabel}</h2>
-    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;">${submission.firstName} ${submission.lastName}</p>
-
-    <div style="background-color:#f0f9ff;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
-      <p style="margin:0;font-size:14px;color:#1e40af;font-weight:500;">${summary}</p>
+    ${heading("New Lead Received")}
+    ${para("Someone just completed your insurance intake form.")}
+    ${divider()}
+    ${infoTable([
+      ["Name", `${submission.firstName} ${submission.lastName}`],
+      ["Email", submission.email],
+      ["Phone", submission.phone || "Not provided"],
+      ["Insurance", typeLabel],
+      ["Summary", summary],
+      ["Date of Birth", submission.dateOfBirth || "Not provided"],
+      ["Submitted", now],
+    ])}
+    <div style="margin:28px 0 16px;text-align:center;">
+      ${btn("View Lead in Dashboard", `${BASE_URL}/dashboard/submissions`)}
     </div>
-
-    ${sectionHeading("Customer Info")}
-    ${infoRow("Name", `${submission.firstName} ${submission.lastName}`)}
-    ${infoRow("Email", submission.email)}
-    ${infoRow("Phone", submission.phone || "—")}
-    ${infoRow("Date of Birth", submission.dateOfBirth || "—")}
-
-    ${currentInsuranceHtml}
-
-    <div style="margin-top:28px;">
-      ${ctaButton("View Full Details", `${BASE_URL}/dashboard?submission=${submission.id}`)}
-    </div>
+    ${divider()}
+    ${muted(`Reply directly to <a href="mailto:${escapeHtml(submission.email)}" style="color:${C_PRIMARY};text-decoration:none;">${escapeHtml(submission.email)}</a> to contact this lead.`)}
   `;
 
   return resend.emails.send({
     from: FROM_ADDRESS,
     to: brokerEmail,
-    subject: `New ${typeLabel} — ${submission.firstName} ${submission.lastName}`,
+    subject: `🔔 New lead: ${submission.firstName} ${submission.lastName} — ${typeLabel}`,
     html: emailLayout(body),
   });
 }
@@ -358,47 +292,37 @@ export async function sendCustomerConfirmationEmail(
   brokerLogo?: string
 ) {
   const typeLabel = formatInsuranceType(submission.insuranceType);
-
-  const logoHtml = brokerLogo
-    ? `<img src="${brokerLogo}" alt="${brokerName}" style="max-height:48px;max-width:200px;margin-bottom:16px;" /><br />`
-    : "";
-
-  let currentInsuranceHtml = "";
-  if (submission.hasCurrentInsurance) {
-    currentInsuranceHtml = sectionHeading("Current Insurance");
-    currentInsuranceHtml += infoRow("Carrier", submission.currentCarrier || "—");
-    currentInsuranceHtml += infoRow("Limits", submission.currentCoverageLimits || "—");
-    if (submission.policyExpiryDate) {
-      currentInsuranceHtml += infoRow("Expires", submission.policyExpiryDate);
-    }
-  }
-
-  const detailSections = generateDetailSections(submission.insuranceType, submission.formData);
+  const safeBroker = escapeHtml(brokerName);
+  const safeName = escapeHtml(submission.firstName);
 
   const body = `
-    ${logoHtml}
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Your ${typeLabel} quote request has been received</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      Hi ${submission.firstName}, here's a copy of everything you submitted to <strong>${brokerName}</strong>. They will review your information and reach out to you shortly.
-    </p>
-
-    ${sectionHeading("Personal Info")}
-    ${infoRow("Name", `${submission.firstName} ${submission.lastName}`)}
-    ${infoRow("Email", submission.email)}
-    ${infoRow("Phone", submission.phone || "—")}
-    ${infoRow("Date of Birth", submission.dateOfBirth || "—")}
-
-    ${detailSections}
-    ${currentInsuranceHtml}
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="font-size:48px;">✅</span>
+    </div>
+    ${heading(`You're all set, ${safeName}!`)}
+    ${para(`<strong>${safeBroker}</strong> received your <strong>${typeLabel}</strong> quote request and will be in touch shortly.`)}
+    ${divider()}
+    <h3 style="margin:0 0 16px;font-size:16px;font-weight:600;color:${C_HEADING};">What happens next?</h3>
+    <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+      <tr><td style="padding:6px 12px 6px 0;font-size:20px;vertical-align:top;">🔍</td><td style="padding:6px 0;font-size:14px;color:${C_TEXT};"><strong>Step 1:</strong> We review your information</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-size:20px;vertical-align:top;">📋</td><td style="padding:6px 0;font-size:14px;color:${C_TEXT};"><strong>Step 2:</strong> We prepare your personalized quote</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-size:20px;vertical-align:top;">📞</td><td style="padding:6px 0;font-size:14px;color:${C_TEXT};"><strong>Step 3:</strong> We contact you with your options</td></tr>
+    </table>
+    ${divider()}
+    <div style="background-color:#f9fafb;border-radius:6px;padding:20px;margin:0 0 16px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:${C_HEADING};">Questions? Contact ${safeBroker} directly:</p>
+      <p style="margin:0;font-size:14px;color:${C_TEXT};">✉️ <a href="mailto:${escapeHtml(brokerEmail)}" style="color:${C_PRIMARY};text-decoration:none;">${escapeHtml(brokerEmail)}</a></p>
+    </div>
+    ${muted("Expected response time: within 1 business day")}
   `;
 
-  const footer = `<p style="margin:0 0 4px;font-size:12px;color:#6b7280;">Contact: <a href="mailto:${brokerEmail}" style="color:#6b7280;">${brokerEmail}</a></p>`;
+  const footerHtml = `<p style="margin:0;font-size:12px;color:#9ca3af;">This confirmation was sent on behalf of ${safeBroker}</p>`;
 
   return resend.emails.send({
     from: FROM_ADDRESS,
     to: customerEmail,
-    subject: `Your ${typeLabel} quote request has been received — ${brokerName}`,
-    html: emailLayout(body, footer),
+    subject: `✅ Your insurance quote request was received — ${brokerName}`,
+    html: emailLayout(body, { footerHtml }),
   });
 }
 
@@ -414,21 +338,14 @@ export async function sendDemoEmail(
   const demoLink = `${BASE_URL}/f/${demoSlug}`;
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Your Quotzal demo link is ready</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      Hi ${name}, thanks for your interest in Quotzal! Here's your personalized demo link:
-    </p>
-
-    <div style="background-color:#f0f9ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin-bottom:16px;text-align:center;">
-      <a href="${demoLink}" style="font-size:16px;font-weight:600;color:#1e40af;text-decoration:none;">${demoLink}</a>
+    ${heading("Your Quotzal demo link is ready")}
+    ${para(`Hi ${escapeHtml(name)}, thanks for your interest! Here's your personalized demo link:`)}
+    <div style="background-color:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:16px;margin:0 0 20px;text-align:center;">
+      <a href="${demoLink}" style="font-size:16px;font-weight:600;color:#065f46;text-decoration:none;">${demoLink}</a>
     </div>
-
-    <p style="margin:0 0 24px;font-size:13px;color:#6b7280;">
-      This link expires in 7 days. Share it with a test customer or try it yourself to see the full intake experience.
-    </p>
-
-    <div style="margin-top:8px;">
-      ${ctaButton("Sign Up and Go Live", `${BASE_URL}/signup`)}
+    ${muted("This link expires in 7 days. Try it yourself or share it with a test customer.")}
+    <div style="margin:28px 0 0;text-align:center;">
+      ${btn("Sign Up and Go Live", `${BASE_URL}/signup`)}
     </div>
   `;
 
@@ -451,42 +368,59 @@ export async function sendTrialEndingEmail(
   submissionCount: number
 ) {
   const subjectMap: Record<number, string> = {
-    7: "Your Quotzal trial — 7 days left",
-    3: "Your trial ends in 3 days",
-    1: "Your Quotzal link expires tomorrow",
+    7: "Your Quotzal trial ends in 7 days",
+    3: "⏰ 3 days left on your Quotzal trial",
+    1: "Your Quotzal trial ends tomorrow",
+    0: "Your Quotzal trial has ended",
   };
   const subject = subjectMap[daysLeft] || `Your Quotzal trial ends in ${daysLeft} days`;
 
-  const urgencyColor = daysLeft <= 1 ? "#dc2626" : daysLeft <= 3 ? "#d97706" : "#2563eb";
+  const isExpired = daysLeft <= 0;
+  const accent = isExpired ? C_RED : daysLeft <= 3 ? C_AMBER : C_PRIMARY;
+
+  const headingText = isExpired
+    ? "Your trial has ended"
+    : daysLeft <= 3
+    ? `${daysLeft} days left — don't lose access`
+    : "Your free trial ends soon";
+
+  const bodyText = isExpired
+    ? "Your free trial has ended. Subscribe to restore access to your dashboard and all your leads."
+    : `You have <strong style="color:${accent};">${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong> left on your free trial. Subscribe now to keep receiving leads without interruption.`;
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Hi ${brokerageName},</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      Your Quotzal free trial ends in <strong style="color:${urgencyColor};">${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.
-    </p>
-
+    ${heading(headingText)}
+    ${para(`Hi ${escapeHtml(brokerageName)}, ${bodyText}`)}
     ${submissionCount > 0 ? `
-    <div style="background-color:#f0f9ff;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
-      <p style="margin:0;font-size:14px;color:#1e40af;">
-        You've received <strong>${submissionCount} submission${submissionCount !== 1 ? "s" : ""}</strong> during your trial. Subscribe to keep receiving new leads.
-      </p>
-    </div>
-    ` : ""}
-
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      After your trial ends, your intake form link will be deactivated and you'll stop receiving submissions. Subscribe now to keep your link active.
-    </p>
-
-    <div style="margin-top:8px;">
-      ${ctaButton("Keep my account active", `${BASE_URL}/dashboard/billing`, urgencyColor)}
-    </div>
+    <div style="background-color:#f0fdf4;border-radius:6px;padding:12px 16px;margin:0 0 20px;">
+      <p style="margin:0;font-size:14px;color:#065f46;">You've received <strong>${submissionCount} lead${submissionCount !== 1 ? "s" : ""}</strong> during your trial.</p>
+    </div>` : ""}
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+      <tr>
+        <td width="50%" style="padding:0 6px 0 0;vertical-align:top;">
+          <div style="border:1px solid ${C_BORDER};border-radius:6px;padding:20px;text-align:center;">
+            <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:${C_HEADING};">Starter</p>
+            <p style="margin:0 0 12px;font-size:24px;font-weight:700;color:${C_HEADING};">$19<span style="font-size:14px;font-weight:400;color:${C_MUTED};">/mo</span></p>
+            ${btn("Subscribe", `${BASE_URL}/dashboard/billing`, C_PRIMARY)}
+          </div>
+        </td>
+        <td width="50%" style="padding:0 0 0 6px;vertical-align:top;">
+          <div style="border:2px solid ${C_PRIMARY};border-radius:6px;padding:20px;text-align:center;">
+            <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:${C_HEADING};">Pro</p>
+            <p style="margin:0 0 12px;font-size:24px;font-weight:700;color:${C_HEADING};">$39<span style="font-size:14px;font-weight:400;color:${C_MUTED};">/mo</span></p>
+            ${btn("Subscribe", `${BASE_URL}/dashboard/billing`, C_PRIMARY)}
+          </div>
+        </td>
+      </tr>
+    </table>
+    ${muted("Questions? Reply to this email.")}
   `;
 
   return resend.emails.send({
     from: FROM_ADDRESS,
     to: brokerEmail,
     subject,
-    html: emailLayout(body),
+    html: emailLayout(body, { accentColor: accent }),
   });
 }
 
@@ -502,27 +436,21 @@ export async function sendPaymentFailedEmail(
   const dollars = (amount / 100).toFixed(2);
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Action required</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      Hi ${brokerageName}, we weren't able to process your payment of <strong>$${dollars}</strong>.
-    </p>
-
-    <div style="background-color:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin-bottom:20px;">
-      <p style="margin:0;font-size:14px;color:#991b1b;">
-        Your intake form link will remain active for <strong>7 more days</strong>. Please update your payment method to avoid interruption.
-      </p>
+    ${heading("Action required")}
+    ${para(`Hi ${escapeHtml(brokerageName)}, we weren't able to process your payment of <strong>$${dollars}</strong>.`)}
+    <div style="background-color:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:16px;margin:0 0 20px;">
+      <p style="margin:0;font-size:14px;color:#991b1b;">Your intake form link will remain active for <strong>7 more days</strong>. Please update your payment method to avoid interruption.</p>
     </div>
-
-    <div style="margin-top:8px;">
-      ${ctaButton("Update Payment Method", `${BASE_URL}/dashboard/billing`, "#dc2626")}
+    <div style="text-align:center;">
+      ${btn("Update Payment Method", `${BASE_URL}/dashboard/billing`, C_RED)}
     </div>
   `;
 
   return resend.emails.send({
     from: FROM_ADDRESS,
     to: brokerEmail,
-    subject: "Action required — your Quotzal link expires in 7 days",
-    html: emailLayout(body),
+    subject: "Action required — your Quotzal payment failed",
+    html: emailLayout(body, { accentColor: C_RED }),
   });
 }
 
@@ -535,18 +463,13 @@ export async function sendLinkDeactivatedEmail(
   brokerageName: string,
   slug: string
 ) {
+  const domain = BASE_URL.replace(/^https?:\/\//, "");
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Your Quotzal link has been deactivated</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      Hi ${brokerageName}, your intake form link <strong>quotzal.com/f/${slug}</strong> is no longer accepting submissions.
-    </p>
-
-    <p style="margin:0 0 16px;font-size:14px;color:#374151;">
-      Your existing submission data has been preserved. You can reactivate your account at any time by subscribing again — your slug and data will be waiting for you.
-    </p>
-
-    <div style="margin-top:8px;">
-      ${ctaButton("Reactivate My Account", `${BASE_URL}/dashboard/billing`)}
+    ${heading("Your form link has been deactivated")}
+    ${para(`Hi ${escapeHtml(brokerageName)}, your intake form link <strong>${domain}/f/${escapeHtml(slug)}</strong> is no longer accepting submissions.`)}
+    ${para("Your existing submission data has been preserved. You can reactivate your account at any time by subscribing again.")}
+    <div style="text-align:center;">
+      ${btn("Reactivate My Account", `${BASE_URL}/dashboard/billing`)}
     </div>
   `;
 
@@ -570,26 +493,22 @@ export async function sendWelcomeEmail(
   const formLink = `${BASE_URL}/f/${slug}`;
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Welcome to Quotzal, ${brokerageName}! 🎉</h2>
-    <p style="margin:0 0 20px;font-size:14px;color:#374151;">
-      Your account is now active and your intake form link is live:
-    </p>
-
-    <div style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:24px;text-align:center;">
-      <a href="${formLink}" style="font-size:16px;font-weight:600;color:#166534;text-decoration:none;">${formLink}</a>
+    ${heading(`Welcome to Quotzal! 🎉`)}
+    ${para(`Hi ${escapeHtml(brokerageName)}, your account is set up and your form link is ready to share.`)}
+    <div style="background-color:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:20px;margin:0 0 24px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:13px;color:#065f46;font-weight:500;">Your form link:</p>
+      <a href="${formLink}" style="font-size:18px;font-weight:700;color:#065f46;text-decoration:none;">${formLink}</a>
     </div>
-
-    <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#111827;">4 places to share your link:</p>
-    <ol style="margin:0 0 24px;padding-left:20px;font-size:14px;color:#374151;line-height:1.8;">
-      <li>Add it to your email signature</li>
-      <li>Pin it to your social media bio</li>
-      <li>Text it to clients who call asking for a quote</li>
-      <li>Include it on your website's "Get a Quote" page</li>
-    </ol>
-
-    <div style="margin-top:8px;">
-      ${ctaButton("Open Your Dashboard", `${BASE_URL}/dashboard`)}
+    <div style="text-align:center;margin:0 0 28px;">
+      ${btn("Go to Your Dashboard", `${BASE_URL}/dashboard`)}
     </div>
+    ${divider()}
+    <h3 style="margin:0 0 16px;font-size:16px;font-weight:600;color:${C_HEADING};">3 things to do first:</h3>
+    <table cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
+      <tr><td style="padding:6px 12px 6px 0;font-size:20px;vertical-align:top;">📤</td><td style="padding:6px 0;font-size:14px;color:${C_TEXT};">Share your link with clients</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-size:20px;vertical-align:top;">🔔</td><td style="padding:6px 0;font-size:14px;color:${C_TEXT};">Check your notification settings</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;font-size:20px;vertical-align:top;">🎨</td><td style="padding:6px 0;font-size:14px;color:${C_TEXT};">Add your logo and brand color (Pro)</td></tr>
+    </table>
   `;
 
   return resend.emails.send({
@@ -612,32 +531,19 @@ export async function sendDeletionWarningEmail(
   isPro: boolean
 ) {
   const upgradePrompt = !isPro
-    ? `
-    <div style="background-color:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin-bottom:20px;">
-      <p style="margin:0;font-size:14px;color:#1e40af;">
-        <strong>Pro tip:</strong> Upgrade to Pro to extend your data retention to 24 months.
-      </p>
-      <p style="margin:8px 0 0;">
-        ${ctaButton("Upgrade to Pro — $39/mo", `${BASE_URL}/dashboard/billing`)}
-      </p>
-    </div>
-    `
+    ? `<div style="background-color:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:16px;margin:0 0 20px;">
+        <p style="margin:0;font-size:14px;color:#065f46;"><strong>Pro tip:</strong> Upgrade to Pro to extend your data retention to 24 months.</p>
+        <p style="margin:8px 0 0;">${btn("Upgrade to Pro — $39/mo", `${BASE_URL}/dashboard/billing`)}</p>
+      </div>`
     : "";
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Your submission data will be deleted in 30 days</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:#374151;">
-      Hi ${brokerageName}, <strong>${count} submission${count !== 1 ? "s" : ""}</strong> will be permanently deleted on <strong>${deletionDate}</strong> as part of your data retention policy.
-    </p>
-
-    <p style="margin:0 0 20px;font-size:14px;color:#374151;">
-      Export your data now to keep a local copy before it's removed.
-    </p>
-
-    <div style="margin-bottom:20px;">
-      ${ctaButton("Export CSV", `${BASE_URL}/dashboard?export=true`)}
+    ${heading("Data deletion notice")}
+    ${para(`Hi ${escapeHtml(brokerageName)}, <strong>${count} submission${count !== 1 ? "s" : ""}</strong> will be permanently deleted on <strong>${escapeHtml(deletionDate)}</strong> as part of your data retention policy.`)}
+    ${para("Export your data now to keep a local copy before it's removed.")}
+    <div style="text-align:center;margin:0 0 20px;">
+      ${btn("Export CSV", `${BASE_URL}/dashboard/submissions`)}
     </div>
-
     ${upgradePrompt}
   `;
 
@@ -645,7 +551,7 @@ export async function sendDeletionWarningEmail(
     from: FROM_ADDRESS,
     to: brokerEmail,
     subject: "Your submission data will be deleted in 30 days",
-    html: emailLayout(body),
+    html: emailLayout(body, { accentColor: C_AMBER }),
   });
 }
 
@@ -659,10 +565,9 @@ export async function sendBroadcastEmail(
   body: string
 ) {
   const html = emailLayout(
-    `<div style="font-size:14px;color:#374151;line-height:1.7;">${body}</div>`
+    `<div style="font-size:16px;color:${C_TEXT};line-height:1.6;">${body}</div>`
   );
 
-  // Resend batch API supports up to 100 emails per call
   const batches: string[][] = [];
   for (let i = 0; i < emails.length; i += 100) {
     batches.push(emails.slice(i, i + 100));
@@ -699,17 +604,14 @@ export async function sendWebhookErrorAlert(
   const timestamp = new Date().toISOString();
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:20px;color:#dc2626;">Stripe Webhook Error</h2>
-    <p style="margin:0 0 16px;font-size:14px;color:#374151;">
-      A webhook handler failed and needs attention.
-    </p>
-    ${sectionHeading("Details")}
-    ${infoRow("Event Type", escapeHtml(eventType))}
-    ${infoRow("Error", escapeHtml(errorMessage))}
-    ${infoRow("Timestamp", timestamp)}
-    <p style="margin:16px 0 0;font-size:13px;color:#6b7280;">
-      Check the Stripe Dashboard for the full event payload and retry if needed.
-    </p>
+    ${heading("⚠️ Stripe Webhook Error")}
+    ${para("A webhook handler failed and needs attention.")}
+    ${infoTable([
+      ["Event Type", eventType],
+      ["Error", errorMessage],
+      ["Timestamp", timestamp],
+    ])}
+    ${muted('Check the <a href="https://dashboard.stripe.com/webhooks" style="color:' + C_PRIMARY + ';text-decoration:none;">Stripe Dashboard</a> for the full event payload and retry if needed.')}
   `;
 
   try {
@@ -717,7 +619,7 @@ export async function sendWebhookErrorAlert(
       from: FROM_ADDRESS,
       to: adminEmail,
       subject: "⚠️ Quotzal Stripe webhook error",
-      html: emailLayout(body),
+      html: emailLayout(body, { accentColor: C_RED }),
     });
   } catch {
     console.error("[WEBHOOK_ALERT] Failed to send webhook error email");

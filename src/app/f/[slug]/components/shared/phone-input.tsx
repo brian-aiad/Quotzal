@@ -27,6 +27,7 @@ export function PhoneInput({ value, onChange, error }: PhoneInputProps) {
       </label>
       <input
         type="tel"
+        autoComplete="tel"
         value={value}
         onChange={handleChange}
         placeholder="(555) 123-4567"

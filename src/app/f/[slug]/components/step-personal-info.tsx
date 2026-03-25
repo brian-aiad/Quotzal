@@ -35,14 +35,16 @@ export function StepPersonalInfo({
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-1">
               First Name
             </label>
             <input
+              id="firstName"
               type="text"
+              autoComplete="given-name"
               value={data.firstName}
               onChange={(e) => update('firstName', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+              className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
                 errors.firstName ? 'border-red-400' : 'border-slate-300'
               }`}
             />
@@ -52,14 +54,16 @@ export function StepPersonalInfo({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 mb-1">
               Last Name
             </label>
             <input
+              id="lastName"
               type="text"
+              autoComplete="family-name"
               value={data.lastName}
               onChange={(e) => update('lastName', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+              className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
                 errors.lastName ? 'border-red-400' : 'border-slate-300'
               }`}
             />
@@ -71,15 +75,17 @@ export function StepPersonalInfo({
 
         {showDob && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-slate-700 mb-1">
               Date of Birth
               {formConfig?.fields.date_of_birth.required && <span className="text-red-500 ml-1">*</span>}
             </label>
             <input
+              id="dateOfBirth"
               type="date"
+              autoComplete="bday"
               value={data.dateOfBirth}
               onChange={(e) => update('dateOfBirth', e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+              className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
                 errors.dateOfBirth ? 'border-red-400' : 'border-slate-300'
               }`}
             />
@@ -98,14 +104,16 @@ export function StepPersonalInfo({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
             Email
           </label>
           <input
+            id="email"
             type="email"
+            autoComplete="email"
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
-            className={`w-full border rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+            className={`w-full border rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
               errors.email ? 'border-red-400' : 'border-slate-300'
             }`}
           />

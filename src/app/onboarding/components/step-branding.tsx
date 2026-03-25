@@ -32,7 +32,8 @@ export function StepBranding({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const formUrl = `quotzal.com/f/${slug}-link`;
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://quotzal.com').replace(/^https?:\/\//, '');
+  const formUrl = `${baseUrl}/f/${slug}-link`;
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

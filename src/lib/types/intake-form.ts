@@ -330,4 +330,6 @@ export interface BrokerData {
   insuranceTypesEnabled: InsuranceType[];
   linkId: string;
   formConfig: FormConfig;
+  email: string | null;
+  phone: string | null;
 }

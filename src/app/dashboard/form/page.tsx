@@ -237,7 +237,9 @@ export default function MyFormPage() {
 
   const primaryLink = data.links.find((l) => l.is_primary);
   const aliases = data.links.filter((l) => !l.is_primary);
-  const formUrl = `quotzal.com/f/${primaryLink?.slug || data.slug}`;
+  const baseDomain = (process.env.NEXT_PUBLIC_BASE_URL || 'https://quotzal.com').replace(/^https?:\/\//, '');
+  const linkSlug = primaryLink?.slug || data.slug;
+  const formUrl = `${baseDomain}/f/${linkSlug}`;
   const fullUrl = `https://${formUrl}`;
   const isPro = data.plan === "pro";
 

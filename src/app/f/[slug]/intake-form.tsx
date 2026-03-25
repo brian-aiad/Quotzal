@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Script from 'next/script';
 import type {
   BrokerData,
@@ -153,12 +153,22 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const [typeSpecificError, setTypeSpecificError] = useState('');
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
+  // Auto-select if only 1 insurance type is enabled
+  const singleType = broker.insuranceTypesEnabled.length === 1 ? broker.insuranceTypesEnabled[0] : null;
+
   const [formData, setFormData] = useState<IntakeFormData>({
-    insuranceType: '',
+    insuranceType: singleType ?? '',
     personalInfo: INITIAL_PERSONAL_INFO,
-    typeSpecificData: null,
+    typeSpecificData: singleType ? getDefaultTypeData(singleType) : null,
     currentInsurance: INITIAL_CURRENT_INSURANCE,
   });
+
+  // Skip step 0 if only 1 type
+  useEffect(() => {
+    if (singleType && currentStep === 0) {
+      setCurrentStep(1);
+    }
+  }, [singleType, currentStep]);
 
   const isPro =
     broker.plan === 'pro' &&
@@ -366,10 +376,18 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 </div>
               )}
               <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-                <a href={`mailto:${broker.brokerageName}`} className="flex items-center gap-3 text-sm text-slate-700 hover:text-emerald-700 transition-colors">
-                  <span className="text-lg">✉️</span>
-                  <span>Send us an email</span>
-                </a>
+                {broker.phone && (
+                  <a href={`tel:${broker.phone}`} className="flex items-center gap-3 text-sm text-slate-700 hover:text-emerald-700 transition-colors">
+                    <span className="text-lg">📞</span>
+                    <span>Call us: {broker.phone}</span>
+                  </a>
+                )}
+                {broker.email && (
+                  <a href={`mailto:${broker.email}`} className="flex items-center gap-3 text-sm text-slate-700 hover:text-emerald-700 transition-colors">
+                    <span className="text-lg">✉️</span>
+                    <span>Email us</span>
+                  </a>
+                )}
               </div>
             </div>
 

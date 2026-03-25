@@ -18,7 +18,8 @@ export async function sendLeadSMS(params: SendLeadSMSParams): Promise<void> {
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
-  const body = `New lead on Quotzal: ${params.leadFirstName} ${params.leadLastName} needs ${typeLabel} insurance. Email: ${params.leadEmail}. View at quotzal.com/dashboard`;
+  const domain = (process.env.NEXT_PUBLIC_BASE_URL || 'https://quotzal.com').replace(/^https?:\/\//, '');
+  const body = `New lead on Quotzal: ${params.leadFirstName} ${params.leadLastName} needs ${typeLabel} insurance. Email: ${params.leadEmail}. View at ${domain}/dashboard`;
 
   // Use Twilio REST API directly to avoid requiring the full twilio package
   const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;

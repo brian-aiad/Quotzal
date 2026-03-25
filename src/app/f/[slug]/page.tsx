@@ -21,6 +21,8 @@ interface BrokerRow {
   status: string;
   insurance_types_enabled: string[];
   form_config: FormConfig | null;
+  email: string;
+  phone: string | null;
 }
 
 interface BrokerLinkRow {
@@ -121,6 +123,8 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     insuranceTypesEnabled: broker.insurance_types_enabled as InsuranceType[],
     linkId,
     formConfig: (broker.form_config as FormConfig) ?? DEFAULT_FORM_CONFIG,
+    email: broker.email,
+    phone: broker.phone,
   };
 
   return <IntakeForm broker={brokerData} preview={isPreview} />;

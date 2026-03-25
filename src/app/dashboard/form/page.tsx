@@ -265,9 +265,9 @@ export default function MyFormPage() {
             <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
               {aliases.map((alias) => (
                 <div key={alias.id} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-600 truncate">quotzal.com/f/{alias.slug}</span>
+                  <span className="text-slate-600 truncate">{baseDomain}/f/{alias.slug}</span>
                   <div className="flex items-center gap-2 shrink-0">
-                    <button onClick={() => copyToClipboard(`https://quotzal.com/f/${alias.slug}`)} className="text-emerald-600 hover:text-emerald-700 font-medium">Copy</button>
+                    <button onClick={() => copyToClipboard(`https://${baseDomain}/f/${alias.slug}`)} className="text-emerald-600 hover:text-emerald-700 font-medium">Copy</button>
                     <button onClick={() => toggleAliasActive(alias.id, !alias.is_active)} className={`font-medium px-1.5 py-0.5 rounded ${alias.is_active ? "bg-emerald-50 text-emerald-600" : "bg-slate-200 text-slate-500"}`}>
                       {alias.is_active ? "On" : "Off"}
                     </button>

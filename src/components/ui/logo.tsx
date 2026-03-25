@@ -6,11 +6,11 @@ interface LogoProps {
 }
 
 const SIZES = {
-  xs: { height: 20, textClass: 'text-sm' },
-  sm: { height: 24, textClass: 'text-base' },
-  md: { height: 32, textClass: 'text-xl' },
-  lg: { height: 40, textClass: 'text-2xl' },
-  xl: { height: 56, textClass: 'text-4xl' },
+  xs: { height: 24, textClass: 'text-[15px]' },
+  sm: { height: 30, textClass: 'text-lg' },
+  md: { height: 36, textClass: 'text-[22px]' },
+  lg: { height: 48, textClass: 'text-[30px]' },
+  xl: { height: 64, textClass: 'text-[40px]' },
 };
 
 function QuetzalBird({ height }: { height: number }) {
@@ -64,7 +64,7 @@ export function QuotzalLogo({ size = 'md', variant = 'full', dark = false, class
     <div className={`flex items-center gap-2 ${className ?? ''}`}>
       <QuetzalBird height={height} />
       {variant === 'full' && (
-        <span className={`font-bold tracking-tight select-none ${textClass} ${dark ? 'text-white' : 'text-gray-900'}`}>
+        <span className={`font-bold tracking-tight select-none leading-none ${textClass} ${dark ? 'text-white' : 'text-gray-900'}`}>
           Quotzal
         </span>
       )}

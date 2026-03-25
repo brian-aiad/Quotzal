@@ -298,7 +298,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
           <button
             type="button"
             onClick={() => setShowCancelModal(true)}
-            className="px-4 py-2 text-sm text-red-600 font-medium border border-red-200 rounded-lg hover:bg-red-50"
+            className="text-sm text-red-500 hover:text-red-700 hover:underline transition-colors"
           >
             Cancel subscription
           </button>

@@ -37,7 +37,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-700">
-        <QuotzalLogo size="sm" dark />
+        <QuotzalLogo size="md" dark />
       </div>
 
       {/* Nav links */}
@@ -94,7 +94,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
 
       {/* Mobile hamburger */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between border-b border-slate-700" style={{ backgroundColor: '#0f172a' }}>
-        <QuotzalLogo size="xs" dark />
+        <QuotzalLogo size="sm" dark />
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}

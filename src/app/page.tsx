@@ -10,7 +10,7 @@ export default function MarketingPage() {
       {/* Nav */}
       <nav className="bg-[#0f172a] border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/"><QuotzalLogo size="sm" dark /></Link>
+          <Link href="/"><QuotzalLogo size="md" dark /></Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-slate-300 hover:text-white transition-colors">
               Log in

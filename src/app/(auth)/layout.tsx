@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-emerald-50/30 px-4">
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-6">
-          <Link href="/"><QuotzalLogo size="md" /></Link>
+          <Link href="/"><QuotzalLogo size="lg" /></Link>
         </div>
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
           {children}

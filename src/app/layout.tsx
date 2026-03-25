@@ -15,7 +15,11 @@ export const metadata: Metadata = {
   description:
     "Send a link. Get everything you need. Quotzal helps insurance brokers collect client info with smart intake forms.",
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
   },
   openGraph: {
     title: "Quotzal — Insurance Intake, Simplified",

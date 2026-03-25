@@ -30,7 +30,7 @@ export function StepInsuranceType({
         Select one to get started.
       </p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
         {filteredOptions.map((opt) => {
           const isSelected = selected === opt.value;
           return (
@@ -38,7 +38,7 @@ export function StepInsuranceType({
               key={opt.value}
               type="button"
               onClick={() => onSelect(opt.value)}
-              className={`relative flex flex-col items-center justify-center p-4 pt-5 pb-4 rounded-2xl border-2 transition-all duration-200 min-h-[96px] cursor-pointer text-center ${
+              className={`relative flex flex-col items-center justify-center p-4 lg:p-6 pt-5 lg:pt-7 pb-4 lg:pb-5 rounded-2xl border-2 transition-all duration-200 min-h-[96px] lg:min-h-[120px] cursor-pointer text-center ${
                 isSelected
                   ? 'shadow-md'
                   : 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-sm'
@@ -63,9 +63,9 @@ export function StepInsuranceType({
                   </svg>
                 </div>
               )}
-              <span className="text-2xl mb-2">{opt.icon}</span>
+              <span className="text-2xl lg:text-3xl mb-2 lg:mb-3">{opt.icon}</span>
               <span
-                className={`text-xs font-semibold leading-tight ${
+                className={`text-xs lg:text-sm font-semibold leading-tight ${
                   isSelected ? '' : 'text-gray-700'
                 }`}
                 style={isSelected ? { color: accentColor } : undefined}

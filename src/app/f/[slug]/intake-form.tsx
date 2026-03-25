@@ -19,6 +19,7 @@ import type {
 } from '@/lib/types/intake-form';
 import { QuotzalLogo } from '@/components/ui/logo';
 import { ProgressBar } from './components/progress-bar';
+import { StepHelpPanel } from './components/step-help-panel';
 import { StepInsuranceType } from './components/step-insurance-type';
 import { StepPersonalInfo } from './components/step-personal-info';
 import {
@@ -432,7 +433,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       )}
       {/* Header */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+        <div className="max-w-2xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-3.5">
             <div className="flex items-center gap-2.5">
               {isPro && broker.logoUrl ? (
@@ -461,15 +462,30 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-6 md:py-10">
-        <div className="max-w-2xl mx-auto min-h-[calc(100vh-160px)]">
-          <ProgressBar
-            currentStep={progressStep}
-            totalSteps={effectiveTotalSteps}
-            brandColor={brandColor}
-          />
+      <main className="flex-1 px-4 py-6 md:py-10 lg:py-12">
+        <div className="max-w-2xl lg:max-w-7xl mx-auto lg:px-8">
+          {/* Mobile progress bar */}
+          <div className="lg:hidden">
+            <ProgressBar
+              currentStep={progressStep}
+              totalSteps={effectiveTotalSteps}
+              brandColor={brandColor}
+            />
+          </div>
 
-          <div className="space-y-6">
+          <div className="flex flex-col lg:flex-row lg:gap-16 xl:gap-24">
+            {/* Left column — form content */}
+            <div className="flex-1 lg:max-w-xl">
+              {/* Desktop progress bar */}
+              <div className="hidden lg:block mb-8">
+                <ProgressBar
+                  currentStep={progressStep}
+                  totalSteps={effectiveTotalSteps}
+                  brandColor={brandColor}
+                />
+              </div>
+
+              <div className="space-y-6">
             {/* Step 0: Insurance Type */}
             {currentStep === 0 && (
               <StepInsuranceType
@@ -631,19 +647,82 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
             )}
 
           </div>
-          <div className="h-32" />
+
+              {/* DESKTOP NAV — inline below form, NOT fixed */}
+              <div className="hidden lg:flex items-center gap-4 mt-10">
+                {currentStep > 0 ? (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="h-12 px-6 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                  >
+                    ← Back
+                  </button>
+                ) : <div />}
+
+                {currentStep < TOTAL_STEPS - 1 ? (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={currentStep === 0 && !formData.insuranceType}
+                    className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: accentColor }}
+                  >
+                    Continue →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-60"
+                    style={{ backgroundColor: accentColor }}
+                  >
+                    {submitting ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit my information →'
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {submitError && (
+                <p className="hidden lg:block mt-2 text-xs text-red-500 text-center">{submitError}</p>
+              )}
+
+              {/* Desktop security note */}
+              <div className="hidden lg:flex items-center gap-1.5 mt-4">
+                <svg className="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                </svg>
+                <span className="text-xs text-gray-300">Your information is encrypted and secure</span>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN — contextual help panel (desktop only) */}
+            <div className="hidden lg:flex lg:w-72 xl:w-80 flex-col gap-4 pt-16 shrink-0">
+              <StepHelpPanel currentStep={currentStep} insuranceType={formData.insuranceType} />
+            </div>
+          </div>
+
+          {/* Mobile bottom padding */}
+          <div className="lg:hidden h-32" />
         </div>
       </main>
 
-      {/* Sticky bottom navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.06)' }}>
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
+      {/* MOBILE ONLY — Sticky bottom navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             {currentStep > 0 ? (
               <button
                 type="button"
                 onClick={handleBack}
-                className="h-11 px-5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shrink-0"
+                className="h-12 px-5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all shrink-0"
               >
                 ← Back
               </button>
@@ -654,7 +733,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 type="button"
                 onClick={handleNext}
                 disabled={currentStep === 0 && !formData.insuranceType}
-                className="flex-1 h-11 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 h-12 text-base font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ backgroundColor: accentColor }}
               >
                 Continue →
@@ -664,7 +743,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 h-11 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-60"
+                className="flex-1 h-12 text-base font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-60"
                 style={{ backgroundColor: accentColor }}
               >
                 {submitting ? (
@@ -673,7 +752,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                     Submitting...
                   </span>
                 ) : (
-                  'Submit my information →'
+                  'Submit →'
                 )}
               </button>
             )}
@@ -683,12 +762,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
             <p className="mt-2 text-xs text-red-500 text-center">{submitError}</p>
           )}
 
-          <div className="flex items-center justify-center gap-1.5 mt-2.5">
-            <svg className="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-[11px] text-gray-300">Your information is encrypted and secure</span>
-          </div>
+          <p className="text-center text-[11px] text-gray-300 mt-2">🔒 Encrypted and secure</p>
         </div>
       </div>
     </div>

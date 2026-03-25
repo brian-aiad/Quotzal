@@ -27,7 +27,7 @@ export function Charts({ data }: ChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Weekly submissions bar chart */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm min-h-[240px]">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Submissions per Week</h3>
         {data.weekly.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>
@@ -44,7 +44,7 @@ export function Charts({ data }: ChartsProps) {
       </div>
 
       {/* Insurance type donut chart */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm min-h-[240px]">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">By Insurance Type</h3>
         {data.byType.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>

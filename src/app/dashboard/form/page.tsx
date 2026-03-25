@@ -247,7 +247,7 @@ export default function MyFormPage() {
     <div className="flex flex-col lg:flex-row gap-6">
       {/* Left column — Controls */}
       <div className="flex-1 lg:w-1/2 space-y-5 min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">My Form</h1>
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">My Form</h1>
 
         {/* Section 1: Your Form Link */}
         <div className="bg-white border border-slate-200 rounded-xl p-4">

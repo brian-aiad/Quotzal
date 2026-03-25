@@ -69,7 +69,7 @@ export default async function DashboardLayout({
         {isImpersonating && (
           <AdminBanner brokerName={broker.brokerage_name} />
         )}
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto">
           {children}
         </div>
 

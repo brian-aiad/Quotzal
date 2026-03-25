@@ -82,7 +82,7 @@ export default function BillingPage() {
     // Trial users have no subscription yet — show helpful trial state
     return (
       <div className="space-y-8">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Billing</h1>
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
         <div className="bg-white border border-slate-200 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-50 text-amber-700 border border-amber-200">Trial</span>
@@ -116,7 +116,7 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold tracking-tight text-gray-900">Billing</h1>
+      <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
 
       {toast && (
         <div

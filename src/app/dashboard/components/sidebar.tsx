@@ -55,10 +55,10 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
               <Link
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`relative flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-emerald-950 text-emerald-400 border-l-2 border-emerald-400 -ml-px'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                    ? 'bg-emerald-600/10 text-emerald-400 before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-emerald-500 before:rounded-r'
+                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <item.icon active={isActive} />

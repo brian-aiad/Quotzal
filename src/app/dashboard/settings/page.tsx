@@ -88,7 +88,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold tracking-tight text-gray-900">Settings</h1>
+      <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Settings</h1>
 
       {toast && (
         <div

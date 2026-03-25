@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { QuotzalLogo } from "@/components/ui/logo";
 
 export default function SignupPage() {
   return (
@@ -75,103 +76,137 @@ function SignupForm() {
 
   if (emailSent) {
     return (
-      <div className="text-center">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
+        <div className="max-w-sm w-full text-center">
+          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Check your email</h2>
+          <p className="text-sm text-slate-600 mb-6">
+            We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
+          </p>
+          <button
+            onClick={handleResend}
+            disabled={resendCooldown > 0}
+            className="text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+          >
+            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend email"}
+          </button>
         </div>
-        <h2 className="text-xl font-bold text-slate-900 mb-2">Check your email</h2>
-        <p className="text-sm text-slate-600 mb-6">
-          We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
-        </p>
-        <button
-          onClick={handleResend}
-          disabled={resendCooldown > 0}
-          className="text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:text-slate-400 disabled:cursor-not-allowed"
-        >
-          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend email"}
-        </button>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Start your 30-day free trial of Quotzal
-        </p>
+    <div className="min-h-screen flex">
+      {/* Left panel — dark brand */}
+      <div className="hidden lg:flex lg:w-[45%] bg-gray-950 flex-col justify-between p-12 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(16,185,129,1) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,1) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        />
+        <div className="relative z-10">
+          <QuotzalLogo size="md" dark />
+        </div>
+        <div className="relative z-10 max-w-sm">
+          <div className="text-5xl text-emerald-500 font-serif leading-none mb-4 select-none">&ldquo;</div>
+          <p className="text-xl text-white font-medium leading-relaxed mb-6">
+            I used to spend 45 minutes per quote chasing info. Now I send one link and I&apos;m quoting in 10 minutes.
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+              <span className="text-sm font-bold text-white">JR</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">Jane R.</p>
+              <p className="text-xs text-gray-400">Independent Auto Broker · Texas</p>
+            </div>
+          </div>
+        </div>
+        <div className="relative z-10">
+          <p className="text-xs text-gray-600">&copy; {new Date().getFullYear()} Quotzal. All rights reserved.</p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-            {error}
+      {/* Right panel — form */}
+      <div className="flex-1 bg-white flex flex-col justify-center px-8 md:px-12 lg:px-16 py-12">
+        <div className="max-w-sm w-full mx-auto">
+          <div className="lg:hidden mb-10">
+            <Link href="/"><QuotzalLogo size="md" /></Link>
           </div>
-        )}
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            placeholder="you@example.com"
-          />
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Start your free trial</h1>
+          <p className="text-emerald-600 text-sm font-medium mb-8">30 days free — no credit card required</p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1.5">Confirm password</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-3.5 rounded-xl transition-all duration-200 shadow-sm disabled:opacity-50"
+            >
+              {loading ? "Creating account..." : "Create account"}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-8 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-500">
+              Already have an account?{" "}
+              <Link href="/login" className="text-emerald-600 font-semibold hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700">
-            Confirm password
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
-        >
-          {loading ? "Creating account..." : "Create account"}
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-slate-600">
-        Already have an account?{" "}
-        <Link href="/login" className="font-medium text-emerald-600 hover:text-emerald-700">
-          Sign in
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }

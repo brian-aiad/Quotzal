@@ -462,30 +462,44 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-6 md:py-10 lg:py-12">
-        <div className="max-w-2xl lg:max-w-7xl mx-auto lg:px-8">
-          {/* Mobile progress bar */}
-          <div className="lg:hidden">
-            <ProgressBar
-              currentStep={progressStep}
-              totalSteps={effectiveTotalSteps}
-              brandColor={brandColor}
-            />
-          </div>
+      <main className="flex-1 flex flex-col lg:flex-row">
+        {/* Left column — form */}
+        <div className="flex-1 flex flex-col px-4 py-6 md:py-10 lg:py-12">
+          <div className="flex-1 max-w-2xl lg:max-w-xl w-full mx-auto lg:mx-0 lg:ml-auto lg:mr-0 lg:pl-8 xl:pl-12">
+            {/* Mobile progress bar */}
+            <div className="lg:hidden">
+              <ProgressBar
+                currentStep={progressStep}
+                totalSteps={effectiveTotalSteps}
+                brandColor={brandColor}
+              />
+            </div>
 
-          <div className="flex flex-col lg:flex-row lg:gap-16 xl:gap-24">
-            {/* Left column — form content */}
-            <div className="flex-1 lg:max-w-xl">
-              {/* Desktop progress bar */}
-              <div className="hidden lg:block mb-8">
-                <ProgressBar
-                  currentStep={progressStep}
-                  totalSteps={effectiveTotalSteps}
-                  brandColor={brandColor}
-                />
-              </div>
+            {/* Desktop progress bar */}
+            <div className="hidden lg:block mb-8">
+              <ProgressBar
+                currentStep={progressStep}
+                totalSteps={effectiveTotalSteps}
+                brandColor={brandColor}
+              />
+            </div>
 
-              <div className="space-y-6">
+            {/* Mobile help hints */}
+            <div className="lg:hidden mb-4">
+              {currentStep === 0 && (
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3">
+                  <span className="text-emerald-600 text-sm">&#x23F1;</span>
+                  <p className="text-xs text-emerald-700 font-medium">Takes about 3 minutes · Your info is encrypted</p>
+                </div>
+              )}
+              {(currentStep === 3) && (
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+                  <p className="text-xs text-emerald-700 font-medium">&#x1F4A1; Enter your VIN to auto-fill Year, Make &amp; Model</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-6">
             {/* Step 0: Insurance Type */}
             {currentStep === 0 && (
               <StepInsuranceType
@@ -646,76 +660,77 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               </>
             )}
 
+            </div>
+
+            {/* Mobile bottom padding */}
+            <div className="lg:hidden h-32" />
           </div>
 
-              {/* DESKTOP NAV — inline below form, NOT fixed */}
-              <div className="hidden lg:flex items-center gap-4 mt-10">
-                {currentStep > 0 ? (
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className="h-12 px-6 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
-                  >
-                    ← Back
-                  </button>
-                ) : <div />}
+          {/* Desktop nav — pinned to bottom of left column */}
+          <div className="hidden lg:block max-w-xl w-full mx-auto lg:mx-0 lg:ml-auto lg:mr-0 lg:pl-8 xl:pl-12 pb-8 pt-6">
+            <div className="flex items-center gap-4">
+              {currentStep > 0 ? (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="h-12 px-6 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                >
+                  ← Back
+                </button>
+              ) : <div />}
 
-                {currentStep < TOTAL_STEPS - 1 ? (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    disabled={currentStep === 0 && !formData.insuranceType}
-                    className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: accentColor }}
-                  >
-                    Continue →
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={submitting}
-                    className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-60"
-                    style={{ backgroundColor: accentColor }}
-                  >
-                    {submitting ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Submitting...
-                      </span>
-                    ) : (
-                      'Submit my information →'
-                    )}
-                  </button>
-                )}
-              </div>
-
-              {submitError && (
-                <p className="hidden lg:block mt-2 text-xs text-red-500 text-center">{submitError}</p>
+              {currentStep < TOTAL_STEPS - 1 ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={currentStep === 0 && !formData.insuranceType}
+                  className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: accentColor }}
+                >
+                  Continue →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-60"
+                  style={{ backgroundColor: accentColor }}
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    'Submit my information →'
+                  )}
+                </button>
               )}
-
-              {/* Desktop security note */}
-              <div className="hidden lg:flex items-center gap-1.5 mt-4">
-                <svg className="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
-                </svg>
-                <span className="text-xs text-gray-300">Your information is encrypted and secure</span>
-              </div>
             </div>
 
-            {/* RIGHT COLUMN — contextual help panel (desktop only) */}
-            <div className="hidden lg:flex lg:w-72 xl:w-80 flex-col gap-4 pt-16 shrink-0">
-              <StepHelpPanel currentStep={currentStep} insuranceType={formData.insuranceType} />
+            {submitError && (
+              <p className="mt-2 text-xs text-red-500 text-center">{submitError}</p>
+            )}
+
+            {/* Desktop security note */}
+            <div className="flex items-center gap-1.5 mt-4">
+              <svg className="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+              </svg>
+              <span className="text-xs text-gray-300">Your information is encrypted and secure</span>
             </div>
           </div>
+        </div>
 
-          {/* Mobile bottom padding */}
-          <div className="lg:hidden h-32" />
+        {/* Right column — help panel */}
+        <div className="hidden lg:flex lg:w-80 xl:w-96 shrink-0 flex-col gap-4 bg-gray-50/80 border-l border-gray-100 px-8 py-12">
+          <StepHelpPanel currentStep={currentStep} insuranceType={formData.insuranceType} />
         </div>
       </main>
 
       {/* MOBILE ONLY — Sticky bottom navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
         <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             {currentStep > 0 ? (

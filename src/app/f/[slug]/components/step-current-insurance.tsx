@@ -104,29 +104,51 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
           <button
             type="button"
             onClick={() => update('hasCurrentInsurance', true)}
-            className={`flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-2xl border-2 transition-all duration-200 text-center ${
+            className={`flex flex-col items-center justify-center gap-2 py-5 px-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
               data.hasCurrentInsurance === true
-                ? 'bg-emerald-50 border-emerald-500 shadow-md shadow-emerald-100/50'
-                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200'
+                : 'bg-white border-gray-200 text-gray-600 hover:border-emerald-300 hover:bg-emerald-50/50'
             }`}
           >
-            <span className={`text-lg font-bold ${data.hasCurrentInsurance === true ? 'text-emerald-600' : 'text-gray-300'}`}>✓</span>
-            <span className={`text-sm font-semibold leading-tight ${data.hasCurrentInsurance === true ? 'text-emerald-800' : 'text-gray-500'}`}>
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+              data.hasCurrentInsurance === true ? 'border-white bg-white/20' : 'border-gray-200'
+            }`}>
+              {data.hasCurrentInsurance === true && (
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              )}
+            </div>
+            <span className={`text-sm font-bold ${data.hasCurrentInsurance === true ? 'text-white' : 'text-gray-700'}`}>
               Yes, I&apos;m insured
+            </span>
+            <span className={`text-xs ${data.hasCurrentInsurance === true ? 'text-emerald-100' : 'text-gray-400'}`}>
+              I have current coverage
             </span>
           </button>
           <button
             type="button"
             onClick={() => onChange({ hasCurrentInsurance: false, currentCarrier: undefined, currentCoverageLimits: undefined, policyExpiryDate: undefined })}
-            className={`flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-2xl border-2 transition-all duration-200 text-center ${
+            className={`flex flex-col items-center justify-center gap-2 py-5 px-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
               data.hasCurrentInsurance === false
-                ? 'bg-gray-100 border-gray-400 shadow-sm'
-                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                ? 'bg-gray-800 border-gray-800 text-white shadow-md'
+                : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400 hover:bg-gray-50'
             }`}
           >
-            <span className={`text-lg font-bold ${data.hasCurrentInsurance === false ? 'text-gray-600' : 'text-gray-300'}`}>✗</span>
-            <span className={`text-sm font-semibold leading-tight ${data.hasCurrentInsurance === false ? 'text-gray-700' : 'text-gray-500'}`}>
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+              data.hasCurrentInsurance === false ? 'border-white bg-white/20' : 'border-gray-200'
+            }`}>
+              {data.hasCurrentInsurance === false && (
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              )}
+            </div>
+            <span className={`text-sm font-bold ${data.hasCurrentInsurance === false ? 'text-white' : 'text-gray-700'}`}>
               No, I&apos;m uninsured
+            </span>
+            <span className={`text-xs ${data.hasCurrentInsurance === false ? 'text-gray-300' : 'text-gray-400'}`}>
+              No current policy
             </span>
           </button>
         </div>

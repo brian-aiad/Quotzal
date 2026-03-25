@@ -69,9 +69,10 @@ export function AutoPersonalVehicles({
           <button
             type="button"
             onClick={addVehicle}
-            className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+            className="w-full mt-3 group flex items-center justify-center gap-2.5 py-4 border-2 border-dashed border-gray-200 rounded-2xl text-sm font-semibold text-gray-400 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50/40 transition-all duration-200"
           >
-            + Add Vehicle
+            <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold leading-none group-hover:border-emerald-500 transition-colors">+</span>
+            Add Another Vehicle
           </button>
         )}
       </div>

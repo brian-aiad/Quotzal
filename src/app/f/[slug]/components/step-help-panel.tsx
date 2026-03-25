@@ -38,14 +38,17 @@ export function StepHelpPanel({ currentStep }: StepHelpPanelProps) {
           </div>
         </div>
 
-        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
-          <div className="flex items-start gap-2">
-            <svg className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <div className="bg-emerald-600 rounded-2xl p-5">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-emerald-200 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
             </svg>
-            <p className="text-xs text-emerald-700 leading-relaxed">
-              Your information is encrypted and only shared with your broker.
-            </p>
+            <div>
+              <p className="text-sm font-bold text-white">Secure & private</p>
+              <p className="text-xs text-emerald-100 mt-1 leading-relaxed">
+                Your information is encrypted and only shared with your broker for quoting purposes.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -119,13 +122,15 @@ export function StepHelpPanel({ currentStep }: StepHelpPanelProps) {
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-          <p className="text-xs font-semibold text-blue-800 mb-1">Where to find your VIN</p>
-          <div className="space-y-1 mt-2">
+        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+          <p className="text-xs font-bold text-emerald-900 mb-3">Where to find your VIN</p>
+          <div className="space-y-2">
             {['Dashboard, visible through windshield', 'Driver\'s door jamb sticker', 'Insurance card or registration'].map(loc => (
-              <div key={loc} className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-blue-400" />
-                <p className="text-xs text-blue-600">{loc}</p>
+              <div key={loc} className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                </div>
+                <p className="text-xs text-emerald-800">{loc}</p>
               </div>
             ))}
           </div>

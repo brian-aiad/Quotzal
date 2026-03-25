@@ -104,17 +104,17 @@ export function DriverCard({
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
-      <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-50 to-white border-b border-emerald-100/60">
+      <div className="flex items-center justify-between px-5 py-4 bg-emerald-50 border-b border-emerald-100">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-200">
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
             <span className="text-xs font-bold text-white">{index + 1}</span>
           </div>
           <div>
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-sm font-bold text-emerald-900">
               {isPrimary ? 'Primary Driver' : `Driver ${index + 1}`}
             </span>
             {driver.fullName && (
-              <span className="text-xs text-gray-400 ml-2 font-normal">— {driver.fullName}</span>
+              <span className="text-xs text-emerald-600 ml-2 font-medium">— {driver.fullName}</span>
             )}
           </div>
         </div>

@@ -49,7 +49,7 @@ function Combobox({ value, options, onChange, placeholder, label }: {
 
   return (
     <div className="relative" ref={ref}>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
       <input
         type="text"
         value={query}
@@ -106,12 +106,12 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
             onClick={() => update('hasCurrentInsurance', true)}
             className={`flex flex-col items-center justify-center gap-2 py-5 px-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
               data.hasCurrentInsurance === true
-                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200'
+                ? 'border-emerald-500 bg-emerald-50 shadow-md'
                 : 'bg-white border-gray-200 text-gray-600 hover:border-emerald-300 hover:bg-emerald-50/50'
             }`}
           >
             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-              data.hasCurrentInsurance === true ? 'border-white bg-white/20' : 'border-gray-200'
+              data.hasCurrentInsurance === true ? 'border-emerald-500 bg-emerald-500' : 'border-gray-200'
             }`}>
               {data.hasCurrentInsurance === true && (
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -119,10 +119,10 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
                 </svg>
               )}
             </div>
-            <span className={`text-sm font-bold ${data.hasCurrentInsurance === true ? 'text-white' : 'text-gray-700'}`}>
+            <span className={`text-sm font-bold ${data.hasCurrentInsurance === true ? 'text-emerald-800' : 'text-gray-700'}`}>
               Yes, I&apos;m insured
             </span>
-            <span className={`text-xs ${data.hasCurrentInsurance === true ? 'text-emerald-100' : 'text-gray-400'}`}>
+            <span className={`text-xs ${data.hasCurrentInsurance === true ? 'text-emerald-600' : 'text-gray-400'}`}>
               I have current coverage
             </span>
           </button>
@@ -131,12 +131,12 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
             onClick={() => onChange({ hasCurrentInsurance: false, currentCarrier: undefined, currentCoverageLimits: undefined, policyExpiryDate: undefined })}
             className={`flex flex-col items-center justify-center gap-2 py-5 px-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
               data.hasCurrentInsurance === false
-                ? 'bg-gray-800 border-gray-800 text-white shadow-md'
+                ? 'border-gray-400 bg-gray-50 shadow-md'
                 : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400 hover:bg-gray-50'
             }`}
           >
             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-              data.hasCurrentInsurance === false ? 'border-white bg-white/20' : 'border-gray-200'
+              data.hasCurrentInsurance === false ? 'border-gray-500 bg-gray-500' : 'border-gray-200'
             }`}>
               {data.hasCurrentInsurance === false && (
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -144,17 +144,17 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
                 </svg>
               )}
             </div>
-            <span className={`text-sm font-bold ${data.hasCurrentInsurance === false ? 'text-white' : 'text-gray-700'}`}>
+            <span className={`text-sm font-bold ${data.hasCurrentInsurance === false ? 'text-gray-800' : 'text-gray-700'}`}>
               No, I&apos;m uninsured
             </span>
-            <span className={`text-xs ${data.hasCurrentInsurance === false ? 'text-gray-300' : 'text-gray-400'}`}>
+            <span className={`text-xs ${data.hasCurrentInsurance === false ? 'text-gray-500' : 'text-gray-400'}`}>
               No current policy
             </span>
           </button>
         </div>
 
         {data.hasCurrentInsurance && (
-          <div className="space-y-5 pt-2">
+          <div className="space-y-5 pt-2 transition-all duration-200">
             <Combobox
               label="Current Carrier"
               value={data.currentCarrier ?? ''}
@@ -172,7 +172,7 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
             />
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Policy Expiry Date
               </label>
               <input

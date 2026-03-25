@@ -27,7 +27,7 @@ export function ProgressBar({
   return (
     <div className="w-full mb-8">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: accentColor }}>
+        <span className="text-xs font-bold uppercase tracking-widest" style={{ color: accentColor }}>
           Step {currentStep + 1} of {totalSteps} — {stepLabel}
         </span>
         <span className="text-[11px] text-gray-400">

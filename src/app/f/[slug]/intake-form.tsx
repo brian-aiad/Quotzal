@@ -89,17 +89,44 @@ function validatePersonalInfo(data: PersonalInfo, fc: FormConfig): Record<string
   return errors;
 }
 
-function validateDrivers(drivers: Driver[]): string | null {
-  for (const driver of drivers) {
-    if (!driver.noUsLicense && !driver.licenseNumber.trim()) {
-      return 'All drivers must have a license number (or check "No US driver\'s license")';
+interface DriverErrors {
+  [driverIndex: number]: Record<string, string>;
+}
+
+function validateDrivers(drivers: Driver[], fc: FormConfig): { message: string | null; driverErrors: DriverErrors } {
+  const driverErrors: DriverErrors = {};
+  const licenseRequired = fc.fields.driver_license_number.enabled && fc.fields.driver_license_number.required;
+
+  for (let i = 0; i < drivers.length; i++) {
+    const driver = drivers[i];
+    const errors: Record<string, string> = {};
+
+    if (!driver.fullName.trim()) {
+      errors.fullName = 'Full name is required';
     }
+
     if (driver.dateOfBirth) {
       const dobErr = validateDob(driver.dateOfBirth);
-      if (dobErr) return `Driver "${driver.fullName || 'Unnamed'}": ${dobErr}`;
+      if (dobErr) errors.dateOfBirth = dobErr;
+    }
+
+    if (licenseRequired && !driver.noUsLicense) {
+      if (!driver.licenseNumber.trim()) {
+        errors.licenseNumber = 'License number is required';
+      }
+      if (!driver.licenseState || driver.licenseState.trim() === '') {
+        errors.licenseState = 'License state is required';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      driverErrors[i] = errors;
     }
   }
-  return null;
+
+  const hasErrors = Object.keys(driverErrors).length > 0;
+  const message = hasErrors ? 'Please fix the highlighted errors below' : null;
+  return { message, driverErrors };
 }
 
 function validateVehicles(vehicles: { vin: string }[]): string | null {
@@ -111,20 +138,21 @@ function validateVehicles(vehicles: { vin: string }[]): string | null {
 
 function validateTypeSpecificDrivers(
   type: InsuranceType,
-  data: TypeSpecificData | null
-): string | null {
-  if (!data) return 'Please fill in the required details';
+  data: TypeSpecificData | null,
+  fc: FormConfig
+): { message: string | null; driverErrors: DriverErrors } {
+  if (!data) return { message: 'Please fill in the required details', driverErrors: {} };
 
   if (type === 'auto_personal') {
-    return validateDrivers((data as AutoPersonalData).drivers);
+    return validateDrivers((data as AutoPersonalData).drivers, fc);
   }
   if (type === 'auto_commercial') {
-    return validateDrivers((data as AutoCommercialData).drivers);
+    return validateDrivers((data as AutoCommercialData).drivers, fc);
   }
   if (type === 'other') {
-    if (!(data as OtherData).description.trim()) return 'Description is required';
+    if (!(data as OtherData).description.trim()) return { message: 'Description is required', driverErrors: {} };
   }
-  return null;
+  return { message: null, driverErrors: {} };
 }
 
 function validateTypeSpecificVehicles(
@@ -152,6 +180,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     Record<string, string>
   >({});
   const [typeSpecificError, setTypeSpecificError] = useState('');
+  const [driverErrors, setDriverErrors] = useState<DriverErrors>({});
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
   // Auto-select if only 1 insurance type is enabled
@@ -220,9 +249,11 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     // Step 2: Drivers / type-specific details
     if (currentStep === 2) {
       setTypeSpecificError('');
-      const err = validateTypeSpecificDrivers(insType, formData.typeSpecificData);
-      if (err) {
-        setTypeSpecificError(err);
+      setDriverErrors({});
+      const { message, driverErrors: errs } = validateTypeSpecificDrivers(insType, formData.typeSpecificData, fc);
+      if (message) {
+        setTypeSpecificError(message);
+        setDriverErrors(errs);
         return;
       }
     }
@@ -352,13 +383,33 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     const firstName = formData.personalInfo.firstName;
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
+        <style>{`
+          @keyframes checkmark-scale {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes checkmark-draw {
+            0% { stroke-dashoffset: 24; }
+            100% { stroke-dashoffset: 0; }
+          }
+        `}</style>
         <div className="flex-1 flex items-center justify-center px-4 py-10">
           <div className="w-full max-w-lg">
             {/* Animated checkmark */}
             <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
-                <svg className="w-10 h-10 text-emerald-600 animate-[scale-in_0.3s_ease-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              <div
+                className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center"
+                style={{ animation: 'checkmark-scale 0.5s ease-out forwards' }}
+              >
+                <svg className="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M5 13l4 4L19 7"
+                    style={{ strokeDasharray: 24, animation: 'checkmark-draw 0.4s ease-out 0.3s forwards', strokeDashoffset: 24 }}
+                  />
                 </svg>
               </div>
             </div>
@@ -376,25 +427,29 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                   <img src={broker.logoUrl} alt={broker.brokerageName} className="h-10 w-auto object-contain" />
                 </div>
               )}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+              <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
                 {broker.phone && (
-                  <a href={`tel:${broker.phone}`} className="flex items-center gap-3 text-sm text-slate-700 hover:text-emerald-700 transition-colors">
-                    <span className="text-lg">📞</span>
+                  <a href={`tel:${broker.phone}`} className="flex items-center gap-3 text-sm text-gray-700 hover:text-emerald-700 transition-colors">
+                    <svg className="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                    </svg>
                     <span>Call us: {broker.phone}</span>
                   </a>
                 )}
                 {broker.email && (
-                  <a href={`mailto:${broker.email}`} className="flex items-center gap-3 text-sm text-slate-700 hover:text-emerald-700 transition-colors">
-                    <span className="text-lg">✉️</span>
-                    <span>Email us</span>
+                  <a href={`mailto:${broker.email}`} className="flex items-center gap-3 text-sm text-gray-700 hover:text-emerald-700 transition-colors">
+                    <svg className="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span>Email us: {broker.email}</span>
                   </a>
                 )}
               </div>
             </div>
 
             {/* What happens next */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">What happens next?</h3>
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">What happens next?</h3>
               <div className="space-y-3">
                 {[
                   'Your broker receives your complete submission instantly',
@@ -405,13 +460,13 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                     <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                       {i + 1}
                     </span>
-                    <span className="text-sm text-slate-600">{step}</span>
+                    <span className="text-sm text-gray-600">{step}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 mt-6">
+            <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mt-6">
               <QuotzalLogo size="xs" variant="icon" />
               <span>Powered by Quotzal</span>
             </div>
@@ -521,11 +576,11 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 />
                 {/* Custom fields */}
                 {visibleCustomFields.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-slate-200 space-y-4">
-                    <p className="text-sm font-medium text-slate-700">Additional Information</p>
+                  <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+                    <p className="text-sm font-medium text-gray-700">Additional Information</p>
                     {visibleCustomFields.map((cf) => (
                       <div key={cf.id}>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                           {cf.label}
                           {cf.required && <span className="text-red-500 ml-1">*</span>}
                         </label>
@@ -534,7 +589,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                             type="text"
                             value={customFieldValues[cf.id] ?? ''}
                             onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
-                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200"
                           />
                         )}
                         {cf.type === 'textarea' && (
@@ -542,14 +597,14 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                             value={customFieldValues[cf.id] ?? ''}
                             onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
                             rows={3}
-                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white resize-none"
+                            className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 resize-none"
                           />
                         )}
                         {cf.type === 'select' && (
                           <select
                             value={customFieldValues[cf.id] ?? ''}
                             onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
-                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200"
                           >
                             <option value="">Select...</option>
                             {cf.options.map((opt) => (
@@ -567,15 +622,18 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                                   value={opt}
                                   checked={customFieldValues[cf.id] === opt}
                                   onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
-                                  className="text-emerald-600 focus:ring-emerald-500"
+                                  className="text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
                                 />
-                                <span className="text-sm text-slate-700">{opt}</span>
+                                <span className="text-sm text-gray-700">{opt}</span>
                               </label>
                             ))}
                           </div>
                         )}
                         {personalInfoErrors[`custom_${cf.id}`] && (
-                          <p className="mt-1 text-xs text-red-600">{personalInfoErrors[`custom_${cf.id}`]}</p>
+                          <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                            <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+                            {personalInfoErrors[`custom_${cf.id}`]}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -592,6 +650,8 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 data={formData.typeSpecificData}
                 onChange={handleTypeSpecificChange}
                 section="drivers"
+                formConfig={fc}
+                driverErrors={driverErrors}
               />
             )}
 
@@ -724,7 +784,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
         </div>
 
         {/* Right column — help panel */}
-        <div className="hidden lg:flex lg:w-80 xl:w-96 shrink-0 flex-col gap-4 bg-gray-50/80 border-l border-gray-100 px-8 py-12">
+        <div className="hidden lg:flex lg:w-80 xl:w-96 shrink-0 flex-col gap-4 bg-gray-50/80 border-l border-gray-100 px-8 py-12 items-start">
           <StepHelpPanel currentStep={currentStep} insuranceType={formData.insuranceType} />
         </div>
       </main>

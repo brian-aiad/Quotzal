@@ -4,13 +4,20 @@ import type {
   AutoCommercialData,
   Driver,
   PersonalInfo,
+  FormConfig,
 } from '@/lib/types/intake-form';
 import { DriverCard } from '../shared/driver-card';
+
+interface DriverErrors {
+  [driverIndex: number]: Record<string, string>;
+}
 
 interface AutoCommercialDriversProps {
   data: AutoCommercialData;
   personalInfo: PersonalInfo;
   onChange: (data: AutoCommercialData) => void;
+  formConfig?: FormConfig;
+  driverErrors?: DriverErrors;
 }
 
 function emptyDriver(): Driver {
@@ -40,6 +47,8 @@ export function AutoCommercialDrivers({
   data,
   personalInfo,
   onChange,
+  formConfig,
+  driverErrors,
 }: AutoCommercialDriversProps) {
   if (data.drivers.length === 0) {
     const primary = emptyDriver();
@@ -73,29 +82,29 @@ export function AutoCommercialDrivers({
     <div className="space-y-6">
       {/* Business Info */}
       <div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">
           Business Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Business Name
             </label>
             <input
               type="text"
               value={data.businessName}
               onChange={(e) => update('businessName', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Business Type
             </label>
             <select
               value={data.businessType}
               onChange={(e) => update('businessType', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200"
             >
               <option value="" disabled>Select</option>
               {BUSINESS_TYPES.map((bt) => (
@@ -104,7 +113,7 @@ export function AutoCommercialDrivers({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Number of Vehicles in Fleet
             </label>
             <input
@@ -113,16 +122,16 @@ export function AutoCommercialDrivers({
               max={99}
               value={data.numberOfVehicles}
               onChange={(e) => update('numberOfVehicles', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200"
             />
           </div>
           <div className="flex items-end pb-1">
-            <label className="flex items-center gap-2 text-sm text-slate-700">
+            <label className="flex items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
                 checked={data.driversAreEmployees}
                 onChange={(e) => update('driversAreEmployees', e.target.checked)}
-                className="rounded border-slate-300"
+                className="rounded border-gray-300 accent-emerald-600"
               />
               Are drivers employees?
             </label>
@@ -132,7 +141,7 @@ export function AutoCommercialDrivers({
 
       {/* Drivers */}
       <div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-3">Drivers</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">Drivers</h3>
         <div className="space-y-4">
           {data.drivers.map((driver, i) => (
             <DriverCard
@@ -143,6 +152,8 @@ export function AutoCommercialDrivers({
               onRemove={i > 0 ? () => removeDriver(i) : undefined}
               mode="commercial"
               isPrimary={i === 0}
+              formConfig={formConfig}
+              errors={driverErrors?.[i]}
             />
           ))}
         </div>
@@ -150,7 +161,7 @@ export function AutoCommercialDrivers({
           <button
             type="button"
             onClick={addDriver}
-            className="w-full mt-3 group flex items-center justify-center gap-2.5 py-4 border-2 border-dashed border-gray-200 rounded-2xl text-sm font-semibold text-gray-400 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50/40 transition-all duration-200"
+            className="w-full mt-3 group flex items-center justify-center gap-2.5 py-4 border-2 border-dashed border-emerald-300 rounded-2xl text-sm font-semibold text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-200"
           >
             <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold leading-none group-hover:border-emerald-500 transition-colors">+</span>
             Add Another Driver

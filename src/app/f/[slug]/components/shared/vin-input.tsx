@@ -113,7 +113,7 @@ export function VinInput({
 
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
         {label} {required && <span className="text-red-400">*</span>}
         {required && <span className="text-gray-400 font-normal ml-1">— Required for accurate quote</span>}
       </label>

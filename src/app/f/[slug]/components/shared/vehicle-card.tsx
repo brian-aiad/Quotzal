@@ -41,8 +41,8 @@ function generateYears(): string[] {
 
 const YEAR_OPTIONS = generateYears();
 
-const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
-const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
+const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
+const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
 const READONLY_CLASS = 'w-full h-11 px-4 text-sm border border-gray-100 rounded-xl text-gray-500 bg-gray-50 focus:outline-none cursor-not-allowed';
 
 interface NHTSAModelResult {
@@ -159,15 +159,15 @@ export function VehicleCard({
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
-      <div className="flex items-center justify-between px-5 py-4 bg-blue-50 border-b border-blue-100">
+      <div className="flex items-center justify-between px-5 py-4 bg-emerald-50 border-b border-emerald-100">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
             <span className="text-xs font-bold text-white">{index + 1}</span>
           </div>
           <div>
-            <span className="text-sm font-bold text-gray-900">Vehicle {index + 1}</span>
+            <span className="text-sm font-bold text-emerald-900">Vehicle {index + 1}</span>
             {vehicle.make && vehicle.model && (
-              <span className="text-xs text-gray-400 ml-2 font-normal">
+              <span className="text-xs text-emerald-600 ml-2 font-medium">
                 — {vehicle.year} {vehicle.make} {vehicle.model}
               </span>
             )}
@@ -210,7 +210,7 @@ export function VehicleCard({
       {/* Year / Make / Model */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Year <span className="text-red-500">*</span>
           </label>
           {isLocked ? (
@@ -230,7 +230,7 @@ export function VehicleCard({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Make <span className="text-red-500">*</span>
           </label>
           {isLocked ? (
@@ -253,7 +253,7 @@ export function VehicleCard({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Model <span className="text-red-500">*</span>
           </label>
           {isLocked ? (
@@ -292,7 +292,7 @@ export function VehicleCard({
 
       {/* Trim */}
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Trim / Package <span className="text-slate-400 font-normal">(optional)</span>
         </label>
         <input
@@ -306,7 +306,7 @@ export function VehicleCard({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Primary Driver
           </label>
           <select
@@ -323,7 +323,7 @@ export function VehicleCard({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Coverage Type
           </label>
           <select

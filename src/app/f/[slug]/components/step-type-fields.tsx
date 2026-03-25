@@ -12,6 +12,7 @@ import type {
   RvData,
   OtherData,
   TypeSpecificData,
+  FormConfig,
 } from '@/lib/types/intake-form';
 import { AutoPersonalDrivers } from './fields/auto-personal-drivers';
 import { AutoPersonalVehicles } from './fields/auto-personal-vehicles';
@@ -24,12 +25,18 @@ import { BoatFields } from './fields/boat-fields';
 import { RvFields } from './fields/rv-fields';
 import { OtherFields } from './fields/other-fields';
 
+interface DriverErrors {
+  [driverIndex: number]: Record<string, string>;
+}
+
 interface StepTypeFieldsProps {
   insuranceType: InsuranceType;
   personalInfo: PersonalInfo;
   data: TypeSpecificData | null;
   onChange: (data: TypeSpecificData) => void;
   section: 'drivers' | 'vehicles' | 'all';
+  formConfig?: FormConfig;
+  driverErrors?: DriverErrors;
 }
 
 export function getDefaultTypeData(type: InsuranceType): TypeSpecificData {
@@ -126,6 +133,8 @@ export function StepTypeFields({
   data,
   onChange,
   section,
+  formConfig,
+  driverErrors,
 }: StepTypeFieldsProps) {
   const typeData = data ?? getDefaultTypeData(insuranceType);
 
@@ -137,6 +146,8 @@ export function StepTypeFields({
           data={typeData as AutoPersonalData}
           personalInfo={personalInfo}
           onChange={onChange}
+          formConfig={formConfig}
+          driverErrors={driverErrors}
         />
       );
     }
@@ -157,6 +168,8 @@ export function StepTypeFields({
           data={typeData as AutoCommercialData}
           personalInfo={personalInfo}
           onChange={onChange}
+          formConfig={formConfig}
+          driverErrors={driverErrors}
         />
       );
     }

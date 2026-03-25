@@ -5,6 +5,7 @@ import type {
   DriverRelationship,
   DriverRole,
   MaritalStatus,
+  FormConfig,
 } from '@/lib/types/intake-form';
 import { US_STATES } from '@/lib/constants/states';
 import { ViolationEntry, emptyViolation } from './violation-entry';
@@ -17,6 +18,7 @@ interface DriverCardProps {
   mode: 'personal' | 'commercial';
   isPrimary?: boolean;
   errors?: Record<string, string>;
+  formConfig?: FormConfig;
 }
 
 const RELATIONSHIPS: { value: DriverRelationship; label: string }[] = [
@@ -50,9 +52,9 @@ const LICENSE_TYPES = [
   'Expired',
 ];
 
-const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
-const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200';
-const ERROR_INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-red-300 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-400 transition-all duration-200';
+const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
+const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
+const ERROR_INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-red-400 rounded-xl bg-red-50 text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all duration-200';
 
 function getAgeFromDob(dob: string): number | null {
   if (!dob) return null;
@@ -87,7 +89,10 @@ export function DriverCard({
   mode,
   isPrimary,
   errors,
+  formConfig,
 }: DriverCardProps) {
+  const licenseRequired = formConfig?.fields.driver_license_number.enabled !== false
+    && formConfig?.fields.driver_license_number.required !== false;
   function update(field: string, value: unknown) {
     onChange({ ...driver, [field]: value });
   }
@@ -133,20 +138,26 @@ export function DriverCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* 1. Full Name */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Full Name
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Full Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={driver.fullName}
             onChange={(e) => update('fullName', e.target.value)}
-            className={INPUT_CLASS}
+            className={errors?.fullName ? ERROR_INPUT_CLASS : INPUT_CLASS}
           />
+          {errors?.fullName && (
+            <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+              <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+              {errors.fullName}
+            </p>
+          )}
         </div>
 
         {/* 2. Date of Birth with age display */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Date of Birth
             {age !== null && !dobError && (
               <span className="ml-2 text-slate-400 font-normal">Age: {age}</span>
@@ -159,20 +170,23 @@ export function DriverCard({
             className={dobError ? ERROR_INPUT_CLASS : INPUT_CLASS}
           />
           {dobError && (
-            <p className="text-red-500 text-sm mt-1">{dobError}</p>
+            <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+              <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+              {dobError}
+            </p>
           )}
         </div>
 
         {/* 3. License State — only if has US license */}
         {!hasNoUsLicense && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              License State
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              License State {licenseRequired && <span className="text-red-500">*</span>}
             </label>
             <select
               value={driver.licenseState || 'CA'}
               onChange={(e) => update('licenseState', e.target.value)}
-              className={SELECT_CLASS}
+              className={errors?.licenseState ? 'w-full h-11 px-4 text-sm border border-red-400 rounded-xl bg-red-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all duration-200' : SELECT_CLASS}
             >
               <option value="CA">California</option>
               <option disabled>──────────</option>
@@ -182,14 +196,20 @@ export function DriverCard({
                 </option>
               ))}
             </select>
+            {errors?.licenseState && (
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+                {errors.licenseState}
+              </p>
+            )}
           </div>
         )}
 
         {/* 4. License Number — only if has US license */}
         {!hasNoUsLicense && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              License Number <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              License Number {licenseRequired && <span className="text-red-500">*</span>}
             </label>
             <input
               type="text"
@@ -201,9 +221,12 @@ export function DriverCard({
               className={errors?.licenseNumber ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
             {errors?.licenseNumber ? (
-              <p className="text-red-500 text-sm mt-1">{errors.licenseNumber}</p>
+              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+                {errors.licenseNumber}
+              </p>
             ) : (
-              <p className="text-xs text-slate-400 mt-1">Required for accurate quote — typically 6-8 characters</p>
+              <p className="text-xs text-gray-400 mt-1">{licenseRequired ? 'Required for accurate quote' : 'Optional'} — typically 6-8 characters</p>
             )}
           </div>
         )}
@@ -211,7 +234,7 @@ export function DriverCard({
         {/* 5. Relationship (personal) or Role (commercial) */}
         {mode === 'personal' && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Relationship
             </label>
             <select
@@ -230,7 +253,7 @@ export function DriverCard({
 
         {mode === 'commercial' && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Role
             </label>
             <select
@@ -249,7 +272,7 @@ export function DriverCard({
 
         {/* 6. Marital Status */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Marital Status
           </label>
           <select
@@ -268,7 +291,7 @@ export function DriverCard({
 
       {/* No US License checkbox */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="checkbox"
             checked={hasNoUsLicense}
@@ -288,7 +311,7 @@ export function DriverCard({
         </label>
         {hasNoUsLicense && (
           <div className="ml-6">
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               License Type
             </label>
             <select
@@ -306,7 +329,7 @@ export function DriverCard({
 
       {/* Good Student Discount — only for child under 25 */}
       {showGoodStudent && (
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="checkbox"
             checked={driver.goodStudentDiscount ?? false}
@@ -319,7 +342,7 @@ export function DriverCard({
 
       {/* 7. SR-22 */}
       <div>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="checkbox"
             checked={driver.sr22Required}
@@ -332,7 +355,7 @@ export function DriverCard({
 
       {/* 8. Violations — auto-add blank on check, clear on uncheck */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="checkbox"
             checked={driver.hasViolations}

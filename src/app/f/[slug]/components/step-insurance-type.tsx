@@ -41,7 +41,7 @@ export function StepInsuranceType({
               className={`relative flex flex-col items-center justify-center p-4 lg:p-6 pt-5 lg:pt-7 pb-4 lg:pb-5 rounded-2xl border-2 transition-all duration-200 min-h-[96px] lg:min-h-[120px] cursor-pointer text-center ${
                 isSelected
                   ? 'shadow-md'
-                  : 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-sm'
+                  : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 hover:shadow-md'
               }`}
               style={
                 isSelected

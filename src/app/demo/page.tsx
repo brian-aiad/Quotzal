@@ -172,6 +172,7 @@ export default function DemoPage() {
               required
               value={form.brokerageName}
               onChange={(e) => setForm({ ...form, brokerageName: e.target.value })}
+              maxLength={100}
               className="w-full h-11 px-4 text-sm md:text-sm text-base border border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
               placeholder="ABC Insurance"
             />
@@ -185,6 +186,7 @@ export default function DemoPage() {
               required
               value={form.fullName}
               onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              maxLength={80}
               className="w-full h-11 px-4 text-sm md:text-sm text-base border border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
               placeholder="John Smith"
             />
@@ -211,7 +213,16 @@ export default function DemoPage() {
               id="demo-phone"
               type="tel"
               value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                if (digits.length === 0) { setForm({ ...form, phone: '' }); return; }
+                let formatted = '(' + digits.slice(0, 3);
+                if (digits.length >= 3) formatted += ') ';
+                if (digits.length > 3) formatted += digits.slice(3, 6);
+                if (digits.length > 6) formatted += '-' + digits.slice(6);
+                setForm({ ...form, phone: formatted });
+              }}
+              maxLength={14}
               className="w-full h-11 px-4 text-sm md:text-sm text-base border border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
               placeholder="(555) 123-4567"
             />

@@ -179,6 +179,7 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={100}
             className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
@@ -187,7 +188,16 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+              if (digits.length === 0) { setPhone(''); return; }
+              let formatted = '(' + digits.slice(0, 3);
+              if (digits.length >= 3) formatted += ') ';
+              if (digits.length > 3) formatted += digits.slice(3, 6);
+              if (digits.length > 6) formatted += '-' + digits.slice(6);
+              setPhone(formatted);
+            }}
+            maxLength={14}
             placeholder="(555) 123-4567"
             className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
           />
@@ -198,6 +208,7 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
+            maxLength={200}
             placeholder="123 Main St, City, State ZIP"
             className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
           />

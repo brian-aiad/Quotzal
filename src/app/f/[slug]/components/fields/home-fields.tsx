@@ -89,6 +89,9 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
             type="number"
             value={data.yearBuilt}
             onChange={(e) => update('yearBuilt', e.target.value)}
+            min={1800}
+            max={new Date().getFullYear()}
+            maxLength={4}
             placeholder="1990"
             className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
@@ -102,6 +105,8 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
             type="number"
             value={data.squareFootage}
             onChange={(e) => update('squareFootage', e.target.value)}
+            min={100}
+            max={99999}
             placeholder="2000"
             className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />
@@ -131,6 +136,8 @@ export function HomeFields({ data, onChange }: HomeFieldsProps) {
             type="number"
             value={data.roofAge}
             onChange={(e) => update('roofAge', e.target.value)}
+            min={0}
+            max={100}
             placeholder="5"
             className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
           />

@@ -55,9 +55,12 @@ export function MotorcycleFields({ data, onChange }: MotorcycleFieldsProps) {
             Year
           </label>
           <input
-            type="text"
+            type="number"
             value={data.year}
-            onChange={(e) => update('year', e.target.value)}
+            onChange={(e) => update('year', e.target.value.slice(0, 4))}
+            min={1900}
+            max={new Date().getFullYear() + 1}
+            placeholder="2024"
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
           />
         </div>

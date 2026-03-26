@@ -30,6 +30,7 @@ export function PhoneInput({ value, onChange, error }: PhoneInputProps) {
         autoComplete="tel"
         value={value}
         onChange={handleChange}
+        maxLength={14}
         placeholder="(555) 123-4567"
         className={`w-full px-3 py-2 border rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
           error ? 'border-red-400' : 'border-slate-300'

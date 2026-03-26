@@ -41,6 +41,10 @@ const C_BORDER = "#e5e7eb";
 const C_RED = "#ef4444";
 const C_AMBER = "#f59e0b";
 
+function emailLogo(): string {
+  return `<a href="${BASE_URL}" style="text-decoration:none;"><table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;"><tr><td style="width:28px;height:28px;background-color:#059669;border-radius:6px;text-align:center;vertical-align:middle;font-size:16px;font-weight:800;color:#ffffff;font-family:${FONT};">Q</td><td style="padding-left:8px;font-size:20px;font-weight:800;color:#059669;letter-spacing:-0.5px;font-family:${FONT};vertical-align:middle;">Quotzal</td></tr></table></a>`;
+}
+
 function emailLayout(body: string, options?: { accentColor?: string; footerHtml?: string }): string {
   const accent = options?.accentColor ?? C_PRIMARY;
   const footer = options?.footerHtml ?? `<p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <a href="${BASE_URL}" style="color:#9ca3af;text-decoration:none;">Quotzal</a> &middot; <a href="${BASE_URL}" style="color:#9ca3af;text-decoration:none;">quotzal.com</a></p>`;
@@ -48,16 +52,17 @@ function emailLayout(body: string, options?: { accentColor?: string; footerHtml?
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
 <body style="margin:0;padding:0;background-color:${C_BG};font-family:${FONT};">
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:${C_BG};padding:40px 16px;">
-<tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
-  <!-- Header with logo -->
-  <tr><td style="padding:20px 0;text-align:center;">
-    <a href="${BASE_URL}" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
-      <img src="${BASE_URL}/icon.svg" alt="Quotzal" width="28" height="28" style="display:inline-block;vertical-align:middle;" />
-      <span style="font-size:22px;font-weight:800;color:${C_PRIMARY};letter-spacing:-0.5px;vertical-align:middle;">Quotzal</span>
-    </a>
-  </td></tr>
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:${C_BG};">
+<tr><td>
+  <!-- Dark header bar -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f172a;">
+    <tr><td style="padding:18px 0;text-align:center;">
+      <a href="${BASE_URL}" style="text-decoration:none;"><table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;"><tr><td style="width:26px;height:26px;background-color:#059669;border-radius:5px;text-align:center;vertical-align:middle;font-size:15px;font-weight:800;color:#ffffff;font-family:${FONT};">Q</td><td style="padding-left:8px;font-size:19px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;font-family:${FONT};vertical-align:middle;">Quotzal</td></tr></table></a>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:32px 16px 40px;">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;">
   <!-- Card -->
   <tr><td>
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color:${C_CARD};border-radius:8px;overflow:hidden;border:1px solid ${C_BORDER};">
@@ -377,14 +382,40 @@ export async function sendDemoEmail(
   const demoLink = `${BASE_URL}/f/${demoSlug}`;
 
   const body = `
-    ${heading("Your Quotzal demo link is ready")}
-    ${para(`Hi ${escapeHtml(name)}, thanks for your interest! Here's your personalized demo link:`)}
-    <div style="background-color:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:16px;margin:0 0 20px;text-align:center;">
-      <a href="${demoLink}" style="font-size:16px;font-weight:600;color:#065f46;text-decoration:none;">${demoLink}</a>
+    ${heading("Your demo link is ready")}
+    ${para(`Hi ${escapeHtml(name)}, here's your personalized intake form. Share it with a test customer or try it yourself — it takes under 3 minutes.`)}
+
+    <!-- Steps strip -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+      <tr>
+        <td style="text-align:center;padding:12px 4px;">
+          <div style="width:28px;height:28px;border-radius:50%;background-color:${C_PRIMARY};color:#fff;font-size:14px;font-weight:700;line-height:28px;text-align:center;margin:0 auto 6px;font-family:${FONT};">1</div>
+          <p style="margin:0;font-size:12px;color:${C_MUTED};font-family:${FONT};">Open the link</p>
+        </td>
+        <td style="text-align:center;padding:12px 4px;">
+          <div style="width:28px;height:28px;border-radius:50%;background-color:${C_PRIMARY};color:#fff;font-size:14px;font-weight:700;line-height:28px;text-align:center;margin:0 auto 6px;font-family:${FONT};">2</div>
+          <p style="margin:0;font-size:12px;color:${C_MUTED};font-family:${FONT};">Fill out the form</p>
+        </td>
+        <td style="text-align:center;padding:12px 4px;">
+          <div style="width:28px;height:28px;border-radius:50%;background-color:${C_PRIMARY};color:#fff;font-size:14px;font-weight:700;line-height:28px;text-align:center;margin:0 auto 6px;font-family:${FONT};">3</div>
+          <p style="margin:0;font-size:12px;color:${C_MUTED};font-family:${FONT};">See the email you'll get</p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Demo link pill -->
+    <div style="background-color:#ecfdf5;border:2px solid #6ee7b7;border-radius:10px;padding:20px;margin:0 0 24px;text-align:center;">
+      <a href="${demoLink}" style="font-size:18px;font-weight:700;color:#065f46;text-decoration:none;font-family:${FONT};word-break:break-all;">${demoLink}</a>
     </div>
-    ${muted("This link expires in 7 days. Try it yourself or share it with a test customer.")}
-    <div style="margin:28px 0 0;text-align:center;">
-      ${btn("Sign Up and Go Live", `${BASE_URL}/signup`)}
+
+    <div style="text-align:center;margin:0 0 8px;">
+      ${btn("Open Demo Form", demoLink)}
+    </div>
+    ${muted("This link expires in 7 days.")}
+    ${divider()}
+    <p style="margin:0 0 16px;font-size:14px;color:${C_TEXT};text-align:center;">Ready to go live with real clients?</p>
+    <div style="text-align:center;">
+      ${btn("Start Free Trial", `${BASE_URL}/signup`, "#374151")}
     </div>
   `;
 

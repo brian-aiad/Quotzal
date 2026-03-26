@@ -29,6 +29,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       .eq('id', link.broker_id)
       .single();
     brokerName = broker?.brokerage_name ?? null;
+  } else {
+    // Check demo_requests for metadata
+    const { data: demo } = await supabase
+      .from('demo_requests')
+      .select('brokerage_name')
+      .eq('demo_slug', slug)
+      .maybeSingle();
+    if (demo) brokerName = demo.brokerage_name;
   }
 
   return {
@@ -116,8 +124,46 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     }
   }
 
-  // Not found
+  // 3. Try demo_requests if no broker found
   if (!broker || !linkId) {
+    const { data: demoRequest } = await supabase
+      .from('demo_requests')
+      .select('id, demo_slug, expires_at, converted, brokerage_name')
+      .eq('demo_slug', slug)
+      .single<DemoRequestRow & { brokerage_name: string }>();
+
+    if (demoRequest) {
+      if (demoRequest.converted) {
+        return <ExpiredPage />;
+      }
+      const expiresAt = new Date(demoRequest.expires_at);
+      if (expiresAt < new Date()) {
+        return <ExpiredPage />;
+      }
+
+      // Render demo form with generic Quotzal branding
+      const demoTypes: InsuranceType[] = [
+        'auto_personal', 'auto_commercial', 'home', 'life',
+        'motorcycle', 'boat', 'rv', 'other',
+      ];
+      const demoBrokerData: BrokerData = {
+        id: 'demo',
+        brokerageName: demoRequest.brokerage_name || 'Demo Broker',
+        slug,
+        logoUrl: null,
+        brandColor: null,
+        plan: 'starter',
+        status: 'trialing',
+        insuranceTypesEnabled: demoTypes,
+        linkId: demoRequest.id,
+        formConfig: mergeFormConfig(null),
+        extendedFormConfig: mergeExtendedFormConfig(null),
+        email: 'demo@quotzal.com',
+        phone: null,
+      };
+      return <IntakeForm broker={demoBrokerData} preview />;
+    }
+
     notFound();
   }
 
@@ -126,7 +172,7 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     return <InactivePage />;
   }
 
-  // Check demo link expiration
+  // Check demo link expiration for real broker links that also have demo entries
   const { data: demoRequest } = await supabase
     .from('demo_requests')
     .select('id, demo_slug, expires_at, converted')

@@ -10,6 +10,7 @@ interface StepReviewProps {
   skipCurrentInsurance?: boolean;
   customFieldValues?: Record<string, string>;
   customFields?: CustomField[];
+  extraFields?: Record<string, string>;
 }
 
 interface SectionProps {
@@ -137,6 +138,7 @@ export function StepReview({
   skipCurrentInsurance = false,
   customFieldValues = {},
   customFields = [],
+  extraFields = {},
 }: StepReviewProps) {
   void brandColor;
 
@@ -181,6 +183,19 @@ export function StepReview({
               })}
             </div>
           )}
+          {/* Extended field values */}
+          {Object.keys(extraFields).length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-100">
+              {Object.entries(extraFields).map(([key, val]) => {
+                if (!val?.trim() || val === 'no') return null;
+                const label = key
+                  .replace(/([A-Z])/g, ' $1')
+                  .replace(/^./, (s) => s.toUpperCase())
+                  .trim();
+                return <Field key={key} label={label} value={val === 'yes' ? 'Yes' : val} />;
+              })}
+            </div>
+          )}
         </Section>
 
         {/* Type-Specific Details */}
@@ -207,6 +222,11 @@ export function StepReview({
                 <Field label="Carrier" value={data.currentInsurance.currentCarrier} />
                 <Field label="Coverage Limits" value={data.currentInsurance.currentCoverageLimits} />
                 <Field label="Policy Expires" value={data.currentInsurance.policyExpiryDate} />
+                <Field label="Policy Number" value={extraFields.policyNumber} />
+                <Field label="Years with Carrier" value={extraFields.yearsWithCarrier} />
+                {extraFields.continuousCoverage === 'yes' && (
+                  <Field label="Continuous Coverage" value="Yes" />
+                )}
               </>
             )}
           </Section>

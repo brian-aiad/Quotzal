@@ -96,6 +96,11 @@ export interface Vehicle {
   trim?: string;
   primaryDriverIndex: number;
   coverageType: CoverageType;
+  annualMileage?: string;
+  primaryUse?: string;
+  ownership?: OwnershipType;
+  antiTheft?: boolean;
+  garagingAddress?: string;
 }
 
 // --- Type-Specific Form Data ---
@@ -350,6 +355,8 @@ export function mergeFormConfig(raw: Partial<FormConfig> | null | undefined): Fo
 
 // --- Broker Data from Server ---
 
+import type { ExtendedFormConfig } from './form-config';
+
 export interface BrokerData {
   id: string;
   brokerageName: string;
@@ -361,6 +368,7 @@ export interface BrokerData {
   insuranceTypesEnabled: InsuranceType[];
   linkId: string;
   formConfig: FormConfig;
+  extendedFormConfig: ExtendedFormConfig;
   email: string | null;
   phone: string | null;
 }

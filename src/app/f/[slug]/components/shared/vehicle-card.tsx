@@ -4,10 +4,21 @@ import { useState, useEffect, useCallback } from 'react';
 import type {
   Vehicle,
   CoverageType,
+  OwnershipType,
   Driver,
   FormConfig,
+  InsuranceType,
 } from '@/lib/types/intake-form';
+import type { ExtendedFormConfig, FieldToggle } from '@/lib/types/form-config';
+import { getTypeConfig } from '@/lib/types/form-config';
 import { VinInput } from './vin-input';
+
+function getToggle(extConfig: ExtendedFormConfig | undefined, type: InsuranceType | undefined, key: string): FieldToggle | null {
+  if (!extConfig || !type) return null;
+  const tc = getTypeConfig(extConfig, type);
+  if (!tc) return null;
+  return (tc as unknown as Record<string, FieldToggle>)[key] ?? null;
+}
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -17,6 +28,8 @@ interface VehicleCardProps {
   onRemove?: () => void;
   errors?: Record<string, string>;
   formConfig?: FormConfig;
+  extendedConfig?: ExtendedFormConfig;
+  insuranceType?: InsuranceType;
 }
 
 const COVERAGE_OPTIONS: { value: CoverageType; label: string }[] = [
@@ -54,6 +67,26 @@ interface NHTSAModelResult {
   Model_Name: string;
 }
 
+const OWNERSHIP_OPTIONS: { value: OwnershipType; label: string }[] = [
+  { value: 'owned', label: 'Owned' },
+  { value: 'financed', label: 'Financed' },
+  { value: 'leased', label: 'Leased' },
+];
+
+const PRIMARY_USE_OPTIONS = [
+  { value: 'pleasure', label: 'Pleasure' },
+  { value: 'commute', label: 'Commute' },
+  { value: 'business', label: 'Business' },
+];
+
+const MILEAGE_OPTIONS = [
+  { value: 'under_5000', label: 'Under 5,000' },
+  { value: '5000_10000', label: '5,000 – 10,000' },
+  { value: '10000_15000', label: '10,000 – 15,000' },
+  { value: '15000_20000', label: '15,000 – 20,000' },
+  { value: 'over_20000', label: 'Over 20,000' },
+];
+
 export function VehicleCard({
   vehicle,
   index,
@@ -62,11 +95,20 @@ export function VehicleCard({
   onRemove,
   errors,
   formConfig,
+  extendedConfig,
+  insuranceType,
 }: VehicleCardProps) {
   const vinEnabled = formConfig?.fields.vin.enabled ?? true;
   const vinRequired = vinEnabled && (formConfig?.fields.vin.required ?? false);
   const trimEnabled = formConfig?.fields.trim_package?.enabled ?? true;
   const coverageTypeEnabled = formConfig?.fields.coverage_type?.enabled ?? true;
+
+  // Extended vehicle fields
+  const annualMileageToggle = getToggle(extendedConfig, insuranceType, 'annualMileage');
+  const primaryUseToggle = getToggle(extendedConfig, insuranceType, 'primaryUse');
+  const ownershipToggle = getToggle(extendedConfig, insuranceType, 'ownership');
+  const antiTheftToggle = getToggle(extendedConfig, insuranceType, 'antiTheft');
+  const garagingAddressToggle = getToggle(extendedConfig, insuranceType, 'garagingAddress');
   const [models, setModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [modelFetchFailed, setModelFetchFailed] = useState(false);
@@ -352,6 +394,96 @@ export function VehicleCard({
           </div>
         )}
       </div>
+
+      {/* Extended vehicle fields */}
+      {ownershipToggle?.show && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Ownership Status
+            {ownershipToggle.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          <select
+            value={vehicle.ownership ?? ''}
+            onChange={(e) => update('ownership', e.target.value)}
+            required={ownershipToggle.required}
+            className={SELECT_CLASS}
+          >
+            <option value="">Select...</option>
+            {OWNERSHIP_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {primaryUseToggle?.show && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Primary Use
+            {primaryUseToggle.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          <select
+            value={vehicle.primaryUse ?? ''}
+            onChange={(e) => update('primaryUse', e.target.value)}
+            required={primaryUseToggle.required}
+            className={SELECT_CLASS}
+          >
+            <option value="">Select...</option>
+            {PRIMARY_USE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {annualMileageToggle?.show && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Annual Mileage
+            {annualMileageToggle.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          <select
+            value={vehicle.annualMileage ?? ''}
+            onChange={(e) => update('annualMileage', e.target.value)}
+            required={annualMileageToggle.required}
+            className={SELECT_CLASS}
+          >
+            <option value="">Select...</option>
+            {MILEAGE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {garagingAddressToggle?.show && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Garaging Address
+            {garagingAddressToggle.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          <input
+            type="text"
+            value={vehicle.garagingAddress ?? ''}
+            onChange={(e) => update('garagingAddress', e.target.value)}
+            placeholder="Where is this vehicle primarily parked?"
+            required={garagingAddressToggle.required}
+            className={INPUT_CLASS}
+          />
+        </div>
+      )}
+
+      {antiTheftToggle?.show && (
+        <label className="flex items-center gap-3 py-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={vehicle.antiTheft ?? false}
+            onChange={(e) => update('antiTheft', e.target.checked)}
+            className="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+          />
+          <span className="text-sm text-gray-700">This vehicle has an anti-theft device</span>
+        </label>
+      )}
       </div>
     </div>
   );

@@ -1,72 +1,62 @@
-# QUOTZAL — Claude Code Constitution
+# QUOTZAL — Claude Code Context
 
-## Project Identity
-- App name: Quotzal
-- Domain: quotzal.com
-- Stack: Next.js 15, TypeScript, Tailwind CSS, Supabase, Stripe, Resend
-- Pricing: Starter $19/month, Pro $39/month
-- Form links: quotzal.com/f/[slug]
-- Customer: Independent solo insurance broker
+## What This Is
+Insurance intake/quoting platform with an embeddable widget (inline form + floating button modes). Users embed widget.js on their site. Leads captured via intake form, stored in Supabase, emailed via Resend.
 
-## PRIME DIRECTIVE
-Before writing any code:
-1. State what you are building
-2. List every file you will create or modify
-3. Describe your approach in plain English
-4. Wait for confirmation
+## Tech Stack
+- Next.js (TypeScript, App Router)
+- Supabase (auth + database) — schema in /supabase/schema.sql
+- Stripe — Starter: price_1TD94DE13aQ2nFtGN0eLOiHE | Pro: price_1TD96LE13aQ2nFtGCAa0rUVL
+- Resend — transactional email
+- Google Places API + Google Maps API — address autocomplete/validation
+- Playwright — E2E tests in /tests/
 
-Never skip this. Never start coding without confirmation.
+## Project Structure
+- /src/app — Next.js App Router pages
+- /src/components — React components
+- /src/lib — utilities, helpers, API clients
+- /supabase — schema.sql + .temp/
+- /tests — Playwright E2E specs
 
-## PROTECT
-- Never touch .env.local under any circumstances
-- Never modify files unrelated to the current task
-- Never install a package without stating what it is and why
-- Never overwrite working code without explicit instruction
-- If touching more than 3 files, stop and ask first
+## Key Files
+- /supabase/schema.sql — single source of truth for DB schema
+- /src/middleware.ts — auth middleware, do not break auth routes
+- /settings.local.json — local dev config
+- DONT_DO.md — READ THIS before any task, hard constraints
 
-## CODE STANDARDS
-- TypeScript only — no any types ever
-- All components must have typed interfaces
-- Always handle error and loading states — no silent failures
-- Tailwind classes only — no inline styles
-- Mobile responsive on every component
-- One component per file
-- Files: kebab-case. Components: PascalCase. Functions: camelCase
+## Widget System
+The embeddable widget (widget.js) has two modes:
+- Inline Form — renders form directly in the page
+- Floating Button — green pill button, opens modal on click, Escape/backdrop closes it
+The slug and base URL must be correct in the snippet. Test in a real HTML file, not just unit tests.
 
-## AFTER EVERY TASK
-- List every file created or modified
-- Explain what changed and why in plain English
-- Tell me exactly what to test and how to verify it works
-- Remind me to commit before moving to the next task
+## Stripe Rules
+- NEVER hardcode price IDs — always reference env vars
+- STRIPE_STARTER_PRICE_ID and STRIPE_PRO_PRICE_ID are in .env.local
+- Webhook secret is STRIPE_WEBHOOK_SECRET — validate every webhook
 
-## DONT DO
-- No features that were not requested
-- No refactoring working code unless asked
-- No placeholder or dummy components — build the real thing
-- No console.log in any file
-- No complex solution when a simple one exists
-- Never start the next task if the current one is not committed
+## Testing
+- Run Playwright tests before marking any form/widget task done
+- Test files: intake-form.spec.ts, customer-form-field.spec.ts, form-config.spec.ts, full-form-stress-test.spec.ts, preview-reactivity.spec.ts, current-insurance-e2e.ts
+- Always run: npx playwright test before committing
 
-## THINK AHEAD
-Before confirming any plan, actively look for:
-- Schema mismatches between what exists and what the code expects
-- Naming inconsistencies between database columns, TypeScript types, and UI labels
-- Missing environment variables the new code will need
-- API endpoints that don't exist yet but will be called
-- Duplicate logic that already exists elsewhere in the codebase
-- Changes that will break existing working features
+## Workflow
+- Read DONT_DO.md before starting
+- Plan first, code second
+- Commit after each completed task (terminal says "Recommend committing before the next task")
+- Never touch .env.local — use .env.example for reference only
 
-If you find any of these issues, flag them in your plan BEFORE waiting for confirmation — never silently work around them in code.
+## Environment Variables (reference names only, never log values)
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET
+- STRIPE_STARTER_PRICE_ID / STRIPE_PRO_PRICE_ID
+- RESEND_API_KEY
+- NEXT_PUBLIC_GOOGLE_PLACES_API_KEY / NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
-Format flags as:
-⚠️ ISSUE FOUND: [what the problem is]
-RECOMMENDATION: [what we should do about it]
-
-## SESSION START
-Begin every session with:
-"Working on Quotzal — insurance intake SaaS.
-Reading DONT_DO.md...
-Task: [state task]
-Files I will touch: [list them]
-Plan: [plain English approach]
-Waiting for your confirmation."
+## Common Commands
+- npm run dev — start dev server
+- npx playwright test — run all E2E tests
+- npx playwright test --ui — visual test runner
+- npx supabase db push — push schema changes

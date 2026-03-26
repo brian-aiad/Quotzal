@@ -1,6 +1,8 @@
 'use client';
 
-import type { PersonalInfo, FormConfig } from '@/lib/types/intake-form';
+import type { PersonalInfo, FormConfig, InsuranceType } from '@/lib/types/intake-form';
+import type { ExtendedFormConfig, FieldToggle } from '@/lib/types/form-config';
+import { getTypeConfig } from '@/lib/types/form-config';
 import { PhoneInput } from './shared/phone-input';
 
 interface StepPersonalInfoProps {
@@ -8,6 +10,21 @@ interface StepPersonalInfoProps {
   onChange: (data: PersonalInfo) => void;
   errors: Record<string, string>;
   formConfig?: FormConfig;
+  extendedConfig?: ExtendedFormConfig;
+  insuranceType?: InsuranceType;
+  extraFields?: Record<string, string>;
+  onExtraFieldChange?: (key: string, value: string) => void;
+}
+
+const INPUT_CLASS = "w-full h-11 px-4 text-sm border rounded-xl text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all duration-200";
+const INPUT_NORMAL = `${INPUT_CLASS} border-gray-200 bg-white focus:ring-emerald-500/20 focus:border-emerald-500`;
+const SELECT_CLASS = INPUT_NORMAL;
+
+function getToggle(extConfig: ExtendedFormConfig | undefined, type: InsuranceType | undefined, key: string): FieldToggle | null {
+  if (!extConfig || !type) return null;
+  const tc = getTypeConfig(extConfig, type);
+  if (!tc) return null;
+  return (tc as unknown as Record<string, FieldToggle>)[key] ?? null;
 }
 
 export function StepPersonalInfo({
@@ -15,12 +32,26 @@ export function StepPersonalInfo({
   onChange,
   errors,
   formConfig,
+  extendedConfig,
+  insuranceType,
+  extraFields = {},
+  onExtraFieldChange,
 }: StepPersonalInfoProps) {
   const showDob = formConfig?.fields.date_of_birth.enabled ?? true;
   const showPhone = formConfig?.fields.phone.enabled ?? true;
 
+  // New extended fields
+  const occupation = getToggle(extendedConfig, insuranceType, 'occupation');
+  const homeowner = getToggle(extendedConfig, insuranceType, 'homeowner');
+  const yearsLicensed = getToggle(extendedConfig, insuranceType, 'yearsLicensed');
+  const gender = getToggle(extendedConfig, insuranceType, 'gender');
+
   function update(field: keyof PersonalInfo, value: string) {
     onChange({ ...data, [field]: value });
+  }
+
+  function updateExtra(key: string, value: string) {
+    onExtraFieldChange?.(key, value);
   }
 
   return (
@@ -44,7 +75,7 @@ export function StepPersonalInfo({
               autoComplete="given-name"
               value={data.firstName}
               onChange={(e) => update('firstName', e.target.value)}
-              className={`w-full h-11 px-4 text-sm border rounded-xl text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all duration-200 ${
+              className={`${INPUT_CLASS} ${
                 errors.firstName ? 'border-red-400 bg-red-50 focus:ring-red-500/20 focus:border-red-400' : 'border-gray-200 bg-white focus:ring-emerald-500/20 focus:border-emerald-500'
               }`}
             />
@@ -66,7 +97,7 @@ export function StepPersonalInfo({
               autoComplete="family-name"
               value={data.lastName}
               onChange={(e) => update('lastName', e.target.value)}
-              className={`w-full h-11 px-4 text-sm border rounded-xl text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all duration-200 ${
+              className={`${INPUT_CLASS} ${
                 errors.lastName ? 'border-red-400 bg-red-50 focus:ring-red-500/20 focus:border-red-400' : 'border-gray-200 bg-white focus:ring-emerald-500/20 focus:border-emerald-500'
               }`}
             />
@@ -91,7 +122,7 @@ export function StepPersonalInfo({
               autoComplete="bday"
               value={data.dateOfBirth}
               onChange={(e) => update('dateOfBirth', e.target.value)}
-              className={`w-full h-11 px-4 text-sm border rounded-xl text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all duration-200 ${
+              className={`${INPUT_CLASS} ${
                 errors.dateOfBirth ? 'border-red-400 bg-red-50 focus:ring-red-500/20 focus:border-red-400' : 'border-gray-200 bg-white focus:ring-emerald-500/20 focus:border-emerald-500'
               }`}
             />
@@ -122,7 +153,7 @@ export function StepPersonalInfo({
             autoComplete="email"
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
-            className={`w-full h-11 px-4 text-sm border rounded-xl text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all duration-200 ${
+            className={`${INPUT_CLASS} ${
               errors.email ? 'border-red-400 bg-red-50 focus:ring-red-500/20 focus:border-red-400' : 'border-gray-200 bg-white focus:ring-emerald-500/20 focus:border-emerald-500'
             }`}
           />
@@ -133,6 +164,89 @@ export function StepPersonalInfo({
             </p>
           )}
         </div>
+
+        {/* Extended fields — only shown when broker enables them */}
+
+        {gender?.show && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Gender
+              {gender.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <select
+              value={extraFields.gender ?? ''}
+              onChange={(e) => updateExtra('gender', e.target.value)}
+              className={SELECT_CLASS}
+            >
+              <option value="">Select...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+          </div>
+        )}
+
+        {occupation?.show && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Occupation
+              {occupation.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <input
+              type="text"
+              value={extraFields.occupation ?? ''}
+              onChange={(e) => updateExtra('occupation', e.target.value)}
+              placeholder="e.g., Software Engineer"
+              className={INPUT_NORMAL}
+            />
+          </div>
+        )}
+
+        {homeowner?.show && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Do you own your home?
+              {homeowner.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {['yes', 'no'].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => updateExtra('homeowner', val)}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${
+                    extraFields.homeowner === val
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-emerald-300'
+                  }`}
+                >
+                  {val === 'yes' ? 'Yes' : 'No'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {yearsLicensed?.show && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Years Licensed
+              {yearsLicensed.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <select
+              value={extraFields.yearsLicensed ?? ''}
+              onChange={(e) => updateExtra('yearsLicensed', e.target.value)}
+              className={SELECT_CLASS}
+            >
+              <option value="">Select...</option>
+              <option value="1-2">1-2 years</option>
+              <option value="3-5">3-5 years</option>
+              <option value="6-10">6-10 years</option>
+              <option value="10+">10+ years</option>
+            </select>
+          </div>
+        )}
       </div>
     </div>
   );

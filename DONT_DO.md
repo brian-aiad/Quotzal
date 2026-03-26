@@ -22,9 +22,29 @@ Update this file whenever something goes wrong.
 - What caused it: The trigger correctly prevents duplicate slugs across tables
 - What to never do again: broker_links primary link slug must be different from the brokers.slug value. Use a suffix like "-link" or a UUID-based slug for the primary link.
 
+### 2026-03-25 — Custom fields must be scoped per-step and per-insurance-type
+- What happened: Custom fields were only scoped to the form level (all on Personal Info step)
+- What caused it: Original CustomField type only had `applies_to` (insurance type filter) but no step assignment
+- What to never do again: Do not scope custom fields only to the form level — they must be per-step and per-insurance-type. The `CustomField` type in `form-config.ts` has both `step` and `insuranceType` fields.
+
 ### [March 2026] — Claude Code added unrequested features during a polish task
-- What happened: While running a UI polish task, Claude Code made additional commits 
+- What happened: While running a UI polish task, Claude Code made additional commits
   adding rate limiting, email verification, success pages, and security headers
 - What caused it: Claude Code continued working autonomously between tasks
-- What to never do again: Always stop and ask before adding ANY feature not in the 
+- What to never do again: Always stop and ask before adding ANY feature not in the
   current prompt. Never auto-commit work that wasn't requested.
+
+### 2026-03-25 — FormPreview only renders legacy FormConfig fields
+- What happened: Preview phone mockup on My Form page did not show/hide new extended fields (occupation, homeowner, annualMileage, etc.) when toggled
+- What caused it: FormPreview only received legacy FormConfig which maps a subset of fields. ExtendedFormConfig fields were invisible to the preview.
+- What to never do again: When adding new configurable fields to ExtendedFormConfig, always ensure the FormPreview component also receives extendedConfig and renders the new fields. The preview must show every toggleable field.
+
+### 2026-03-25 — navigator.sendBeacon sends text/plain by default
+- What happened: Form config changes could be lost on page close because sendBeacon sent JSON as text/plain, not application/json
+- What caused it: sendBeacon(url, string) defaults to text/plain content type
+- What to never do again: Always use `new Blob([json], { type: 'application/json' })` when calling sendBeacon with JSON payloads.
+
+### 2026-03-25 — Submission detail panel must show extended_fields from form_data
+- What happened: Extended fields (policyNumber, yearsWithCarrier, occupation, etc.) were saved correctly in form_data.extended_fields but not displayed in the broker's submission detail panel
+- What caused it: The panel only read direct columns (current_carrier, current_limits) and did not parse form_data.extended_fields
+- What to never do again: When adding new fields to the intake form, always verify the data appears in: (1) Review step, (2) Submit API, (3) Email notification, (4) Submission detail panel. All four must be checked.

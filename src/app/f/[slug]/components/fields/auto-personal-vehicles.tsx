@@ -4,13 +4,17 @@ import type {
   AutoPersonalData,
   Vehicle,
   FormConfig,
+  InsuranceType,
 } from '@/lib/types/intake-form';
+import type { ExtendedFormConfig } from '@/lib/types/form-config';
 import { VehicleCard } from '../shared/vehicle-card';
 
 interface AutoPersonalVehiclesProps {
   data: AutoPersonalData;
   onChange: (data: AutoPersonalData) => void;
   formConfig?: FormConfig;
+  extendedConfig?: ExtendedFormConfig;
+  insuranceType?: InsuranceType;
 }
 
 function emptyVehicle(): Vehicle {
@@ -29,6 +33,8 @@ export function AutoPersonalVehicles({
   data,
   onChange,
   formConfig,
+  extendedConfig,
+  insuranceType,
 }: AutoPersonalVehiclesProps) {
   // Auto-add one vehicle if empty
   if (data.vehicles.length === 0) {
@@ -66,6 +72,8 @@ export function AutoPersonalVehicles({
               onChange={(v) => updateVehicle(i, v)}
               onRemove={data.vehicles.length > 1 ? () => removeVehicle(i) : undefined}
               formConfig={formConfig}
+              extendedConfig={extendedConfig}
+              insuranceType={insuranceType}
             />
           ))}
         </div>

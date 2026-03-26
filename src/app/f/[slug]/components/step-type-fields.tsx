@@ -14,6 +14,7 @@ import type {
   TypeSpecificData,
   FormConfig,
 } from '@/lib/types/intake-form';
+import type { ExtendedFormConfig } from '@/lib/types/form-config';
 import { AutoPersonalDrivers } from './fields/auto-personal-drivers';
 import { AutoPersonalVehicles } from './fields/auto-personal-vehicles';
 import { AutoCommercialDrivers } from './fields/auto-commercial-drivers';
@@ -36,6 +37,7 @@ interface StepTypeFieldsProps {
   onChange: (data: TypeSpecificData) => void;
   section: 'drivers' | 'vehicles' | 'all';
   formConfig?: FormConfig;
+  extendedConfig?: ExtendedFormConfig;
   driverErrors?: DriverErrors;
 }
 
@@ -134,6 +136,7 @@ export function StepTypeFields({
   onChange,
   section,
   formConfig,
+  extendedConfig,
   driverErrors,
 }: StepTypeFieldsProps) {
   const typeData = data ?? getDefaultTypeData(insuranceType);
@@ -157,6 +160,8 @@ export function StepTypeFields({
           data={typeData as AutoPersonalData}
           onChange={onChange}
           formConfig={formConfig}
+          extendedConfig={extendedConfig}
+          insuranceType={insuranceType}
         />
       );
     }
@@ -180,6 +185,8 @@ export function StepTypeFields({
           data={typeData as AutoCommercialData}
           onChange={onChange}
           formConfig={formConfig}
+          extendedConfig={extendedConfig}
+          insuranceType={insuranceType}
         />
       );
     }

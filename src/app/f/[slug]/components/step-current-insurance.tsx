@@ -1,12 +1,25 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import type { CurrentInsurance, FormConfig } from '@/lib/types/intake-form';
+import type { CurrentInsurance, FormConfig, InsuranceType } from '@/lib/types/intake-form';
+import type { ExtendedFormConfig, FieldToggle } from '@/lib/types/form-config';
+import { getTypeConfig } from '@/lib/types/form-config';
 
 interface StepCurrentInsuranceProps {
   data: CurrentInsurance;
   onChange: (data: CurrentInsurance) => void;
   formConfig?: FormConfig;
+  extendedConfig?: ExtendedFormConfig;
+  insuranceType?: InsuranceType;
+  extraFields?: Record<string, string>;
+  onExtraFieldChange?: (key: string, value: string) => void;
+}
+
+function getToggle(extConfig: ExtendedFormConfig | undefined, type: InsuranceType | undefined, key: string): FieldToggle | null {
+  if (!extConfig || !type) return null;
+  const tc = getTypeConfig(extConfig, type);
+  if (!tc) return null;
+  return (tc as unknown as Record<string, FieldToggle>)[key] ?? null;
 }
 
 const CARRIERS = [
@@ -211,9 +224,18 @@ function CoverageLimitsCombobox({ value, onChange }: {
   );
 }
 
-export function StepCurrentInsurance({ data, onChange, formConfig }: StepCurrentInsuranceProps) {
+export function StepCurrentInsurance({ data, onChange, formConfig, extendedConfig, insuranceType, extraFields = {}, onExtraFieldChange }: StepCurrentInsuranceProps) {
   const showCoverageLimits = formConfig?.fields.coverage_limits?.enabled ?? true;
   const showPolicyExpiry = formConfig?.fields.policy_expiry?.enabled ?? true;
+
+  // New extended fields
+  const policyNumberToggle = getToggle(extendedConfig, insuranceType, 'policyNumber');
+  const yearsWithCarrierToggle = getToggle(extendedConfig, insuranceType, 'yearsWithCarrier');
+  const continuousCoverageToggle = getToggle(extendedConfig, insuranceType, 'continuousCoverage');
+
+  function updateExtra(key: string, value: string) {
+    onExtraFieldChange?.(key, value);
+  }
 
   function update(field: keyof CurrentInsurance, value: unknown) {
     onChange({ ...data, [field]: value });
@@ -312,6 +334,55 @@ export function StepCurrentInsurance({ data, onChange, formConfig }: StepCurrent
                   className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
                 />
               </div>
+            )}
+
+            {policyNumberToggle?.show && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Policy Number
+                  {policyNumberToggle.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                <input
+                  type="text"
+                  value={extraFields.policyNumber ?? ''}
+                  onChange={(e) => updateExtra('policyNumber', e.target.value)}
+                  placeholder="e.g., POL-123456"
+                  className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+                />
+              </div>
+            )}
+
+            {yearsWithCarrierToggle?.show && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Years with Current Carrier
+                  {yearsWithCarrierToggle.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                <select
+                  value={extraFields.yearsWithCarrier ?? ''}
+                  onChange={(e) => updateExtra('yearsWithCarrier', e.target.value)}
+                  className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+                >
+                  <option value="">Select...</option>
+                  <option value="less_than_1">Less than 1 year</option>
+                  <option value="1-2">1-2 years</option>
+                  <option value="3-5">3-5 years</option>
+                  <option value="6-10">6-10 years</option>
+                  <option value="10+">10+ years</option>
+                </select>
+              </div>
+            )}
+
+            {continuousCoverageToggle?.show && (
+              <label className="flex items-center gap-3 py-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={extraFields.continuousCoverage === 'yes'}
+                  onChange={(e) => updateExtra('continuousCoverage', e.target.checked ? 'yes' : 'no')}
+                  className="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="text-sm text-gray-700">Continuous coverage with no lapses</span>
+              </label>
             )}
           </div>
         )}

@@ -186,6 +186,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const [typeSpecificError, setTypeSpecificError] = useState('');
   const [driverErrors, setDriverErrors] = useState<DriverErrors>({});
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
+  const [extraFields, setExtraFields] = useState<Record<string, string>>({});
 
   // Auto-select if only 1 insurance type is enabled
   const singleType = broker.insuranceTypesEnabled.length === 1 ? broker.insuranceTypesEnabled[0] : null;
@@ -345,6 +346,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     setFormData((prev) => ({ ...prev, currentInsurance: data }));
   }
 
+  function handleExtraFieldChange(key: string, value: string) {
+    setExtraFields((prev) => ({ ...prev, [key]: value }));
+  }
+
   async function handleSubmit() {
     if (preview) return;
     setSubmitting(true);
@@ -362,6 +367,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
           typeSpecificData: {
             ...(formData.typeSpecificData as unknown as Record<string, unknown>),
             custom_fields: Object.keys(customFieldValues).length > 0 ? customFieldValues : undefined,
+            extended_fields: Object.keys(extraFields).length > 0 ? extraFields : undefined,
           },
           currentInsurance: skipCurrentInsurance
             ? { hasCurrentInsurance: false }
@@ -582,6 +588,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                   onChange={handlePersonalInfoChange}
                   errors={personalInfoErrors}
                   formConfig={fc}
+                  extendedConfig={broker.extendedFormConfig}
+                  insuranceType={insType || undefined}
+                  extraFields={extraFields}
+                  onExtraFieldChange={handleExtraFieldChange}
                 />
                 {/* Custom fields */}
                 {visibleCustomFields.length > 0 && (
@@ -660,6 +670,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 onChange={handleTypeSpecificChange}
                 section="drivers"
                 formConfig={fc}
+                extendedConfig={broker.extendedFormConfig}
                 driverErrors={driverErrors}
               />
             )}
@@ -673,6 +684,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 onChange={handleTypeSpecificChange}
                 section="vehicles"
                 formConfig={fc}
+                extendedConfig={broker.extendedFormConfig}
               />
             )}
 
@@ -689,6 +701,10 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 data={formData.currentInsurance}
                 onChange={handleCurrentInsuranceChange}
                 formConfig={fc}
+                extendedConfig={broker.extendedFormConfig}
+                insuranceType={insType || undefined}
+                extraFields={extraFields}
+                onExtraFieldChange={handleExtraFieldChange}
               />
             )}
 
@@ -702,6 +718,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                   skipCurrentInsurance={skipCurrentInsurance}
                   customFieldValues={customFieldValues}
                   customFields={visibleCustomFields}
+                  extraFields={extraFields}
                 />
 
                 {/* Consent + trust badges */}

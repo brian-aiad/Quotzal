@@ -6,6 +6,8 @@ import { InactivePage } from './components/inactive-page';
 import { ExpiredPage } from './components/expired-page';
 import type { BrokerData, InsuranceType, FormConfig } from '@/lib/types/intake-form';
 import { mergeFormConfig } from '@/lib/types/intake-form';
+import { mergeExtendedFormConfig } from '@/lib/types/form-config';
+import type { ExtendedFormConfig } from '@/lib/types/form-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -143,6 +145,9 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     broker.plan === 'pro' &&
     ['active', 'trialing', 'past_due'].includes(broker.status);
 
+  const rawConfig = broker.form_config;
+  const extendedFormConfig = mergeExtendedFormConfig(rawConfig as Partial<ExtendedFormConfig> | null);
+
   const brokerData: BrokerData = {
     id: broker.id,
     brokerageName: broker.brokerage_name,
@@ -153,7 +158,8 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     status: broker.status,
     insuranceTypesEnabled: broker.insurance_types_enabled as InsuranceType[],
     linkId,
-    formConfig: mergeFormConfig(broker.form_config as Partial<FormConfig> | null),
+    formConfig: mergeFormConfig(rawConfig as Partial<FormConfig> | null),
+    extendedFormConfig,
     email: broker.email,
     phone: broker.phone,
   };

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { SubmissionRow, SubmissionStatus } from '@/lib/types/dashboard';
+import { useToast } from '@/components/toast';
 import { InsuranceTypePill } from './insurance-type-pill';
 import { DeleteModal } from './delete-modal';
 
@@ -33,37 +34,58 @@ export function SubmissionDetailPanel({
   const [showDelete, setShowDelete] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendDone, setResendDone] = useState(false);
+  const { showToast } = useToast();
+
+  const STATUS_LABELS: Record<string, string> = {
+    new: 'New',
+    reviewed: 'Reviewed',
+    archived: 'Archived',
+  };
 
   async function handleStatusChange(newStatus: SubmissionStatus) {
     setStatus(newStatus);
-    await fetch(`/api/dashboard/submissions/${submission.id}`, {
+    const res = await fetch(`/api/dashboard/submissions/${submission.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
     });
+    if (res.ok) {
+      showToast(`Submission marked as ${STATUS_LABELS[newStatus] || newStatus}.`);
+    } else {
+      showToast('Failed to update status.', 'error');
+    }
     onUpdate();
   }
 
   async function handleNotesSave() {
     if (notes === (submission.broker_notes ?? '')) return;
     setSaving(true);
-    await fetch(`/api/dashboard/submissions/${submission.id}`, {
+    const res = await fetch(`/api/dashboard/submissions/${submission.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ broker_notes: notes }),
     });
     setSaving(false);
-    setNotesSaved(new Date().toLocaleTimeString());
+    if (res.ok) {
+      setNotesSaved(new Date().toLocaleTimeString());
+    } else {
+      showToast('Failed to save notes.', 'error');
+    }
     onUpdate();
   }
 
   async function handleDelete() {
-    await fetch(`/api/dashboard/submissions/${submission.id}`, {
+    const res = await fetch(`/api/dashboard/submissions/${submission.id}`, {
       method: 'DELETE',
     });
     setShowDelete(false);
     onClose();
     onUpdate();
+    if (res.ok) {
+      showToast('Submission deleted.');
+    } else {
+      showToast('Failed to delete submission.', 'error');
+    }
   }
 
   async function handleResend() {
@@ -230,8 +252,17 @@ export function SubmissionDetailPanel({
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white resize-none transition-all"
               placeholder="Add notes about this submission..."
             />
-            <div className="text-xs text-gray-500 mt-0.5">
-              {saving ? 'Saving...' : notesSaved ? `Saved ${notesSaved}` : ''}
+            <div className="text-xs mt-0.5 h-4">
+              {saving ? (
+                <span className="text-gray-500">Saving...</span>
+              ) : notesSaved ? (
+                <span className="flex items-center gap-1 text-emerald-600 animate-in fade-in">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Saved
+                </span>
+              ) : null}
             </div>
           </div>
 

@@ -1,4 +1,7 @@
 import { defineConfig } from '@playwright/test';
+import path from 'path';
+
+const AUTH_FILE = path.join(__dirname, '.playwright-auth', 'user.json');
 
 export default defineConfig({
   testDir: './tests',
@@ -8,9 +11,26 @@ export default defineConfig({
     screenshot: 'off',
   },
   projects: [
+    // Auth setup — runs first, produces storageState
     {
-      name: 'chromium',
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
+    // Public tests — no auth needed
+    {
+      name: 'public',
+      testIgnore: /dashboard-form-stress|form-config|preview-reactivity|auth\.setup/,
       use: { browserName: 'chromium' },
+    },
+    // Dashboard tests — require authenticated session
+    {
+      name: 'dashboard',
+      testMatch: /dashboard-form-stress|form-config|preview-reactivity/,
+      dependencies: ['setup'],
+      use: {
+        browserName: 'chromium',
+        storageState: AUTH_FILE,
+      },
     },
   ],
 });

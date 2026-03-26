@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import type { SubmissionRow } from '@/lib/types/dashboard';
 import { SubmissionsTable } from '../components/submissions-table';
-import { ExportButton } from './export-button';
 
 export default async function SubmissionsPage() {
   const supabase = await createClient();
@@ -25,10 +24,7 @@ export default async function SubmissionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Submissions</h1>
-        <ExportButton />
-      </div>
+      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Submissions</h1>
       <SubmissionsTable
         initialSubmissions={submissions}
         initialTotal={count ?? 0}

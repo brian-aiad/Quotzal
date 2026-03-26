@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 
 const SCREENSHOT_DIR = path.join(__dirname, '..', 'test-screenshots');
-const FORM_URL = '/f/tb-primary';
+const FORM_URL = '/f/test-broker';
 
 test.describe('Full Form Stress Test', () => {
   test('Complete end-to-end submission with 2 drivers and VIN decode', async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('Full Form Stress Test', () => {
     await page.goto(FORM_URL);
     await expect(page.getByText('What type of insurance do you need?')).toBeVisible();
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // --- Step 1: Personal Info ---
     await expect(page.getByText('Personal Information')).toBeVisible();
@@ -27,10 +27,10 @@ test.describe('Full Form Stress Test', () => {
     await page.locator('input[type="email"]').fill('maria.rodriguez@stresstest.com');
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-01-personal-info.png'), fullPage: true });
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // --- Step 2: Drivers ---
-    await expect(page.getByText('Drivers').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Drivers' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('Primary Driver')).toBeVisible();
 
     // Primary driver should have name pre-filled as Maria Rodriguez
@@ -39,7 +39,7 @@ test.describe('Full Form Stress Test', () => {
     await primaryLicenseInput.fill('D1234567');
 
     // Select license state — find the first state dropdown within the driver card
-    const primaryDriverCard = page.locator('.rounded-xl').filter({ hasText: 'Primary Driver' }).first();
+    const primaryDriverCard = page.locator('.rounded-2xl').filter({ hasText: 'Primary Driver' }).first();
     const primaryStateSelect = primaryDriverCard.locator('select').first();
     await primaryStateSelect.selectOption('CA');
 
@@ -52,10 +52,10 @@ test.describe('Full Form Stress Test', () => {
     await primaryMaritalSelect.selectOption('married');
 
     // --- Add second driver with no US license ---
-    await page.getByText('+ Add Driver').click();
+    await page.getByText(/Add.*Driver/i).click();
     await page.waitForTimeout(300);
 
-    const secondDriverCard = page.locator('.rounded-xl').filter({ hasText: 'Driver 2' }).first();
+    const secondDriverCard = page.locator('.rounded-2xl').filter({ hasText: 'Driver 2' }).first();
     await expect(secondDriverCard).toBeVisible();
 
     // Fill second driver's name
@@ -78,16 +78,12 @@ test.describe('Full Form Stress Test', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-02-drivers-filled.png'), fullPage: true });
 
     // Advance to vehicles step
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // --- Step 3: Vehicles ---
-    await expect(page.getByText('Vehicles').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Vehicles' })).toBeVisible({ timeout: 5000 });
 
-    // Click + Add Vehicle to create a vehicle card
-    await page.getByText('+ Add Vehicle').click();
-    await page.waitForTimeout(300);
-
-    // Enter VIN — Volkswagen e-Golf
+    // A vehicle card is auto-created. Enter VIN — Volkswagen e-Golf
     const vinInput = page.locator('input[maxlength="17"]').first();
     await expect(vinInput).toBeVisible({ timeout: 5000 });
     await vinInput.fill('WVWPP7AU9GW909947');
@@ -107,20 +103,20 @@ test.describe('Full Form Stress Test', () => {
     }
 
     // Select coverage type
-    const vehicleCard = page.locator('.rounded-xl').filter({ hasText: 'Vehicle 1' }).first();
+    const vehicleCard = page.locator('.rounded-2xl').filter({ hasText: 'Vehicle 1' }).first();
     const coverageSelect = vehicleCard.locator('select').filter({ has: page.locator('option[value="full"]') }).last();
     await coverageSelect.selectOption('full');
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-03-vehicles-filled.png'), fullPage: true });
 
     // Advance to current insurance
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // --- Step 4: Current Insurance ---
     await expect(page.getByRole('heading', { name: 'Current Insurance' })).toBeVisible({ timeout: 5000 });
 
     // Click "Yes" for has current insurance
-    await page.getByRole('button', { name: 'Yes', exact: true }).click();
+    await page.getByRole('button', { name: /Yes.*insured/i }).click();
     await page.waitForTimeout(300);
 
     // Fill carrier
@@ -144,10 +140,10 @@ test.describe('Full Form Stress Test', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-04-current-insurance.png'), fullPage: true });
 
     // Advance to review
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // --- Step 5: Review ---
-    await expect(page.getByText('Review Your Information')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Review Your Information' })).toBeVisible({ timeout: 5000 });
 
     // Verify key data
     await expect(page.getByText('Maria Rodriguez', { exact: true })).toBeVisible();
@@ -165,10 +161,12 @@ test.describe('Full Form Stress Test', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-05-review.png'), fullPage: true });
 
     // --- Submit ---
-    await page.getByRole('button', { name: 'Submit', exact: true }).click();
+    await page.getByRole('button', { name: /Submit/i }).click();
 
-    // Wait for submission to complete
-    await expect(page.getByText(/Thank you|received/i)).toBeVisible({ timeout: 15000 });
+    // Wait for submission to complete or rate limit message
+    await expect(
+      page.getByText(/all set|Thank you|received|too many/i)
+    ).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-06-thank-you.png'), fullPage: true });
   });

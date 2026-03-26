@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
+import { useToast } from '@/components/toast';
 import EmbedSnippetSection from './components/embed-snippet-section';
 
 interface BrokerData {
@@ -22,28 +24,31 @@ interface PrimaryLink {
   slug: string;
 }
 
-type ToastType = 'success' | 'error';
-
-interface Toast {
-  message: string;
-  type: ToastType;
-}
-
 export default function SettingsPage() {
   const [broker, setBroker] = useState<BrokerData | null>(null);
   const [primaryLink, setPrimaryLink] = useState<PrimaryLink | null>(null);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<Toast | null>(null);
+  const { showToast } = useToast();
+  const searchParams = useSearchParams();
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const showToast = useCallback((message: string, type: ToastType) => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  }, []);
+  // Handle URL param banners from auth callback
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const error = searchParams.get('error');
+    if (success === 'email_changed') {
+      showToast('Your email has been updated successfully.', 'success');
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+    if (error === 'link_expired') {
+      showToast('That confirmation link has expired. Please request a new email change from settings.', 'error');
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+  }, [searchParams, showToast]);
 
   useEffect(() => {
     async function load() {
@@ -101,18 +106,6 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Settings</h1>
 
-      {toast && (
-        <div
-          className={`fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
-            toast.type === 'success'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
-
       <BusinessInfoSection broker={broker} setBroker={setBroker} showToast={showToast} />
       <YourLinkSection primaryLink={primaryLink} setPrimaryLink={setPrimaryLink} showToast={showToast} />
       {primaryLink?.slug && (
@@ -136,7 +129,7 @@ export default function SettingsPage() {
 interface BusinessInfoProps {
   broker: BrokerData;
   setBroker: React.Dispatch<React.SetStateAction<BrokerData | null>>;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
 }
 
 function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps) {
@@ -144,6 +137,7 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
   const [phone, setPhone] = useState(broker.phone || '');
   const [address, setAddress] = useState(broker.address || '');
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   async function handleSave() {
     if (!name.trim()) {
@@ -160,10 +154,12 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
 
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, brokerage_name: name, phone: phone || null, address: address || null } : prev);
-      showToast('Business info updated', 'success');
+      showToast('Business info saved.');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } else {
       const data = await res.json();
-      showToast(data.error || 'Failed to save', 'error');
+      showToast(data.error || 'Failed to save business info.', 'error');
     }
     setSaving(false);
   }
@@ -216,10 +212,10 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || saved}
           className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {saving ? 'Saving...' : 'Save changes'}
+          {saving ? 'Saving...' : saved ? 'Saved \u2713' : 'Save changes'}
         </button>
       </div>
     </section>
@@ -233,7 +229,7 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
 interface YourLinkProps {
   primaryLink: PrimaryLink | null;
   setPrimaryLink: React.Dispatch<React.SetStateAction<PrimaryLink | null>>;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
 }
 
 function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkProps) {
@@ -274,7 +270,7 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
 
     if (res.ok) {
       setPrimaryLink((prev) => prev ? { ...prev, slug: newSlug } : prev);
-      showToast('Slug updated successfully', 'success');
+      showToast(`Form URL updated. Your new link is quotzal.com/f/${newSlug}`);
       setEditing(false);
       setShowConfirm(false);
       setNewSlug('');
@@ -394,7 +390,7 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
 interface BrandingProps {
   broker: BrokerData;
   setBroker: React.Dispatch<React.SetStateAction<BrokerData | null>>;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
   supabase: ReturnType<typeof createBrowserClient>;
 }
 
@@ -403,6 +399,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
   const [hexInput, setHexInput] = useState(broker.brand_color || '#3B82F6');
   const [uploading, setUploading] = useState(false);
   const [savingColor, setSavingColor] = useState(false);
+  const [savedColor, setSavedColor] = useState(false);
   const [removingBranding, setRemovingBranding] = useState(false);
 
   if (broker.plan !== 'pro') {
@@ -464,7 +461,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
 
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, logo_url: logoUrl } : prev);
-      showToast('Logo updated', 'success');
+      showToast('Logo saved.');
     } else {
       showToast('Failed to save logo', 'error');
     }
@@ -488,9 +485,11 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, brand_color: hexInput } : prev);
       setColor(hexInput);
-      showToast('Brand color updated', 'success');
+      showToast('Brand color updated.');
+      setSavedColor(true);
+      setTimeout(() => setSavedColor(false), 2000);
     } else {
-      showToast('Failed to save color', 'error');
+      showToast('Failed to save brand color.', 'error');
     }
     setSavingColor(false);
   }
@@ -567,10 +566,10 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
             <button
               type="button"
               onClick={handleSaveColor}
-              disabled={savingColor}
+              disabled={savingColor || savedColor}
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
             >
-              {savingColor ? 'Saving...' : 'Save'}
+              {savingColor ? 'Saving...' : savedColor ? 'Saved \u2713' : 'Save'}
             </button>
           </div>
         </div>
@@ -598,7 +597,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
 
 interface AccountProps {
   broker: BrokerData;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
   supabase: ReturnType<typeof createBrowserClient>;
 }
 
@@ -618,9 +617,9 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
     const { error } = await supabase.auth.updateUser({ email: newEmail });
 
     if (error) {
-      showToast(error.message || 'Failed to update email', 'error');
+      showToast('Unable to update email. Please try again.', 'error');
     } else {
-      showToast('Confirmation email sent to your new address', 'success');
+      showToast('Email updated. Check your inbox to confirm the change.');
       setShowEmailModal(false);
       setNewEmail('');
     }
@@ -633,10 +632,10 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
     });
 
     if (error) {
-      showToast(error.message || 'Failed to send reset email', 'error');
+      showToast('Unable to send reset email. Please try again.', 'error');
     } else {
       setResetSent(true);
-      showToast('Check your email for a password reset link', 'success');
+      showToast('Password reset email sent. Check your inbox.');
     }
   }
 
@@ -715,7 +714,7 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
 
 interface DataRetentionProps {
   broker: BrokerData;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
 }
 
 function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
@@ -754,7 +753,7 @@ function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
 
     if (res.ok) {
       setExtended(newValue);
-      showToast(`Retention set to ${newValue ? '24' : '12'} months`, 'success');
+      showToast('Notification preferences saved.');
     } else {
       showToast('Failed to update retention', 'error');
     }

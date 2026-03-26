@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useToast } from "@/components/toast";
 import { buildPreviewSteps } from "@/components/dashboard/form-preview";
 
 const FormPreview = dynamic(
@@ -88,6 +89,7 @@ export default function MyFormPage() {
   const [cfRequired, setCfRequired] = useState(false);
 
   const [togglingType, setTogglingType] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // Save state with debounce
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -223,6 +225,7 @@ export default function MyFormPage() {
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
     setCopied(true);
+    showToast("Link copied to clipboard.");
     setTimeout(() => setCopied(false), 2000);
   }
 
@@ -252,6 +255,9 @@ export default function MyFormPage() {
       if (previewType && !newTypes.includes(previewType) && newTypes.length > 0) {
         setPreviewType(newTypes[0]);
       }
+      showToast("Form updated.");
+    } else {
+      showToast("Failed to update form.", "error");
     }
     setTogglingType(null);
   }
@@ -374,6 +380,7 @@ export default function MyFormPage() {
         : [...prev.customFields, field];
       return { ...prev, customFields };
     });
+    showToast("Form updated.");
     resetCfForm();
   }
 
@@ -382,6 +389,7 @@ export default function MyFormPage() {
       ...prev,
       customFields: prev.customFields.filter((f) => f.id !== id),
     }));
+    showToast("Form updated.");
   }
 
   // ── Global custom fields (applies to 'all') ─────────────
@@ -419,6 +427,7 @@ export default function MyFormPage() {
       setAliasSlug("");
       setAliasLabel("");
       fetchData();
+      showToast(`Alias created. Share: quotzal.com/f/${aliasSlug}`);
     } else {
       const errData = await res.json();
       setAliasError(errData.error || "Failed to create alias.");
@@ -427,12 +436,17 @@ export default function MyFormPage() {
   }
 
   async function toggleAliasActive(linkId: string, active: boolean) {
-    await fetch("/api/dashboard/form/toggle-alias", {
+    const res = await fetch("/api/dashboard/form/toggle-alias", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ linkId, isActive: active }),
     });
     fetchData();
+    if (res.ok) {
+      showToast(`Link ${active ? "activated" : "deactivated"}.`);
+    } else {
+      showToast("Failed to update link.", "error");
+    }
   }
 
   // ── Preview sync ─────────────────────────────────────────

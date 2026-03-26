@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 
 const SCREENSHOT_DIR = path.join(__dirname, '..', 'test-screenshots');
-const FORM_URL = '/f/tb-primary';
+const FORM_URL = '/f/test-broker';
 
 test.describe('Intake Form Wizard', () => {
   test('Step 0: Select "Auto — Personal" and click Next', async ({ page }) => {
@@ -17,7 +17,7 @@ test.describe('Intake Form Wizard', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '01-insurance-type-selected.png'), fullPage: true });
 
     // Click Next
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Verify we moved to Step 1
     await expect(page.getByText('Personal Information')).toBeVisible();
@@ -29,7 +29,7 @@ test.describe('Intake Form Wizard', () => {
     // Navigate and select insurance type first
     await page.goto(FORM_URL);
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await expect(page.getByText('Personal Information')).toBeVisible();
 
     // Fill in personal info
@@ -54,10 +54,10 @@ test.describe('Intake Form Wizard', () => {
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '03-personal-info-filled.png'), fullPage: true });
 
     // Click Next
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 2 now shows only Drivers (vehicles are on step 3)
-    await expect(page.getByText('Drivers').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Drivers' })).toBeVisible({ timeout: 5000 });
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '04-drivers-step.png'), fullPage: true });
   });
@@ -66,7 +66,7 @@ test.describe('Intake Form Wizard', () => {
     // Navigate through steps 0 and 1
     await page.goto(FORM_URL);
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await expect(page.getByText('Personal Information')).toBeVisible();
 
     // Fill personal info
@@ -81,16 +81,16 @@ test.describe('Intake Form Wizard', () => {
       await textInputs.nth(2).fill('5551234567');
     }
     await page.locator('input[type="email"]').fill('john.doe@test.com');
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Verify Step 2 shows Drivers
-    await expect(page.getByText('Drivers').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Drivers' })).toBeVisible({ timeout: 5000 });
 
     // Check primary driver is pre-filled
     await expect(page.getByText('Primary Driver')).toBeVisible();
 
     // Check "+ Add Driver" button exists
-    await expect(page.getByText('+ Add Driver')).toBeVisible();
+    await expect(page.getByText(/Add.*Driver/i)).toBeVisible();
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '05-drivers-detail.png'), fullPage: true });
   });
@@ -99,7 +99,7 @@ test.describe('Intake Form Wizard', () => {
     // Navigate to drivers step
     await page.goto(FORM_URL);
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await expect(page.getByText('Personal Information')).toBeVisible();
 
     const textInputs = page.locator('input[type="text"]');
@@ -107,8 +107,8 @@ test.describe('Intake Form Wizard', () => {
     await textInputs.nth(1).fill('Smith');
     await page.locator('input[type="date"]').first().fill('1988-03-10');
     await page.locator('input[type="email"]').fill('jane@test.com');
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
-    await expect(page.getByText('Drivers').first()).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: /Continue/i }).click();
+    await expect(page.getByRole('heading', { name: 'Drivers' })).toBeVisible({ timeout: 5000 });
 
     // Check "Violations in last 5 years" checkbox
     const violationsCheckbox = page.getByLabel('Violations in last 5 years');
@@ -129,7 +129,7 @@ test.describe('Intake Form Wizard', () => {
     // Navigate to current insurance step
     await page.goto(FORM_URL);
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await expect(page.getByText('Personal Information')).toBeVisible();
 
     const textInputs = page.locator('input[type="text"]');
@@ -137,14 +137,14 @@ test.describe('Intake Form Wizard', () => {
     await textInputs.nth(1).fill('User');
     await page.locator('input[type="date"]').first().fill('1990-01-01');
     await page.locator('input[type="email"]').fill('test@test.com');
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
-    await expect(page.getByText('Drivers').first()).toBeVisible({ timeout: 5000 });
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
+    await expect(page.getByRole('heading', { name: 'Drivers' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: /Continue/i }).click();
     // Vehicles step
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Current Insurance step
-    await expect(page.getByText('Current Insurance')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Current Insurance' })).toBeVisible({ timeout: 5000 });
     await page.getByText("Yes, I'm insured").click();
 
     // Click coverage limits input to open dropdown
@@ -166,7 +166,7 @@ test.describe('Intake Form Wizard', () => {
   test('Speeding appears as single option in violations dropdown', async ({ page }) => {
     await page.goto(FORM_URL);
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await expect(page.getByText('Personal Information')).toBeVisible();
 
     const textInputs = page.locator('input[type="text"]');
@@ -174,8 +174,8 @@ test.describe('Intake Form Wizard', () => {
     await textInputs.nth(1).fill('User');
     await page.locator('input[type="date"]').first().fill('1990-01-01');
     await page.locator('input[type="email"]').fill('test@test.com');
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
-    await expect(page.getByText('Drivers').first()).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: /Continue/i }).click();
+    await expect(page.getByRole('heading', { name: 'Drivers' })).toBeVisible({ timeout: 5000 });
 
     // Check violations checkbox
     await page.getByLabel('Violations in last 5 years').check();

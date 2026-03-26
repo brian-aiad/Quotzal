@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const FORM_URL = '/f/tb-primary';
+const FORM_URL = '/f/test-broker';
 
 test.describe('Customer Form Field Visibility', () => {
   // NOTE: These tests depend on the broker's form_config state in the database.
@@ -11,11 +11,12 @@ test.describe('Customer Form Field Visibility', () => {
 
     // Select Auto Personal
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Core fields always visible
-    await expect(page.locator('input[placeholder*="First"]').or(page.locator('label:has-text("First Name")'))).toBeVisible();
-    await expect(page.locator('label:has-text("Email")').or(page.locator('input[type="email"]'))).toBeVisible();
+    await expect(page.getByText('Personal Information')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('textbox', { name: 'First Name' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Email' })).toBeVisible();
   });
 
   test('Current insurance carrier flow works end-to-end', async ({ page }) => {
@@ -23,7 +24,7 @@ test.describe('Customer Form Field Visibility', () => {
 
     // Select Auto Personal
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Fill personal info
     await page.locator('input').first().fill('Test');
@@ -33,18 +34,18 @@ test.describe('Customer Form Field Visibility', () => {
 
     // Navigate through steps to current insurance
     // Step through drivers, vehicles
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
 
     // Should be on current insurance step
-    await expect(page.locator('text=Current Insurance')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Current Insurance' })).toBeVisible({ timeout: 5000 });
 
     // Click "Yes, I'm insured"
-    await page.locator('text=Yes').first().click();
+    await page.getByRole('button', { name: /Yes.*insured/i }).click();
 
     // Carrier combobox should appear
     const carrierInput = page.locator('input[placeholder*="State Farm"]').or(page.locator('input[placeholder*="carrier" i]'));
@@ -56,10 +57,10 @@ test.describe('Customer Form Field Visibility', () => {
 
     // Select Auto Personal
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Try to proceed without filling required fields
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Should show validation errors (first name, last name, email are always required)
     await expect(page.locator('text=required').or(page.locator('.text-red-500')).first()).toBeVisible({ timeout: 3000 });

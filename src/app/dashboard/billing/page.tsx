@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
+import { useToast } from '@/components/toast';
 
 interface SubscriptionInfo {
   plan: 'starter' | 'pro';
@@ -17,13 +19,6 @@ interface PaymentRecord {
   period_start: string;
   period_end: string;
   created_at: string;
-}
-
-type ToastType = 'success' | 'error';
-
-interface Toast {
-  message: string;
-  type: ToastType;
 }
 
 const PLAN_PRICES: Record<string, number> = {
@@ -44,17 +39,22 @@ export default function BillingPage() {
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<Toast | null>(null);
-
-  const showToast = useCallback((message: string, type: ToastType) => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  }, []);
+  const { showToast } = useToast();
+  const searchParams = useSearchParams();
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
+  // Detect return from Stripe Portal or checkout
+  useEffect(() => {
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      showToast('Plan updated successfully.');
+      window.history.replaceState({}, '', '/dashboard/billing');
+    }
+  }, [searchParams, showToast]);
 
   const loadData = useCallback(async () => {
     const res = await fetch('/api/billing/subscription');
@@ -129,18 +129,6 @@ export default function BillingPage() {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
 
-      {toast && (
-        <div
-          className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
-            toast.type === 'success'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
-
       <PlanCard subscription={subscription} showToast={showToast} onUpdate={loadData} />
       <PaymentActions subscription={subscription} showToast={showToast} onUpdate={loadData} />
       <PaymentHistory payments={payments} />
@@ -154,7 +142,7 @@ export default function BillingPage() {
 
 interface PlanCardProps {
   subscription: SubscriptionInfo;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
   onUpdate: () => Promise<void>;
 }
 
@@ -237,7 +225,7 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
 
 interface PaymentActionsProps {
   subscription: SubscriptionInfo;
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "warning") => void;
   onUpdate: () => Promise<void>;
 }
 
@@ -257,19 +245,18 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
 
     if (res.ok) {
       const messages: Record<string, string> = {
-        upgrade: 'Upgraded to Pro! Changes take effect immediately.',
+        upgrade: "You're now on Pro. Welcome!",
         downgrade: 'Downgraded to Starter. Changes take effect at next billing cycle.',
         cancel: 'Subscription will cancel at end of billing period.',
         reactivate: 'Subscription reactivated!',
       };
-      showToast(messages[action] || 'Updated successfully', 'success');
+      showToast(messages[action] || 'Updated successfully');
       setShowUpgradeModal(false);
       setShowDowngradeModal(false);
       setShowCancelModal(false);
       await onUpdate();
     } else {
-      const data = await res.json();
-      showToast(data.error || 'Failed to update subscription', 'error');
+      showToast('Failed to update subscription. Please try again.', 'error');
     }
     setProcessing(false);
   }

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const FORM_URL = '/f/tb-primary';
+const FORM_URL = '/f/test-broker';
 
 test.describe('Current Insurance End-to-End', () => {
   test('Full flow: select carrier, verify on review, submit', async ({ page }) => {
@@ -8,7 +8,7 @@ test.describe('Current Insurance End-to-End', () => {
 
     // Step 0: Select Auto Personal
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 1: Fill personal info
     await page.waitForSelector('text=Personal Information');
@@ -18,22 +18,22 @@ test.describe('Current Insurance End-to-End', () => {
     // Find email input
     const emailInput = page.locator('input[type="email"]').or(page.locator('input[placeholder*="email" i]'));
     await emailInput.fill('test-e2e@test.com');
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 2: Drivers — just proceed
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 3: Vehicles — just proceed
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 4: Current Insurance
     await page.waitForTimeout(500);
-    await expect(page.locator('text=Current Insurance').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Current Insurance' })).toBeVisible({ timeout: 5000 });
 
     // Toggle "Yes, I'm insured"
-    await page.locator('text=Yes').first().click();
+    await page.getByRole('button', { name: /Yes.*insured/i }).click();
     await page.waitForTimeout(300);
 
     // Select carrier "State Farm" from combobox
@@ -56,11 +56,11 @@ test.describe('Current Insurance End-to-End', () => {
     }
 
     // Continue to Review
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
 
     // Step 5: Review
-    await expect(page.locator('text=Review').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Review Your Information' })).toBeVisible({ timeout: 5000 });
 
     // Assert carrier appears on review
     await expect(page.locator('text=State Farm')).toBeVisible();
@@ -74,7 +74,7 @@ test.describe('Current Insurance End-to-End', () => {
 
     // Select Auto Personal
     await page.getByRole('button', { name: /Auto.*Personal/i }).click();
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Fill minimal personal info and navigate to current insurance step
     const inputs = page.locator('input[type="text"], input[type="email"]');
@@ -82,18 +82,18 @@ test.describe('Current Insurance End-to-End', () => {
     await inputs.nth(1).fill('Insurance');
     const emailInput = page.locator('input[type="email"]').or(page.locator('input[placeholder*="email" i]'));
     await emailInput.fill('no-insurance@test.com');
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
     await page.waitForTimeout(500);
 
     // On current insurance step
-    await expect(page.locator('text=Current Insurance').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Current Insurance' })).toBeVisible({ timeout: 5000 });
 
     // Click "No, I'm uninsured"
-    await page.locator('text=No').first().click();
+    await page.getByRole('button', { name: /No.*uninsured/i }).click();
 
     // Carrier input should not be visible
     const carrierInput = page.locator('input[placeholder*="State Farm"]').or(page.locator('input[placeholder*="carrier" i]'));

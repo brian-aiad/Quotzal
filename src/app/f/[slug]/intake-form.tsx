@@ -378,6 +378,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       if (!res.ok) {
         if (res.status === 429) {
           setRateLimited(true);
+          setSubmitError('Too many submissions. Please try again later.');
           return;
         }
         const body = (await res.json()) as { error?: string };

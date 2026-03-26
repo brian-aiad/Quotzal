@@ -170,7 +170,7 @@ export function StepReview({
             label="Name"
             value={`${data.personalInfo.firstName} ${data.personalInfo.lastName}`}
           />
-          <Field label="Date of Birth" value={data.personalInfo.dateOfBirth} />
+          <Field label="Date of Birth" value={data.personalInfo.dateOfBirth ? new Date(data.personalInfo.dateOfBirth + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : undefined} />
           <Field label="Phone" value={data.personalInfo.phone} />
           <Field label="Email" value={data.personalInfo.email} />
           {/* Custom field values */}

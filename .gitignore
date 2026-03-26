@@ -51,6 +51,7 @@ supabase/.temp/
 
 # playwright
 /playwright-report/
+.playwright-mcp/
 
 # OS
 Thumbs.db

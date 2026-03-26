@@ -19,50 +19,59 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Fetch broker status and trial info
-  const { data: broker } = await supabase
-    .from('brokers')
-    .select('status, trial_ends_at, slug')
-    .eq('id', user.id)
-    .single<{ status: string; trial_ends_at: string | null; slug: string }>();
+  // Run all queries in parallel instead of sequentially
+  const [brokerResult, statsResult, tableResult] = await Promise.all([
+    // Broker status + trial info
+    supabase
+      .from('brokers')
+      .select('status, trial_ends_at, slug')
+      .eq('id', user.id)
+      .single<{ status: string; trial_ends_at: string | null; slug: string }>(),
+    // Lightweight stats query — only status, type, date for charts
+    supabase
+      .from('submissions')
+      .select('status, insurance_type, submitted_at')
+      .order('submitted_at', { ascending: false }),
+    // Table data with count
+    supabase
+      .from('submissions')
+      .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at', { count: 'exact' })
+      .order('submitted_at', { ascending: false })
+      .range(0, 24),
+  ]);
+
+  const broker = brokerResult.data;
 
   const trialDaysLeft = broker?.trial_ends_at
     ? Math.ceil((new Date(broker.trial_ends_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
 
-  // Auto-repair: ensure primary broker_links row exists
+  // Auto-repair: ensure primary broker_links row exists (non-blocking)
   if (broker) {
     const admin = createAdminClient();
-    const { data: primaryLink } = await admin
+    admin
       .from('broker_links')
       .select('id')
       .eq('broker_id', user.id)
       .eq('is_primary', true)
-      .maybeSingle();
-
-    if (!primaryLink) {
-      try {
-        const repairSlug = `${broker.slug}-primary`;
-        await admin.from('broker_links').insert({
-          broker_id: user.id,
-          slug: repairSlug,
-          label: 'Primary Link',
-          is_primary: true,
-          is_active: true,
-        });
-      } catch {
-        console.error(`[REPAIR] Failed to auto-create primary link for broker ${user.id}`);
-      }
-    }
+      .maybeSingle()
+      .then(({ data: primaryLink }) => {
+        if (!primaryLink) {
+          const repairSlug = `${broker.slug}-primary`;
+          admin.from('broker_links').insert({
+            broker_id: user.id,
+            slug: repairSlug,
+            label: 'Primary Link',
+            is_primary: true,
+            is_active: true,
+          }).then(() => {}, () => {
+            console.error(`[REPAIR] Failed to auto-create primary link for broker ${user.id}`);
+          });
+        }
+      });
   }
 
-  // Fetch all submissions for stats + charts (RLS enforced)
-  const { data: allSubmissions } = await supabase
-    .from('submissions')
-    .select('status, insurance_type, submitted_at')
-    .order('submitted_at', { ascending: false });
-
-  const allRows = allSubmissions ?? [];
+  const allRows = statsResult.data ?? [];
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
@@ -106,14 +115,8 @@ export default async function DashboardPage() {
 
   const charts: ChartData = { weekly, byType };
 
-  // Fetch first page of submissions for table
-  const { data: tableData, count } = await supabase
-    .from('submissions')
-    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at', { count: 'exact' })
-    .order('submitted_at', { ascending: false })
-    .range(0, 24);
-
-  const submissions = (tableData ?? []) as SubmissionRow[];
+  const submissions = (tableResult.data ?? []) as SubmissionRow[];
+  const count = tableResult.count;
 
   return (
     <div className="space-y-6">

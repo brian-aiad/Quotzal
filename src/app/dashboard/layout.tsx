@@ -83,7 +83,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar brokerName={broker.brokerage_name} brokerEmail={broker.email} />
+      <Sidebar brokerName={broker.brokerage_name} brokerEmail={broker.email} isAdmin={user.email === process.env.ADMIN_EMAIL} />
       <main id="main-content" className="flex-1 md:ml-0 mt-14 md:mt-0 relative">
         {isImpersonating && (
           <AdminBanner brokerName={broker.brokerage_name} />

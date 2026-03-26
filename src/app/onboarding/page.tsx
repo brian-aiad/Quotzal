@@ -3,12 +3,13 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { QuotzalLogo } from "@/components/ui/logo";
+import { AuthShell } from "@/components/ui/auth-shell";
 import { ProgressIndicator } from "./components/progress-indicator";
 import { StepBusinessInfo } from "./components/step-business-info";
 import { StepInsuranceTypes } from "./components/step-insurance-types";
 import { StepBranding } from "./components/step-branding";
 import type { InsuranceType } from "@/lib/types/intake-form";
+import { Building2, Sparkles, Shield } from "lucide-react";
 
 const STEP_LABELS = ["Business Info", "Insurance Types", "Branding"];
 const ONBOARDING_STORAGE_KEY = "quotzal_onboarding_state";
@@ -66,6 +67,58 @@ async function findAvailableSlug(baseName: string): Promise<string> {
 
   const fallback = `${baseSlug}-${Date.now().toString(36)}`.slice(0, 30);
   return fallback;
+}
+
+function OnboardingLeftContent() {
+  return (
+    <>
+      <div className="max-w-md">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-emerald-400" />
+          </div>
+          <span className="text-sm font-medium text-emerald-400 tracking-wide uppercase">Getting Started</span>
+        </div>
+        <h2 className="text-3xl text-white font-bold leading-tight mb-4">
+          Set up your brokerage in minutes
+        </h2>
+        <p className="text-base text-gray-400 leading-relaxed mb-10">
+          Three quick steps and your custom intake form is live. Start collecting quotes today.
+        </p>
+
+        <div className="space-y-4">
+          {[
+            { icon: Building2, label: "Add your business details" },
+            { icon: Shield, label: "Choose your insurance types" },
+            { icon: Sparkles, label: "Customize your brand" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <item.icon className="w-4 h-4 text-emerald-400" />
+              </div>
+              <span className="text-sm text-gray-300">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center mt-12 pt-8 border-t border-white/10">
+        {[
+          { n: "2 min", l: "SETUP TIME" },
+          { n: "Free", l: "30-DAY TRIAL" },
+          { n: "Live", l: "INSTANT FORM" },
+        ].map((s, i) => (
+          <div
+            key={s.n}
+            className={`flex-1 ${i > 0 ? "border-l border-white/10 pl-6" : ""}`}
+          >
+            <div className="text-2xl font-bold text-white">{s.n}</div>
+            <div className="text-[10px] font-medium tracking-widest text-gray-500 mt-0.5">{s.l}</div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }
 
 function OnboardingWizard() {
@@ -146,8 +199,7 @@ function OnboardingWizard() {
         return;
       }
 
-      const linkSlug = `${broker.slug}-link`;
-
+      // Update status — broker_links already created by save-onboarding
       const { error: updateError } = await supabase
         .from("brokers")
         .update({ status: "trialing" })
@@ -155,22 +207,6 @@ function OnboardingWizard() {
 
       if (updateError) {
         setError("Failed to activate your account. Please contact support.");
-        setCheckoutProcessing(false);
-        return;
-      }
-
-      const { error: linkError } = await supabase
-        .from("broker_links")
-        .insert({
-          broker_id: user.id,
-          slug: linkSlug,
-          label: "Primary Link",
-          is_primary: true,
-          is_active: true,
-        });
-
-      if (linkError) {
-        setError("Failed to create your form link. Please contact support.");
         setCheckoutProcessing(false);
         return;
       }
@@ -188,6 +224,10 @@ function OnboardingWizard() {
     const checkout = searchParams.get("checkout");
     if (checkout === "success") {
       handleCheckoutSuccess();
+    } else if (checkout === "cancelled") {
+      // User cancelled Stripe checkout — stay on step 3 so they can retry
+      setStep(3);
+      setError("");
     }
   }, [searchParams, handleCheckoutSuccess]);
 
@@ -269,91 +309,82 @@ function OnboardingWizard() {
 
   if (checkoutProcessing) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
+      <AuthShell leftContent={<OnboardingLeftContent />}>
+        <div className="max-w-sm w-full mx-auto text-center">
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-          <p className="mt-4 text-lg font-medium text-gray-900">
+          <p className="mt-4 text-lg font-semibold text-gray-900">
             Setting up your account...
           </p>
           <p className="mt-1 text-sm text-gray-500">
             This will only take a moment
           </p>
           {error && (
-            <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-600">
+            <div className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
               {error}
             </div>
           )}
         </div>
-      </div>
+      </AuthShell>
     );
   }
 
   const displaySlug = data.slug || generateSlugFromName(data.brokerageName) || "your-brokerage";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Fixed header */}
-      <header className="bg-white border-b border-gray-100 h-16 flex items-center px-6">
-        <QuotzalLogo size="md" />
-      </header>
+    <AuthShell leftContent={<OnboardingLeftContent />}>
+      <div className="max-w-md w-full mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          Set up your brokerage
+        </h1>
+        <p className="text-sm text-gray-500 mt-1 mb-8">
+          Complete these steps to launch your intake form
+        </p>
 
-      <div className="max-w-lg mx-auto pt-12 pb-20 px-6">
-        <div className="text-center mb-8">
-          <h1 className="text-xl font-bold text-gray-900">
-            Welcome to Quotzal
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Let&apos;s get your brokerage set up in a few steps
-          </p>
-        </div>
+        <ProgressIndicator
+          currentStep={step}
+          totalSteps={3}
+          stepLabels={STEP_LABELS}
+        />
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <ProgressIndicator
-            currentStep={step}
-            totalSteps={3}
-            stepLabels={STEP_LABELS}
+        {error && (
+          <div className="mb-6 rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
+        {step === 1 && (
+          <StepBusinessInfo
+            brokerageName={data.brokerageName}
+            phone={data.phone}
+            address={data.address}
+            onUpdate={(fields) => updateData(fields)}
+            onNext={() => setStep(2)}
           />
+        )}
 
-          {error && (
-            <div className="mb-6 rounded-md bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+        {step === 2 && (
+          <StepInsuranceTypes
+            selectedTypes={data.insuranceTypes}
+            onUpdate={(types) => updateData({ insuranceTypes: types })}
+            onNext={() => setStep(3)}
+            onBack={() => setStep(1)}
+          />
+        )}
 
-          {step === 1 && (
-            <StepBusinessInfo
-              brokerageName={data.brokerageName}
-              phone={data.phone}
-              address={data.address}
-              onUpdate={(fields) => updateData(fields)}
-              onNext={() => setStep(2)}
-            />
-          )}
-
-          {step === 2 && (
-            <StepInsuranceTypes
-              selectedTypes={data.insuranceTypes}
-              onUpdate={(types) => updateData({ insuranceTypes: types })}
-              onNext={() => setStep(3)}
-              onBack={() => setStep(1)}
-            />
-          )}
-
-          {step === 3 && (
-            <StepBranding
-              plan={data.plan}
-              logoUrl={data.logoUrl}
-              brandColor={data.brandColor}
-              slug={displaySlug}
-              onUpdate={(fields) => updateData(fields)}
-              onFinish={handleFinish}
-              onBack={() => setStep(2)}
-              isSubmitting={isSubmitting}
-            />
-          )}
-        </div>
+        {step === 3 && (
+          <StepBranding
+            plan={data.plan}
+            logoUrl={data.logoUrl}
+            brandColor={data.brandColor}
+            slug={displaySlug}
+            onUpdate={(fields) => updateData(fields)}
+            onFinish={handleFinish}
+            onBack={() => setStep(2)}
+            isSubmitting={isSubmitting}
+          />
+        )}
       </div>
-    </div>
+    </AuthShell>
   );
 }
 
@@ -361,7 +392,7 @@ export default function OnboardingPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="flex min-h-screen items-center justify-center bg-white">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
         </div>
       }

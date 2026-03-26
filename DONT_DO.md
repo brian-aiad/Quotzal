@@ -48,3 +48,13 @@ Update this file whenever something goes wrong.
 - What happened: Extended fields (policyNumber, yearsWithCarrier, occupation, etc.) were saved correctly in form_data.extended_fields but not displayed in the broker's submission detail panel
 - What caused it: The panel only read direct columns (current_carrier, current_limits) and did not parse form_data.extended_fields
 - What to never do again: When adding new fields to the intake form, always verify the data appears in: (1) Review step, (2) Submit API, (3) Email notification, (4) Submission detail panel. All four must be checked.
+
+### 2026-03-26 — Onboarding "broker already exists" on Stripe checkout cancel
+- What happened: User completes onboarding, goes to Stripe checkout, cancels, returns to /onboarding. Clicking "Start Free Trial" again shows "A broker with this email or slug already exists"
+- What caused it: save-onboarding API used INSERT which fails with 23505 on retry because the broker was already created on the first attempt. Also, handleCheckoutSuccess tried to INSERT broker_links again even though save-onboarding already created them.
+- What to never do again: Any onboarding/setup API that creates rows must handle retries gracefully — use upsert logic (check-then-update or check-then-insert). Never assume the user will only hit the endpoint once. Always consider the cancelled-checkout-retry flow.
+
+### 2026-03-26 — Landing page mobile horizontal overflow
+- What happened: Landing page had 15px horizontal overflow on 375px mobile viewport
+- What caused it: Some elements in the hero section exceeded the viewport width
+- What to never do again: Always add `overflow-x-hidden` on full-page wrappers, especially landing pages with absolute-positioned decorative elements. Run Playwright mobile viewport tests.

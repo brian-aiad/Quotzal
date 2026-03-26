@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { INSURANCE_TYPE_OPTIONS } from "@/lib/constants/insurance-types";
 import type { InsuranceType } from "@/lib/types/intake-form";
+import { Check } from "lucide-react";
 
 interface StepInsuranceTypesProps {
   selectedTypes: InsuranceType[];
@@ -38,21 +39,18 @@ export function StepInsuranceTypes({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-slate-900">
-          Insurance Types
-        </h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="text-sm text-gray-500">
           Select the types of insurance you offer. Your intake form will only
           show the types you choose.
         </p>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-gray-400">
           You can change this anytime in your dashboard
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
         {INSURANCE_TYPE_OPTIONS.map((option) => {
           const isSelected = selectedTypes.includes(option.value);
           return (
@@ -60,16 +58,21 @@ export function StepInsuranceTypes({
               key={option.value}
               type="button"
               onClick={() => toggleType(option.value)}
-              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all ${
+              className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-3.5 text-center transition-all duration-150 cursor-pointer ${
                 isSelected
-                  ? "border-emerald-600 bg-emerald-50 shadow-sm"
-                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  ? "border-emerald-500 bg-emerald-50/50 shadow-sm"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
               }`}
             >
-              <span className="text-2xl">{option.icon}</span>
+              {isSelected && (
+                <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                  <Check size={12} className="text-white" />
+                </div>
+              )}
+              <span className="text-xl">{option.icon}</span>
               <span
-                className={`text-xs font-medium sm:text-sm ${
-                  isSelected ? "text-emerald-700" : "text-slate-700"
+                className={`text-xs font-medium ${
+                  isSelected ? "text-emerald-700" : "text-gray-700"
                 }`}
               >
                 {option.label}
@@ -79,24 +82,28 @@ export function StepInsuranceTypes({
         })}
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
 
-      <p className="text-sm text-slate-500">
+      <p className="text-xs text-gray-400">
         {selectedTypes.length} of {INSURANCE_TYPE_OPTIONS.length} selected
       </p>
 
-      <div className="flex justify-between">
+      <div className="flex gap-3">
         <button
           type="button"
           onClick={onBack}
-          className="rounded-md border border-slate-300 bg-white px-6 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          className="flex-1 h-11 border border-gray-200 bg-white text-gray-700 font-medium text-sm rounded-xl transition-all duration-150 cursor-pointer hover:bg-gray-50 hover:border-gray-300 focus:ring-4 focus:ring-gray-500/10 focus:outline-none"
         >
           Back
         </button>
         <button
           type="button"
           onClick={handleNext}
-          className="rounded-md bg-emerald-600 px-6 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-all duration-150 cursor-pointer hover:-translate-y-px hover:shadow-lg hover:shadow-emerald-500/25 active:translate-y-0 active:shadow-sm focus:ring-4 focus:ring-emerald-500/20 focus:outline-none"
         >
           Continue
         </button>

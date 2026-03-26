@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { FormPreview, buildPreviewSteps } from "@/components/dashboard/form-preview";
+import dynamic from "next/dynamic";
+import { buildPreviewSteps } from "@/components/dashboard/form-preview";
+
+const FormPreview = dynamic(
+  () => import("@/components/dashboard/form-preview").then((m) => ({ default: m.FormPreview })),
+  { ssr: false, loading: () => <div className="bg-slate-100 rounded-[2.5rem] h-[640px] animate-pulse" /> }
+);
 import { INSURANCE_TYPE_OPTIONS } from "@/lib/constants/insurance-types";
 import type { InsuranceType } from "@/lib/types/intake-form";
 import { mergeFormConfig } from "@/lib/types/intake-form";
@@ -103,6 +109,14 @@ export default function MyFormPage() {
     localStorage.setItem("quotzal_new_fields_dismissed", "1");
   }
 
+  // ── Helpers ──────────────────────────────────────────────
+
+  // Sort enabled types by canonical display order (auto_personal always first)
+  function sortByCanonicalOrder(types: InsuranceType[]): InsuranceType[] {
+    const order = INSURANCE_TYPE_OPTIONS.map((o) => o.value);
+    return [...types].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  }
+
   // ── Data loading ─────────────────────────────────────────
 
   const fetchData = useCallback(async () => {
@@ -111,12 +125,18 @@ export default function MyFormPage() {
       const json: BrokerFormData = await res.json();
       setData(json);
       const merged = mergeExtendedFormConfig(json.form_config);
-      // Sync enabledTypes from DB column (source of truth)
-      merged.enabledTypes = json.insurance_types_enabled as InsuranceType[];
+      // Sort enabled types by canonical display order (auto_personal first)
+      const sortedEnabled = sortByCanonicalOrder(json.insurance_types_enabled as InsuranceType[]);
+      merged.enabledTypes = sortedEnabled;
       setExtConfig(merged);
       latestConfigRef.current = merged;
-      if (!previewType && json.insurance_types_enabled.length > 0) {
-        setPreviewType(json.insurance_types_enabled[0] as InsuranceType);
+      if (!previewType && sortedEnabled.length > 0) {
+        const firstType = sortedEnabled[0];
+        setPreviewType(firstType);
+        // Auto-open config panel for the first enabled type
+        setConfiguringType(firstType);
+        const typeTabs = TABS_BY_TYPE[firstType];
+        if (typeTabs.length > 0) setActiveTab(typeTabs[0].id);
       }
     }
     setLoading(false);
@@ -215,9 +235,11 @@ export default function MyFormPage() {
     if (isEnabled && enabledTypes.length <= 1) return;
 
     setTogglingType(type);
-    const newTypes = isEnabled
-      ? enabledTypes.filter((t) => t !== type)
-      : [...enabledTypes, type as InsuranceType];
+    const newTypes = sortByCanonicalOrder(
+      isEnabled
+        ? enabledTypes.filter((t) => t !== type)
+        : [...enabledTypes, type as InsuranceType]
+    );
 
     const res = await fetch("/api/dashboard/form/toggle-type", {
       method: "PUT",
@@ -280,6 +302,21 @@ export default function MyFormPage() {
     const current = getFieldToggle(type, fieldKey);
     if (!current.show) return;
     setFieldToggle(type, fieldKey, { ...current, required: !current.required });
+  }
+
+  // Count active (shown) fields for a type
+  function countActiveFields(type: InsuranceType): { shown: number; total: number; required: number } {
+    const fields = FIELDS_BY_TYPE[type] ?? [];
+    const configKey = getTypeConfigKey(type);
+    if (!configKey || fields.length === 0) return { shown: 0, total: 0, required: 0 };
+    const tc = extConfig[configKey] as unknown as Record<string, FieldToggle>;
+    let shown = 0;
+    let required = 0;
+    for (const field of fields) {
+      const val = tc[field.key];
+      if (val?.show) { shown++; if (val.required) required++; }
+    }
+    return { shown, total: fields.length, required };
   }
 
   // Check if a tab has non-default config
@@ -640,7 +677,7 @@ export default function MyFormPage() {
       {/* Main two-column layout */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left column (60%) */}
-        <div className="flex-1 lg:basis-[60%] space-y-8 min-w-0">
+        <div className="flex-1 lg:basis-[60%] space-y-5 min-w-0">
 
           {/* Insurance Types Grid */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
@@ -652,11 +689,12 @@ export default function MyFormPage() {
                 const isConfiguring = configuringType === opt.value;
                 const isLast = enabled && enabledTypes.length <= 1;
                 const isToggling = togglingType === opt.value;
+                const fieldCounts = enabled ? countActiveFields(opt.value) : null;
                 return (
                   <div
                     key={opt.value}
                     onClick={() => enabled ? openConfigPanel(opt.value) : undefined}
-                    title={!enabled ? "Enable this type to configure it" : undefined}
+                    title={!enabled ? "Enable this type to configure it" : `${fieldCounts?.shown}/${fieldCounts?.total} fields active`}
                     className={`relative flex flex-col items-center rounded-xl border-2 text-center transition-all duration-150 select-none h-[120px] ${
                       isConfiguring
                         ? "border-emerald-500 bg-emerald-50/30 ring-2 ring-emerald-500/20 shadow-md cursor-pointer"
@@ -666,11 +704,16 @@ export default function MyFormPage() {
                     }`}
                   >
                     {isConfiguring && (
-                      <span className="absolute top-2 left-2 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md px-2 py-0.5">
-                        Configuring &rarr;
+                      <span className="absolute top-2 left-2 text-[10px] font-semibold text-emerald-700 bg-emerald-50 rounded-md px-1.5 py-0.5">
+                        Editing
                       </span>
                     )}
-                    <div className={`flex flex-col items-center pt-7 pb-8 ${!enabled ? "opacity-60" : ""}`}>
+                    {enabled && fieldCounts && !isConfiguring && (
+                      <span className="absolute top-2 right-2 text-[9px] font-medium text-gray-400">
+                        {fieldCounts.shown}/{fieldCounts.total}
+                      </span>
+                    )}
+                    <div className={`flex flex-col items-center pt-7 pb-8 ${!enabled ? "opacity-40 grayscale" : ""}`}>
                       <span className="text-2xl mb-1">{opt.icon}</span>
                       <span className="text-[11px] font-medium text-gray-700 leading-tight text-center px-1">{opt.label}</span>
                     </div>
@@ -726,20 +769,20 @@ export default function MyFormPage() {
                 ))}
               </div>
 
-              {/* Current step label + navigation — fixed height */}
-              <div className="flex items-center justify-between h-10">
+              {/* Current step label + navigation — fixed height, fixed button widths */}
+              <div className="flex items-center h-10">
                 <button
                   type="button"
                   onClick={() => handlePreviewStepChange(Math.max(0, previewStep - 1))}
                   disabled={previewStep === 0}
-                  className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+                  className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors w-16 shrink-0"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Back
                 </button>
-                <div className="text-center min-w-0 px-2">
+                <div className="text-center flex-1 min-w-0 px-2">
                   <p className="text-sm font-semibold text-gray-900 truncate">{currentStepLabel}</p>
                   <p className="text-[10px] text-gray-400">Step {clampedIdx + 1} of {previewSteps.length}</p>
                 </div>
@@ -747,7 +790,7 @@ export default function MyFormPage() {
                   type="button"
                   onClick={() => handlePreviewStepChange(Math.min(previewSteps.length - 1, previewStep + 1))}
                   disabled={previewStep >= previewSteps.length - 1}
-                  className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+                  className="flex items-center justify-end gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors w-16 shrink-0"
                 >
                   Next
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -805,17 +848,21 @@ export default function MyFormPage() {
             return (
             <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
               {/* Panel header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                    <span>{tabs.find((t) => t.id === activeTab)?.label ?? "Fields"}</span>
+                  <h2 className="text-base font-semibold text-gray-900">
+                    {tabs.find((t) => t.id === activeTab)?.label ?? "Fields"}
                   </h2>
-                  <p className="text-xs text-gray-500 mt-0.5">Toggle fields on/off and set them as required</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5 flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1"><span className="text-[9px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-1 py-px rounded">Visible</span> shown on form</span>
+                    <span className="text-gray-300">·</span>
+                    <span className="inline-flex items-center gap-1"><span className="text-[9px] font-semibold text-red-600 bg-red-50 border border-red-200 px-1 py-px rounded">*Required</span> must be filled</span>
+                  </p>
                 </div>
               </div>
 
               {/* Tab row */}
-              <div className="px-6 pt-3 pb-0 flex gap-1.5 border-b border-gray-200 overflow-x-auto">
+              <div className="px-6 pt-3 pb-0 flex gap-1 border-b border-gray-200 overflow-x-auto">
                 {tabs.map((tab) => {
                   const isActive = activeTab === tab.id;
                   const hasModified = tabHasModifiedFields(configuringType, tab.id);
@@ -824,20 +871,39 @@ export default function MyFormPage() {
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`relative px-4 py-2.5 text-sm transition-all duration-200 border-b-2 -mb-px ${
+                      title={hasModified ? "Customized — fields changed from defaults" : undefined}
+                      className={`relative px-3 py-2.5 text-xs transition-all duration-200 border-b-2 -mb-px whitespace-nowrap ${
                         isActive
                           ? "border-emerald-500 text-emerald-700 font-semibold"
-                          : "border-transparent text-gray-500 font-medium hover:text-gray-700 hover:border-gray-300"
+                          : hasModified
+                            ? "border-transparent text-emerald-600 font-medium hover:text-emerald-700 hover:border-emerald-300"
+                            : "border-transparent text-gray-500 font-medium hover:text-gray-700 hover:border-gray-300"
                       }`}
                     >
-                      {tab.label}
-                      {hasModified && !isActive && (
-                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full" />
-                      )}
+                      <span className="flex items-center gap-1.5">
+                        {tab.label}
+                        {hasModified && (
+                          <span
+                            className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${
+                              isActive ? "bg-emerald-500" : "bg-emerald-400"
+                            }`}
+                            title="Fields customized from defaults"
+                          />
+                        )}
+                      </span>
                     </button>
                   );
                 })}
               </div>
+              {/* Legend for modified indicator */}
+              {tabs.some((t) => tabHasModifiedFields(configuringType, t.id)) && (
+                <div className="px-6 pt-1.5">
+                  <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                    <span className="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+                    = customized from defaults
+                  </p>
+                </div>
+              )}
 
               {/* Field list */}
               <div className="px-6 py-4">
@@ -884,16 +950,41 @@ export default function MyFormPage() {
                       return (
                         <div
                           key={field.key}
-                          className={`py-3 px-4 hover:bg-gray-50 transition-colors duration-150 ${!isLast ? "border-b border-gray-100" : ""}`}
+                          className={`py-2 px-3 rounded-lg transition-colors duration-150 ${
+                            toggle.show
+                              ? "bg-emerald-50/40 hover:bg-emerald-50/70"
+                              : "hover:bg-gray-50"
+                          } ${!isLast ? "mb-0.5" : ""}`}
                         >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <span className="text-sm font-semibold text-gray-900">
-                                {field.label}
-                              </span>
-                              <p className="text-xs text-gray-500 mt-0.5">{field.description}</p>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              {/* Active/inactive indicator dot */}
+                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${toggle.show ? "bg-emerald-500" : "bg-gray-300"}`} />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className={`text-sm font-medium ${toggle.show ? "text-gray-900" : "text-gray-500"}`}>
+                                    {field.label}
+                                  </span>
+                                  {toggle.show && (
+                                    <span className="text-[9px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                                      Visible
+                                    </span>
+                                  )}
+                                  {toggle.show && toggle.required && (
+                                    <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
+                                      <span className="text-red-500">*</span>Required
+                                    </span>
+                                  )}
+                                  {!toggle.show && (
+                                    <span className="text-[9px] font-medium text-gray-400 bg-gray-50 border border-gray-200 px-1.5 py-0.5 rounded">
+                                      Hidden
+                                    </span>
+                                  )}
+                                </div>
+                                <p className={`text-[11px] mt-0 ${toggle.show ? "text-gray-500" : "text-gray-400"}`}>{field.description}</p>
+                              </div>
                             </div>
-                            <div className="flex flex-col items-end gap-1.5 shrink-0 ml-3">
+                            <div className="flex items-center gap-2 shrink-0">
                               <ToggleSwitch
                                 label="Show"
                                 checked={toggle.show}
@@ -1290,17 +1381,17 @@ export default function MyFormPage() {
 
 function ToggleSwitch({ label, checked, onChange, disabled = false }: { label: string; checked: boolean; onChange: () => void; disabled?: boolean }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer min-h-[44px] px-1">
-      <span className={`text-[11px] font-medium ${disabled ? "text-gray-300" : "text-gray-500"}`}>{label}</span>
+    <label className="flex items-center gap-1.5 cursor-pointer px-0.5 py-1">
+      <span className={`text-[10px] font-medium uppercase tracking-wide ${disabled ? "text-gray-300" : checked ? "text-emerald-600" : "text-gray-400"}`}>{label}</span>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         onClick={onChange}
         disabled={disabled}
-        className={`w-9 h-5 rounded-full relative transition-colors duration-200 shrink-0 ${checked ? "bg-emerald-500" : "bg-gray-300"} ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
+        className={`w-8 h-[18px] rounded-full relative transition-colors duration-200 shrink-0 ${checked ? "bg-emerald-500" : "bg-gray-300"} ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
       >
-        <span className={`block w-3.5 h-3.5 bg-white rounded-full shadow-sm absolute top-[3px] transition-transform duration-200 ${checked ? "translate-x-[17px]" : "translate-x-[3px]"}`} />
+        <span className={`block w-3 h-3 bg-white rounded-full shadow-sm absolute top-[3px] transition-transform duration-200 ${checked ? "translate-x-[15px]" : "translate-x-[3px]"}`} />
       </button>
     </label>
   );

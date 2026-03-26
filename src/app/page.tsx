@@ -24,7 +24,7 @@ export default function MarketingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       {/* ── NAV ── */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
@@ -521,9 +521,9 @@ export default function MarketingPage() {
                     </div>
                   </div>
                 ))}
-                <button className="w-full mt-3 bg-emerald-600 text-white text-sm font-semibold py-2.5 rounded-xl">
+                <div className="w-full mt-3 bg-emerald-600 text-white text-sm font-semibold py-2.5 rounded-xl text-center cursor-default select-none">
                   View Full Details in Dashboard
-                </button>
+                </div>
               </div>
             </div>
 

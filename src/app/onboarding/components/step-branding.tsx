@@ -100,17 +100,17 @@ export function StepBranding({
   return (
     <div className="space-y-6">
       <div className="flex flex-col items-center text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 mx-auto">
-          <CheckCircle className="h-10 w-10 text-emerald-600" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+          <CheckCircle className="h-7 w-7 text-emerald-600" />
         </div>
-        <h2 className="mt-4 text-2xl font-bold text-slate-900">
+        <h2 className="mt-4 text-xl font-bold text-gray-900">
           {plan === "pro" ? "Almost there!" : "You're all set!"}
         </h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-gray-500">
           Your intake form is ready
         </p>
-        <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3">
-          <span className="text-sm text-slate-500 block mb-1">Your form link:</span>
+        <div className="mt-3 w-full rounded-xl bg-emerald-50/50 border border-emerald-200 px-4 py-3">
+          <span className="text-xs text-gray-400 block mb-1">Your form link</span>
           <span className="text-sm font-mono font-semibold text-emerald-700">
             {formUrl}
           </span>
@@ -118,22 +118,22 @@ export function StepBranding({
       </div>
 
       {plan === "pro" && (
-        <div className="space-y-6 rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <p className="text-sm font-medium text-slate-700">
+        <div className="space-y-5 rounded-xl border border-gray-200 bg-gray-50/50 p-5">
+          <p className="text-sm font-medium text-gray-700">
             Personalize your intake form
           </p>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Logo
             </label>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="text-xs text-gray-400 mb-2">
               PNG, JPG, or WebP. Max 2MB.
             </p>
 
             {logoUrl ? (
-              <div className="mt-2 flex items-center gap-4">
-                <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <div className="flex items-center gap-4">
+                <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-gray-200 bg-white">
                   <img
                     src={logoUrl}
                     alt="Logo preview"
@@ -143,7 +143,7 @@ export function StepBranding({
                 <button
                   type="button"
                   onClick={removeLogo}
-                  className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
+                  className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700 transition-colors"
                 >
                   <X className="h-4 w-4" />
                   Remove
@@ -154,7 +154,7 @@ export function StepBranding({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-8 text-sm text-slate-600 hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white px-4 py-6 text-sm text-gray-500 hover:border-emerald-400 hover:bg-emerald-50/50 hover:text-emerald-600 transition-all duration-150 disabled:opacity-50 cursor-pointer"
               >
                 {uploading ? (
                   <>
@@ -178,23 +178,23 @@ export function StepBranding({
               className="hidden"
             />
             {uploadError && (
-              <p className="mt-1 text-sm text-red-600">{uploadError}</p>
+              <p className="mt-1.5 text-sm text-red-600">{uploadError}</p>
             )}
           </div>
 
           <div>
             <label
               htmlFor="brandColor"
-              className="block text-sm font-medium text-slate-700"
+              className="block text-sm font-medium text-gray-700 mb-1.5"
             >
               Brand Color
             </label>
-            <div className="mt-1 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <input
                 type="color"
                 value={brandColor || "#2563eb"}
                 onChange={(e) => onUpdate({ brandColor: e.target.value })}
-                className="h-10 w-10 cursor-pointer rounded border border-slate-300 p-0.5"
+                className="h-11 w-11 cursor-pointer rounded-xl border border-gray-200 p-1"
               />
               <input
                 id="brandColor"
@@ -208,29 +208,39 @@ export function StepBranding({
                 }}
                 placeholder="#2563eb"
                 maxLength={7}
-                className="block w-32 rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-32 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
               />
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-3">
+      <div className="space-y-3">
         <button
           type="button"
           onClick={onFinish}
           disabled={isSubmitting}
-          className="w-full rounded-md bg-emerald-600 px-6 py-3 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-all duration-150 cursor-pointer hover:-translate-y-px hover:shadow-lg hover:shadow-emerald-500/25 active:translate-y-0 active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none focus:ring-4 focus:ring-emerald-500/20 focus:outline-none"
         >
-          {isSubmitting ? "Setting up your account..." : "Start Free Trial"}
+          {isSubmitting ? (
+            <span className="inline-flex items-center gap-2">
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Setting up your account...
+            </span>
+          ) : (
+            "Start Free Trial"
+          )}
         </button>
 
         {plan === "starter" && (
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-gray-400 text-center">
             Want white-label branding?{" "}
             <a
               href="/dashboard/billing"
-              className="text-emerald-500 hover:text-emerald-600 underline"
+              className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
             >
               Upgrade to Pro after signup
             </a>
@@ -238,16 +248,14 @@ export function StepBranding({
         )}
       </div>
 
-      <div className="flex justify-start">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={isSubmitting}
-          className="text-sm text-slate-500 hover:text-slate-700 disabled:opacity-50"
-        >
-          &larr; Back
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={isSubmitting}
+        className="text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
+      >
+        &larr; Back
+      </button>
     </div>
   );
 }

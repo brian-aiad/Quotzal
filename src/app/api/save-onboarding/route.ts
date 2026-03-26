@@ -49,6 +49,72 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
 
+  // Check if broker already exists (e.g. user cancelled Stripe checkout and retried)
+  const { data: existingBroker } = await admin
+    .from("brokers")
+    .select("id, slug")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (existingBroker) {
+    // Broker already created from a previous attempt — update instead of insert
+    const { error: updateError } = await admin
+      .from("brokers")
+      .update({
+        brokerage_name: brokerageName,
+        phone,
+        address,
+        slug,
+        insurance_types_enabled: body.insuranceTypes,
+        plan: body.plan,
+        logo_url: body.logoUrl ?? null,
+        brand_color: body.brandColor ?? null,
+      })
+      .eq("id", user.id);
+
+    if (updateError) {
+      return NextResponse.json(
+        { error: "Failed to update onboarding data" },
+        { status: 500 }
+      );
+    }
+
+    // Update broker_links slug if broker slug changed
+    const linkSlug = `${slug}-link`;
+    const { data: existingLink } = await admin
+      .from("broker_links")
+      .select("id")
+      .eq("broker_id", user.id)
+      .eq("is_primary", true)
+      .maybeSingle();
+
+    if (existingLink) {
+      await admin
+        .from("broker_links")
+        .update({ slug: linkSlug })
+        .eq("id", existingLink.id);
+    } else {
+      // Primary link missing — recreate it
+      const { error: linkError } = await admin.from("broker_links").insert({
+        broker_id: user.id,
+        slug: linkSlug,
+        label: "Primary Link",
+        is_primary: true,
+        is_active: true,
+      });
+
+      if (linkError) {
+        return NextResponse.json(
+          { error: "Failed to create form link. Please try again." },
+          { status: 500 }
+        );
+      }
+    }
+
+    return NextResponse.json({ success: true });
+  }
+
+  // First-time onboarding — insert new broker
   const { error } = await admin.from("brokers").insert({
     id: user.id,
     email: user.email,

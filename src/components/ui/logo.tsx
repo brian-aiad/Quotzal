@@ -6,56 +6,65 @@ interface LogoProps {
 }
 
 const SIZES = {
-  xs: { mark: 20, textClass: 'text-[15px]' },
-  sm: { mark: 24, textClass: 'text-lg' },
-  md: { mark: 30, textClass: 'text-[22px]' },
-  lg: { mark: 40, textClass: 'text-[30px]' },
-  xl: { mark: 52, textClass: 'text-[40px]' },
+  xs: { height: 24, textClass: 'text-[15px]' },
+  sm: { height: 30, textClass: 'text-lg' },
+  md: { height: 36, textClass: 'text-[22px]' },
+  lg: { height: 48, textClass: 'text-[30px]' },
+  xl: { height: 64, textClass: 'text-[40px]' },
 };
 
-/**
- * Quotzal "Q" mark — emerald rounded square with a bold white Q.
- * The Q is a thick ring with a short diagonal kick at 5 o'clock,
- * drawn entirely with paths so it renders identically everywhere.
- */
-function QMark({ size }: { size: number }) {
+function QuetzalBird({ height }: { height: number }) {
+  const width = Math.round(height * 40 / 52);
+
   return (
     <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
+      width={width}
+      height={height}
+      viewBox="0 0 40 52"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* Background */}
-      <rect width="64" height="64" rx="14" fill="#059669" />
+      {/* Tail feathers — the Quetzal's iconic long plumes */}
+      <path d="M14 30 Q10 38 8 50 Q9 51 10 50 Q13 38 16 31 Z" fill="#047857" />
+      <path d="M17 30 Q14 38 13 48 Q14 49 15 48 Q17 38 19 31 Z" fill="#059669" />
 
-      {/* Q ring — thick circle with a cutout to form the letter O shape */}
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M32 12C20.954 12 12 20.954 12 32s8.954 20 20 20 20-8.954 20-20S43.046 12 32 12zm0 8c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"
-        fill="white"
-      />
+      {/* Body — main oval mass */}
+      <ellipse cx="22" cy="24" rx="11" ry="9" fill="#059669" transform="rotate(-10 22 24)" />
 
-      {/* Q tail kick — short diagonal bar at bottom-right */}
-      <rect x="37" y="38" width="8" height="16" rx="3" transform="rotate(-40 37 38)" fill="white" />
+      {/* Wing detail — darker overlay */}
+      <ellipse cx="20" cy="26" rx="7" ry="5" fill="#047857" transform="rotate(-15 20 26)" />
+
+      {/* Chest — crimson breast */}
+      <ellipse cx="28" cy="26" rx="4" ry="5" fill="#dc2626" transform="rotate(10 28 26)" />
+
+      {/* Head */}
+      <circle cx="28" cy="16" r="7" fill="#059669" />
+
+      {/* Crest — spiky feathers on top of head */}
+      <path d="M24 10 Q25 6 26 10 Z" fill="#10b981" />
+      <path d="M27 9 Q28 5 29 9 Z" fill="#10b981" />
+      <path d="M30 10 Q31 6 32 10 Z" fill="#10b981" />
+
+      {/* Beak */}
+      <path d="M34 16 L39 15 L34 18 Z" fill="#047857" />
+
+      {/* Eye */}
+      <circle cx="31" cy="14" r="2.5" fill="white" />
+      <circle cx="31.5" cy="14" r="1.2" fill="#1f2937" />
+      <circle cx="32" cy="13.2" r="0.5" fill="white" />
     </svg>
   );
 }
 
 export function QuotzalLogo({ size = 'md', variant = 'full', dark = false, className }: LogoProps) {
-  const { mark, textClass } = SIZES[size];
+  const { height, textClass } = SIZES[size];
 
   return (
     <div className={`flex items-center gap-2 ${className ?? ''}`}>
-      <QMark size={mark} />
+      <QuetzalBird height={height} />
       {variant === 'full' && (
-        <span
-          className={`font-bold select-none leading-none ${textClass} ${dark ? 'text-white' : 'text-gray-900'}`}
-          style={{ letterSpacing: '-0.03em' }}
-        >
+        <span className={`font-bold tracking-tight select-none leading-none ${textClass} ${dark ? 'text-white' : 'text-gray-900'}`}>
           Quotzal
         </span>
       )}

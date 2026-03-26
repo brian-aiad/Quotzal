@@ -42,7 +42,7 @@ const C_RED = "#ef4444";
 const C_AMBER = "#f59e0b";
 
 function emailLogo(): string {
-  return `<a href="${BASE_URL}" style="text-decoration:none;"><table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;"><tr><td style="width:28px;height:28px;background-color:#059669;border-radius:6px;text-align:center;vertical-align:middle;font-size:16px;font-weight:800;color:#ffffff;font-family:${FONT};">Q</td><td style="padding-left:8px;font-size:20px;font-weight:800;color:#059669;letter-spacing:-0.5px;font-family:${FONT};vertical-align:middle;">Quotzal</td></tr></table></a>`;
+  return `<a href="${BASE_URL}" style="text-decoration:none;font-size:22px;font-weight:800;color:${C_PRIMARY};letter-spacing:-0.5px;font-family:${FONT};">🐦 Quotzal</a>`;
 }
 
 function emailLayout(body: string, options?: { accentColor?: string; footerHtml?: string }): string {
@@ -57,7 +57,7 @@ function emailLayout(body: string, options?: { accentColor?: string; footerHtml?
   <!-- Dark header bar -->
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f172a;">
     <tr><td style="padding:18px 0;text-align:center;">
-      <a href="${BASE_URL}" style="text-decoration:none;"><table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;"><tr><td style="width:26px;height:26px;background-color:#059669;border-radius:5px;text-align:center;vertical-align:middle;font-size:15px;font-weight:800;color:#ffffff;font-family:${FONT};">Q</td><td style="padding-left:8px;font-size:19px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;font-family:${FONT};vertical-align:middle;">Quotzal</td></tr></table></a>
+      <a href="${BASE_URL}" style="text-decoration:none;font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;font-family:${FONT};">🐦 Quotzal</a>
     </td></tr>
   </table>
 </td></tr>

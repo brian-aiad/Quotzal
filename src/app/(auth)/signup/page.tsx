@@ -105,7 +105,7 @@ function SignupForm() {
 
     setLoading(true);
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding` },
@@ -121,6 +121,13 @@ function SignupForm() {
 
     localStorage.setItem("quotzal_selected_plan", selectedPlan);
 
+    // If a session was returned, email confirmation is disabled — go straight to onboarding
+    if (data.session) {
+      window.location.href = "/onboarding";
+      return;
+    }
+
+    // No session means email confirmation is required
     setEmailSent(true);
     setLoading(false);
   }

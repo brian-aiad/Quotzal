@@ -33,8 +33,8 @@ export default function VerifyEmailPage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       </div>
-      <h2 className="text-xl font-bold text-slate-900 mb-2">Verify your email</h2>
-      <p className="text-sm text-slate-600 mb-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-2">Verify your email</h2>
+      <p className="text-sm text-gray-500 mb-6">
         {email ? (
           <>We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.</>
         ) : (
@@ -44,7 +44,7 @@ export default function VerifyEmailPage() {
       <button
         onClick={handleResend}
         disabled={resendCooldown > 0 || !email}
-        className="text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+        className="text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:text-gray-400 disabled:cursor-not-allowed"
       >
         {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend confirmation email"}
       </button>

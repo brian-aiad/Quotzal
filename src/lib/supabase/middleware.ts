@@ -35,6 +35,10 @@ export async function updateSession(request: NextRequest) {
   if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding"))) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
+    // Preserve the original URL so login can redirect back after auth
+    if (pathname.startsWith("/dashboard")) {
+      loginUrl.searchParams.set("next", pathname);
+    }
     return NextResponse.redirect(loginUrl);
   }
 

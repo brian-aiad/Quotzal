@@ -51,9 +51,12 @@ function emailLayout(body: string, options?: { accentColor?: string; footerHtml?
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color:${C_BG};padding:40px 16px;">
 <tr><td align="center">
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
-  <!-- Header -->
+  <!-- Header with logo -->
   <tr><td style="padding:20px 0;text-align:center;">
-    <span style="font-size:22px;font-weight:800;color:${C_PRIMARY};letter-spacing:-0.5px;">Quotzal</span>
+    <a href="${BASE_URL}" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+      <img src="${BASE_URL}/icon.svg" alt="Quotzal" width="28" height="28" style="display:inline-block;vertical-align:middle;" />
+      <span style="font-size:22px;font-weight:800;color:${C_PRIMARY};letter-spacing:-0.5px;vertical-align:middle;">Quotzal</span>
+    </a>
   </td></tr>
   <!-- Card -->
   <tr><td>
@@ -252,6 +255,35 @@ export async function sendNewSubmissionEmail(
   const summary = generateTypeSummary(submission.insuranceType, submission.formData);
   const now = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 
+  const detailSections = generateDetailSections(submission.insuranceType, submission.formData);
+
+  // Extended fields from form_data
+  const extFields = (submission.formData.extended_fields ?? {}) as Record<string, string>;
+
+  const currentInsuranceSection = submission.hasCurrentInsurance
+    ? [
+        sectionHeading("Current Insurance"),
+        infoRow("Carrier", submission.currentCarrier || "Not provided"),
+        submission.currentCoverageLimits ? infoRow("Coverage Limits", submission.currentCoverageLimits) : "",
+        submission.policyExpiryDate ? infoRow("Policy Expires", submission.policyExpiryDate) : "",
+        extFields.policyNumber ? infoRow("Policy Number", extFields.policyNumber) : "",
+        extFields.yearsWithCarrier ? infoRow("Years with Carrier", extFields.yearsWithCarrier) : "",
+        extFields.continuousCoverage === "yes" ? infoRow("Continuous Coverage", "Yes") : "",
+      ].join("")
+    : "";
+
+  // Build additional info section from extended fields (excluding current insurance fields already shown)
+  const currentInsExtKeys = ["policyNumber", "yearsWithCarrier", "continuousCoverage"];
+  const additionalInfoRows = Object.entries(extFields)
+    .filter(([key, val]) => val && val.trim() && !currentInsExtKeys.includes(key))
+    .map(([key, val]) => {
+      const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()).trim();
+      return infoRow(label, val === "yes" ? "Yes" : val);
+    });
+  const additionalInfoSection = additionalInfoRows.length > 0
+    ? sectionHeading("Additional Information") + additionalInfoRows.join("")
+    : "";
+
   const body = `
     ${heading("New Lead Received")}
     ${para("Someone just completed your insurance intake form.")}
@@ -260,16 +292,23 @@ export async function sendNewSubmissionEmail(
       ["Name", `${submission.firstName} ${submission.lastName}`],
       ["Email", submission.email],
       ["Phone", submission.phone || "Not provided"],
+      ["Address", (submission.formData.address as string) || (submission.formData.propertyAddress as string) || ""],
       ["Insurance", typeLabel],
       ["Summary", summary],
       ["Date of Birth", submission.dateOfBirth || "Not provided"],
+      ["Currently Insured", submission.hasCurrentInsurance ? "Yes" : "No"],
       ["Submitted", now],
     ])}
+    ${detailSections}
+    ${currentInsuranceSection}
+    ${additionalInfoSection}
     <div style="margin:28px 0 16px;text-align:center;">
-      ${btn("View Lead in Dashboard", `${BASE_URL}/dashboard/submissions`)}
+      ${btn(`Email ${escapeHtml(submission.firstName)}`, `mailto:${escapeHtml(submission.email)}`)}
+      <div style="height:12px;"></div>
+      ${btn("View in Dashboard", `${BASE_URL}/dashboard/submissions`, "#374151")}
     </div>
     ${divider()}
-    ${muted(`Reply directly to <a href="mailto:${escapeHtml(submission.email)}" style="color:${C_PRIMARY};text-decoration:none;">${escapeHtml(submission.email)}</a> to contact this lead.`)}
+    ${muted(`You can reply directly to <a href="mailto:${escapeHtml(submission.email)}" style="color:${C_PRIMARY};text-decoration:none;">${escapeHtml(submission.email)}</a> or call ${submission.phone ? `<a href="tel:${escapeHtml(submission.phone)}" style="color:${C_PRIMARY};text-decoration:none;">${escapeHtml(submission.phone)}</a>` : "them"} to follow up.`)}
   `;
 
   return resend.emails.send({

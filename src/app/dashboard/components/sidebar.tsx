@@ -55,7 +55,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
               <Link
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className={`relative flex items-center gap-3 px-3 h-10 rounded-lg text-sm font-medium transition-all ${
+                className={`relative flex items-center gap-3 px-3 h-11 rounded-lg text-sm font-medium transition-all ${
                   isActive
                     ? 'bg-emerald-500/10 text-emerald-400 before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-emerald-500 before:rounded-r'
                     : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -76,7 +76,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-3 w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white rounded-lg flex items-center gap-3"
+          className="mt-3 w-full text-left px-3 h-11 text-sm text-gray-400 hover:bg-gray-800 hover:text-white rounded-lg flex items-center gap-3 transition-colors"
         >
           <LogoutIcon />
           Logout
@@ -99,7 +99,7 @@ export function Sidebar({ brokerName, brokerEmail }: SidebarProps) {
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="p-2 text-gray-300 hover:text-white"
+          className="p-2.5 text-gray-300 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {mobileOpen ? (

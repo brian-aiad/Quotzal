@@ -23,14 +23,14 @@ export function DeleteModal({ name, onConfirm, onCancel }: DeleteModalProps) {
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+            className="h-11 px-4 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+            className="h-11 px-4 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors"
           >
             Delete
           </button>

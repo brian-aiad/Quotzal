@@ -15,7 +15,7 @@ export default function TermsPage() {
           <Link href="/"><QuotzalLogo size="sm" /></Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">Log in</Link>
-            <Link href="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Sign Up Free</Link>
+            <Link href="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 h-11 inline-flex items-center rounded-xl transition-colors">Sign Up Free</Link>
           </div>
         </div>
       </header>

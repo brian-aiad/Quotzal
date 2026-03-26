@@ -52,7 +52,26 @@ export default async function DashboardLayout({
   }
 
   if (!broker) {
-    redirect('/onboarding');
+    // Double-check with admin client in case RLS or session timing caused a false negative
+    const admin = createAdminClient();
+    const { data: adminCheck } = await admin
+      .from('brokers')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+    if (!adminCheck) {
+      redirect('/onboarding');
+    }
+    // Broker exists but user-scoped query failed — refetch with admin
+    const { data: adminBroker } = await admin
+      .from('brokers')
+      .select('id, email, brokerage_name, slug, logo_url, brand_color, phone, address, plan, status, insurance_types_enabled, stripe_customer_id, stripe_subscription_id, trial_ends_at, created_at')
+      .eq('id', user.id)
+      .single<BrokerProfile>();
+    broker = adminBroker;
+    if (!broker) {
+      redirect('/onboarding');
+    }
   }
 
   // Trial expiry paywall
@@ -95,7 +114,7 @@ export default async function DashboardLayout({
                   </ul>
                   <form action="/api/create-checkout-session" method="POST">
                     <input type="hidden" name="plan" value="starter" />
-                    <button type="submit" className="w-full py-2 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 text-sm transition-colors">Subscribe</button>
+                    <button type="submit" className="w-full h-11 border border-slate-300 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 text-sm transition-colors">Subscribe</button>
                   </form>
                 </div>
                 <div className="border-2 border-emerald-600 rounded-xl p-6 bg-white text-left relative">
@@ -109,7 +128,7 @@ export default async function DashboardLayout({
                   </ul>
                   <form action="/api/create-checkout-session" method="POST">
                     <input type="hidden" name="plan" value="pro" />
-                    <button type="submit" className="w-full py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 text-sm transition-colors">Subscribe</button>
+                    <button type="submit" className="w-full h-11 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 text-sm transition-colors">Subscribe</button>
                   </form>
                 </div>
               </div>

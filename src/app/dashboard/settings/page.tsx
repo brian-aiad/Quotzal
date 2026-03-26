@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
+import EmbedSnippetSection from './components/embed-snippet-section';
 
 interface BrokerData {
   id: string;
@@ -102,7 +103,7 @@ export default function SettingsPage() {
 
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
+          className={`fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
             toast.type === 'success'
               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
               : 'bg-red-50 text-red-700 border border-red-200'
@@ -114,6 +115,12 @@ export default function SettingsPage() {
 
       <BusinessInfoSection broker={broker} setBroker={setBroker} showToast={showToast} />
       <YourLinkSection primaryLink={primaryLink} setPrimaryLink={setPrimaryLink} showToast={showToast} />
+      {primaryLink?.slug && (
+        <EmbedSnippetSection
+          slug={primaryLink.slug}
+          baseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
+        />
+      )}
       <BrandingSection broker={broker} setBroker={setBroker} showToast={showToast} supabase={supabase} />
       <AccountSection broker={broker} showToast={showToast} supabase={supabase} />
       <DataRetentionSection broker={broker} showToast={showToast} />

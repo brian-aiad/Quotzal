@@ -27,7 +27,7 @@ export function ExportButton() {
     <button
       onClick={handleExport}
       disabled={loading}
-      className="px-4 py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors text-sm disabled:opacity-50 flex items-center gap-2"
+      className="h-11 px-4 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm disabled:opacity-50 flex items-center gap-2"
     >
       {loading && (
         <span className="w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />

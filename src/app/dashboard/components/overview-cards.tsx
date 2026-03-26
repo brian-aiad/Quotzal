@@ -37,9 +37,9 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
         iconBg="bg-emerald-50"
         icon={<svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
       />
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-        <div className="flex items-start justify-between mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Account Status</p>
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-400">Account Status</p>
         </div>
         <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${acctStyle.bg}`}>
           {acctStyle.label}
@@ -57,14 +57,14 @@ function Card({ label, value, highlight, iconBg, icon }: {
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">{label}</p>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
+    <div className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</p>
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
           {icon}
         </div>
       </div>
-      <p className={`text-3xl font-bold tracking-tight ${highlight ? 'text-amber-600' : 'text-gray-900'}`}>
+      <p className={`text-2xl sm:text-3xl font-bold tracking-tight ${highlight ? 'text-amber-600' : 'text-gray-900'}`}>
         {value}
       </p>
     </div>

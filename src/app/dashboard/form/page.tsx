@@ -1,10 +1,28 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { FormPreview, buildPreviewSteps } from "@/components/dashboard/form-preview";
 import { INSURANCE_TYPE_OPTIONS } from "@/lib/constants/insurance-types";
-import type { FormConfig, InsuranceType, CustomField, CustomFieldType, ConfigurableFieldKey } from "@/lib/types/intake-form";
-import { DEFAULT_FORM_CONFIG, mergeFormConfig } from "@/lib/types/intake-form";
+import type { InsuranceType } from "@/lib/types/intake-form";
+import { mergeFormConfig } from "@/lib/types/intake-form";
+import type {
+  ExtendedFormConfig,
+  FieldToggle,
+  FieldMeta,
+  InsuranceStep,
+  CustomField as ExtCustomField,
+  CustomFieldType as ExtCFType,
+} from "@/lib/types/form-config";
+import {
+  DEFAULT_EXTENDED_FORM_CONFIG,
+  mergeExtendedFormConfig,
+  getTypeConfigKey,
+  FIELDS_BY_TYPE,
+  TABS_BY_TYPE,
+  extendedToLegacyConfig,
+} from "@/lib/types/form-config";
+
+// ── Interfaces ───────────────────────────────────────────────
 
 interface BrokerLink {
   id: string;
@@ -18,44 +36,35 @@ interface BrokerFormData {
   slug: string;
   plan: string;
   insurance_types_enabled: string[];
-  form_config: FormConfig | null;
+  form_config: Partial<ExtendedFormConfig> | null;
   logo_url: string | null;
   brand_color: string | null;
   links: BrokerLink[];
 }
 
-const BUILT_IN_FIELDS: { key: ConfigurableFieldKey; label: string; description: string; step: string }[] = [
-  { key: "date_of_birth", label: "Date of Birth", description: "Helps verify age and eligibility", step: "personal" },
-  { key: "phone", label: "Phone Number", description: "For broker follow-up calls", step: "personal" },
-  { key: "driver_license_number", label: "Driver License Number", description: "Needed for accurate policy quoting", step: "drivers" },
-  { key: "marital_status", label: "Marital Status", description: "May affect premium rates", step: "drivers" },
-  { key: "sr22", label: "SR-22 Field", description: "High-risk filing requirement", step: "drivers" },
-  { key: "violations", label: "Violations Section", description: "Traffic violations in last 5 years", step: "drivers" },
-  { key: "vin", label: "VIN", description: "Auto-fills year, make, model", step: "vehicles" },
-  { key: "trim_package", label: "Trim / Package", description: "Vehicle trim level detail", step: "vehicles" },
-  { key: "coverage_type", label: "Coverage Type", description: "Full coverage vs. liability only", step: "vehicles" },
-  { key: "current_insurance", label: "Include This Step", description: "Toggle entire Current Insurance step", step: "insurance" },
-  { key: "coverage_limits", label: "Coverage Limits", description: "Current policy coverage amounts", step: "insurance" },
-  { key: "policy_expiry", label: "Policy Expiry Date", description: "When current policy ends", step: "insurance" },
-];
-
-const CUSTOM_FIELD_TYPE_OPTIONS: { value: CustomFieldType; label: string }[] = [
+const EXT_CF_TYPE_OPTIONS: { value: ExtCFType; label: string }[] = [
   { value: "text", label: "Short Text" },
+  { value: "number", label: "Number" },
   { value: "textarea", label: "Long Text" },
   { value: "select", label: "Dropdown" },
-  { value: "yes_no", label: "Yes / No" },
+  { value: "checkbox", label: "Checkbox" },
 ];
+
+// ── Component ────────────────────────────────────────────────
 
 export default function MyFormPage() {
   const [data, setData] = useState<BrokerFormData | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Shared state
-  const [enabledTypes, setEnabledTypes] = useState<InsuranceType[]>([]);
-  const [formConfig, setFormConfig] = useState<FormConfig>(DEFAULT_FORM_CONFIG);
+  // Core state
+  const [extConfig, setExtConfig] = useState<ExtendedFormConfig>(DEFAULT_EXTENDED_FORM_CONFIG);
   const [previewStep, setPreviewStep] = useState(0);
   const [previewType, setPreviewType] = useState<InsuranceType | null>(null);
+
+  // Config panel state
+  const [configuringType, setConfiguringType] = useState<InsuranceType | null>(null);
+  const [activeTab, setActiveTab] = useState<InsuranceStep>("personal_info");
 
   // Alias state
   const [aliasSlug, setAliasSlug] = useState("");
@@ -68,29 +77,43 @@ export default function MyFormPage() {
   const [showCfForm, setShowCfForm] = useState(false);
   const [editingCfId, setEditingCfId] = useState<string | null>(null);
   const [cfLabel, setCfLabel] = useState("");
-  const [cfType, setCfType] = useState<CustomFieldType>("text");
+  const [cfType, setCfType] = useState<ExtCFType>("text");
   const [cfOptions, setCfOptions] = useState<string[]>([""]);
   const [cfRequired, setCfRequired] = useState(false);
-  const [cfAppliesTo, setCfAppliesTo] = useState<"all" | InsuranceType[]>("all");
 
   const [togglingType, setTogglingType] = useState<string | null>(null);
 
   // Save state with debounce
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latestConfigRef = useRef<FormConfig>(formConfig);
+  const latestConfigRef = useRef<ExtendedFormConfig>(extConfig);
+  const consecutiveFailsRef = useRef(0);
 
   // Mobile preview
   const [showMobilePreview, setShowMobilePreview] = useState(false);
+
+  // One-time new fields banner
+  const [showNewFieldsBanner, setShowNewFieldsBanner] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("quotzal_new_fields_dismissed");
+  });
+
+  function dismissNewFieldsBanner() {
+    setShowNewFieldsBanner(false);
+    localStorage.setItem("quotzal_new_fields_dismissed", "1");
+  }
+
+  // ── Data loading ─────────────────────────────────────────
 
   const fetchData = useCallback(async () => {
     const res = await fetch("/api/dashboard/form");
     if (res.ok) {
       const json: BrokerFormData = await res.json();
       setData(json);
-      setEnabledTypes(json.insurance_types_enabled as InsuranceType[]);
-      const merged = mergeFormConfig(json.form_config);
-      setFormConfig(merged);
+      const merged = mergeExtendedFormConfig(json.form_config);
+      // Sync enabledTypes from DB column (source of truth)
+      merged.enabledTypes = json.insurance_types_enabled as InsuranceType[];
+      setExtConfig(merged);
       latestConfigRef.current = merged;
       if (!previewType && json.insurance_types_enabled.length > 0) {
         setPreviewType(json.insurance_types_enabled[0] as InsuranceType);
@@ -101,8 +124,15 @@ export default function MyFormPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Preview steps depend on previewType and formConfig
-  const previewSteps = buildPreviewSteps(previewType, formConfig);
+  // ── Derived state ────────────────────────────────────────
+
+  const enabledTypes = extConfig.enabledTypes;
+  const legacyConfig = previewType ? extendedToLegacyConfig(extConfig, previewType) : mergeFormConfig(null);
+  const previewSteps = useMemo(
+    () => buildPreviewSteps(previewType, legacyConfig),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [previewType, legacyConfig?.fields?.current_insurance?.enabled]
+  );
   const currentPreviewStepData = previewSteps[Math.min(previewStep, previewSteps.length - 1)];
 
   // Clamp preview step when steps change
@@ -112,32 +142,62 @@ export default function MyFormPage() {
     }
   }, [previewSteps.length, previewStep]);
 
-  // Debounced save
-  function debouncedSaveConfig(config: FormConfig) {
+  // ── Save logic ───────────────────────────────────────────
+
+  function debouncedSave(config: ExtendedFormConfig) {
     latestConfigRef.current = config;
     setSaveStatus("saving");
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       try {
-        const res = await fetch("/api/dashboard/form/update-config", {
-          method: "PUT",
+        const res = await fetch("/api/dashboard/form-config", {
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ form_config: latestConfigRef.current }),
+          body: JSON.stringify({ formConfig: latestConfigRef.current }),
         });
         if (res.ok) {
+          consecutiveFailsRef.current = 0;
           setSaveStatus("saved");
           setTimeout(() => setSaveStatus((s) => s === "saved" ? "idle" : s), 2500);
         } else {
+          consecutiveFailsRef.current++;
           setSaveStatus("error");
         }
       } catch {
+        consecutiveFailsRef.current++;
         setSaveStatus("error");
       }
     }, 500);
   }
 
+  // Flush on unmount / beforeunload
+  useEffect(() => {
+    function handleBeforeUnload() {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        const blob = new Blob(
+          [JSON.stringify({ formConfig: latestConfigRef.current })],
+          { type: "application/json" }
+        );
+        navigator.sendBeacon("/api/dashboard/form-config", blob);
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
   function retryLastSave() {
-    debouncedSaveConfig(latestConfigRef.current);
+    debouncedSave(latestConfigRef.current);
+  }
+
+  // ── Helpers ──────────────────────────────────────────────
+
+  function updateConfig(updater: (prev: ExtendedFormConfig) => ExtendedFormConfig) {
+    setExtConfig((prev) => {
+      const next = updater(prev);
+      debouncedSave(next);
+      return next;
+    });
   }
 
   function copyToClipboard(text: string) {
@@ -145,6 +205,8 @@ export default function MyFormPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+  // ── Insurance type toggle ────────────────────────────────
 
   async function toggleInsuranceType(type: string, e: React.MouseEvent) {
     e.stopPropagation();
@@ -163,7 +225,7 @@ export default function MyFormPage() {
       body: JSON.stringify({ insuranceTypes: newTypes }),
     });
     if (res.ok) {
-      setEnabledTypes(newTypes);
+      updateConfig((prev) => ({ ...prev, enabledTypes: newTypes }));
       setData({ ...data, insurance_types_enabled: newTypes });
       if (previewType && !newTypes.includes(previewType) && newTypes.length > 0) {
         setPreviewType(newTypes[0]);
@@ -172,87 +234,129 @@ export default function MyFormPage() {
     setTogglingType(null);
   }
 
-  function selectPreviewType(type: InsuranceType) {
+  // ── Config panel ─────────────────────────────────────────
+
+  function openConfigPanel(type: InsuranceType) {
+    if (!enabledTypes.includes(type)) return;
+    setConfiguringType(type);
     setPreviewType(type);
     setPreviewStep(0);
+    const typeTabs = TABS_BY_TYPE[type];
+    if (typeTabs.length > 0) setActiveTab(typeTabs[0].id);
   }
 
-  function handlePreviewTypeSelect(type: InsuranceType) {
-    setPreviewType(type);
-    // Step will be set by the preview component advancing to step 1
+  function closeConfigPanel() {
+    setConfiguringType(null);
   }
 
-  function toggleFieldEnabled(key: ConfigurableFieldKey) {
-    const updated: FormConfig = {
-      ...formConfig,
-      fields: {
-        ...formConfig.fields,
-        [key]: { ...formConfig.fields[key], enabled: !formConfig.fields[key].enabled, required: !formConfig.fields[key].enabled ? formConfig.fields[key].required : false },
+  function getFieldToggle(type: InsuranceType, fieldKey: string): FieldToggle {
+    const configKey = getTypeConfigKey(type);
+    if (!configKey) return { show: true, required: false };
+    const tc = extConfig[configKey] as unknown as Record<string, FieldToggle>;
+    return tc[fieldKey] ?? { show: false, required: false };
+  }
+
+  function setFieldToggle(type: InsuranceType, fieldKey: string, toggle: FieldToggle) {
+    const configKey = getTypeConfigKey(type);
+    if (!configKey) return;
+    updateConfig((prev) => ({
+      ...prev,
+      [configKey]: {
+        ...(prev[configKey] as unknown as Record<string, FieldToggle>),
+        [fieldKey]: toggle,
       },
-    };
-    setFormConfig(updated);
-    debouncedSaveConfig(updated);
+    }));
   }
 
-  function toggleFieldRequired(key: ConfigurableFieldKey) {
-    if (!formConfig.fields[key].enabled) return;
-    const updated: FormConfig = {
-      ...formConfig,
-      fields: {
-        ...formConfig.fields,
-        [key]: { ...formConfig.fields[key], required: !formConfig.fields[key].required },
-      },
-    };
-    setFormConfig(updated);
-    debouncedSaveConfig(updated);
+  function toggleFieldShow(type: InsuranceType, fieldKey: string) {
+    const current = getFieldToggle(type, fieldKey);
+    setFieldToggle(type, fieldKey, {
+      show: !current.show,
+      required: !current.show ? current.required : false,
+    });
   }
 
-  // Custom field CRUD
+  function toggleFieldRequired(type: InsuranceType, fieldKey: string) {
+    const current = getFieldToggle(type, fieldKey);
+    if (!current.show) return;
+    setFieldToggle(type, fieldKey, { ...current, required: !current.required });
+  }
+
+  // Check if a tab has non-default config
+  function tabHasModifiedFields(type: InsuranceType, step: InsuranceStep): boolean {
+    const fields = FIELDS_BY_TYPE[type] ?? [];
+    const configKey = getTypeConfigKey(type);
+    if (!configKey) return false;
+    const tc = extConfig[configKey] as unknown as Record<string, FieldToggle>;
+    const defaults = (DEFAULT_EXTENDED_FORM_CONFIG[configKey]) as unknown as Record<string, FieldToggle>;
+    for (const field of fields.filter((f) => f.step === step)) {
+      const curr = tc[field.key];
+      const def = defaults[field.key];
+      if (curr && def && (curr.show !== def.show || curr.required !== def.required)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ── Custom fields ────────────────────────────────────────
+
   function resetCfForm() {
     setCfLabel("");
     setCfType("text");
     setCfOptions([""]);
     setCfRequired(false);
-    setCfAppliesTo("all");
     setEditingCfId(null);
     setShowCfForm(false);
   }
 
-  function openEditCf(field: CustomField) {
+  function openEditCf(field: ExtCustomField) {
     setCfLabel(field.label);
     setCfType(field.type);
-    setCfOptions(field.type === "select" && field.options.length > 0 ? field.options : [""]);
+    setCfOptions(field.type === "select" && field.options && field.options.length > 0 ? field.options : [""]);
     setCfRequired(field.required);
-    setCfAppliesTo(field.applies_to);
     setEditingCfId(field.id);
     setShowCfForm(true);
   }
 
-  function saveCf() {
+  function saveCf(step: InsuranceStep, insType: InsuranceType | "all") {
     if (!cfLabel.trim()) return;
     if (cfType === "select" && cfOptions.filter((o) => o.trim()).length === 0) return;
-    const field: CustomField = {
+    const field: ExtCustomField = {
       id: editingCfId ?? crypto.randomUUID(),
       label: cfLabel.trim(),
       type: cfType,
-      options: cfType === "select" ? cfOptions.filter((o) => o.trim()) : [],
+      options: cfType === "select" ? cfOptions.filter((o) => o.trim()) : undefined,
       required: cfRequired,
-      applies_to: cfAppliesTo,
+      step,
+      insuranceType: insType,
     };
-    const updatedFields = editingCfId
-      ? formConfig.custom_fields.map((f) => (f.id === editingCfId ? field : f))
-      : [...formConfig.custom_fields, field];
-    const updated = { ...formConfig, custom_fields: updatedFields };
-    setFormConfig(updated);
-    debouncedSaveConfig(updated);
+    updateConfig((prev) => {
+      const customFields = editingCfId
+        ? prev.customFields.map((f) => (f.id === editingCfId ? field : f))
+        : [...prev.customFields, field];
+      return { ...prev, customFields };
+    });
     resetCfForm();
   }
 
   function deleteCf(id: string) {
-    const updated = { ...formConfig, custom_fields: formConfig.custom_fields.filter((f) => f.id !== id) };
-    setFormConfig(updated);
-    debouncedSaveConfig(updated);
+    updateConfig((prev) => ({
+      ...prev,
+      customFields: prev.customFields.filter((f) => f.id !== id),
+    }));
   }
+
+  // ── Global custom fields (applies to 'all') ─────────────
+
+  const globalCustomFields = extConfig.customFields.filter((cf) => cf.insuranceType === "all");
+  const perTypeCustomFields = configuringType
+    ? extConfig.customFields.filter(
+        (cf) => cf.insuranceType === configuringType && cf.step === activeTab
+      )
+    : [];
+
+  // ── Alias management ─────────────────────────────────────
 
   async function createAlias() {
     setAliasError("");
@@ -294,27 +398,71 @@ export default function MyFormPage() {
     fetchData();
   }
 
-  // Fields for the currently selected step
-  const fieldsForCurrentStep = BUILT_IN_FIELDS.filter((f) => f.step === currentPreviewStepData?.key);
+  // ── Preview sync ─────────────────────────────────────────
 
-  // Check if a step has any non-default config
-  function stepHasCustomConfig(stepKey: string): boolean {
-    const stepFields = BUILT_IN_FIELDS.filter((f) => f.step === stepKey);
-    for (const field of stepFields) {
-      const config = formConfig?.fields?.[field.key];
-      const defaultConfig = DEFAULT_FORM_CONFIG.fields[field.key];
-      if (!config) continue;
-      if (config.enabled !== defaultConfig.enabled || config.required !== defaultConfig.required) {
-        return true;
-      }
-    }
-    return false;
+  function handlePreviewTypeSelect(type: InsuranceType) {
+    setPreviewType(type);
   }
 
-  // Current type option for breadcrumb
-  const currentTypeOption = previewType
-    ? INSURANCE_TYPE_OPTIONS.find((o) => o.value === previewType)
-    : null;
+  // Mapping helpers between config tabs and preview step keys
+  const stepKeyToTab: Record<string, InsuranceStep> = {
+    personal: "personal_info",
+    drivers: "drivers",
+    vehicles: "vehicles",
+    details: previewType === "home" ? "property" : "coverage",
+    insurance: "current_insurance",
+    review: "review",
+  };
+  const tabToStepKey: Record<InsuranceStep, string> = {
+    personal_info: "personal",
+    drivers: "drivers",
+    vehicles: "vehicles",
+    property: "details",
+    coverage: "details",
+    current_insurance: "insurance",
+    review: "review",
+  };
+
+  // Track sync source to prevent loops
+  const syncSourceRef = useRef<"tab" | "preview" | null>(null);
+
+  // Sync: config tab → preview step
+  useEffect(() => {
+    if (syncSourceRef.current === "preview") {
+      syncSourceRef.current = null;
+      return;
+    }
+    if (!configuringType || !previewType) return;
+    const targetKey = tabToStepKey[activeTab];
+    if (targetKey) {
+      const idx = previewSteps.findIndex((s) => s.key === targetKey);
+      if (idx >= 0 && idx !== previewStep) {
+        setPreviewStep(idx);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // Handle preview step change (from Back/Next or dot click) — syncs back to config tab
+  function handlePreviewStepChange(newStep: number) {
+    setPreviewStep(newStep);
+    if (configuringType && previewType) {
+      const stepData = previewSteps[newStep];
+      if (stepData) {
+        const mappedTab = stepKeyToTab[stepData.key];
+        if (mappedTab) {
+          const tabs = TABS_BY_TYPE[configuringType];
+          const tabExists = tabs.some((t) => t.id === mappedTab);
+          if (tabExists && mappedTab !== activeTab) {
+            syncSourceRef.current = "preview";
+            setActiveTab(mappedTab);
+          }
+        }
+      }
+    }
+  }
+
+  // ── Loading / Error ──────────────────────────────────────
 
   if (loading) {
     return (
@@ -324,30 +472,17 @@ export default function MyFormPage() {
           <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
         </div>
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 lg:basis-[52%] space-y-5">
+          <div className="flex-1 lg:basis-[60%] space-y-5">
             <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-3">
               <div className="h-5 bg-gray-100 rounded w-32 animate-pulse" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />
                 ))}
               </div>
             </div>
-            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-3">
-              <div className="h-5 bg-gray-100 rounded w-40 animate-pulse" />
-              <div className="flex gap-1.5">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-9 w-28 bg-gray-100 rounded-lg animate-pulse" />
-                ))}
-              </div>
-              <div className="space-y-2">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-14 bg-gray-50 rounded-xl animate-pulse" />
-                ))}
-              </div>
-            </div>
           </div>
-          <div className="lg:basis-[48%] hidden lg:block">
+          <div className="lg:basis-[40%] hidden lg:block">
             <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
               <div className="h-[680px] bg-gray-100 rounded-[2.5rem] animate-pulse" />
             </div>
@@ -366,13 +501,40 @@ export default function MyFormPage() {
   const fullUrl = `https://${formUrl}`;
   const isPro = data.plan === "pro";
 
+  // Fields for the current config tab
+  const configuringFields: FieldMeta[] = configuringType
+    ? (FIELDS_BY_TYPE[configuringType] ?? []).filter((f) => f.step === activeTab)
+    : [];
+
+  // Core locked fields per step
+  const coreFieldsByStep: Record<InsuranceStep, string[]> = {
+    personal_info: ["First Name", "Last Name", "Email"],
+    drivers: [],
+    vehicles: [],
+    property: [],
+    coverage: [],
+    current_insurance: [],
+    review: [],
+  };
+  if (configuringType === "auto_commercial") {
+    coreFieldsByStep.personal_info = ["Contact Email"];
+  }
+
+  const tabs = configuringType ? TABS_BY_TYPE[configuringType] : [];
+  const configuringTypeOption = configuringType
+    ? INSURANCE_TYPE_OPTIONS.find((o) => o.value === configuringType)
+    : null;
+
   return (
     <div className="space-y-5">
       {/* Header + save indicator */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Form</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Form</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Configure your client intake form</p>
+        </div>
         {saveStatus !== "idle" && (
-          <div className="save-indicator-enter">
+          <div>
             {saveStatus === "saving" && (
               <span className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full">
                 <span className="w-3 h-3 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
@@ -387,7 +549,15 @@ export default function MyFormPage() {
                 Saved
               </span>
             )}
-            {saveStatus === "error" && (
+            {saveStatus === "error" && consecutiveFailsRef.current >= 3 && (
+              <button
+                onClick={retryLastSave}
+                className="flex items-center gap-1 text-[11px] text-red-600 font-medium bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
+              >
+                Auto-save failed. Your changes may not be saved. &mdash; Save now
+              </button>
+            )}
+            {saveStatus === "error" && consecutiveFailsRef.current < 3 && (
               <button
                 onClick={retryLastSave}
                 className="flex items-center gap-1 text-[11px] text-red-600 font-medium bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
@@ -399,7 +569,7 @@ export default function MyFormPage() {
         )}
       </div>
 
-      {/* Form Link */}
+      {/* Form Link Bar */}
       <div className="bg-gray-50 border border-gray-100 rounded-2xl shadow-sm p-6">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-2.5 flex-1 min-w-0 bg-white border border-gray-200 rounded-xl px-4 py-2.5">
@@ -411,9 +581,7 @@ export default function MyFormPage() {
           <button
             onClick={() => copyToClipboard(fullUrl)}
             className={`font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-xs shrink-0 ${
-              copied
-                ? "bg-emerald-600 text-white"
-                : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              copied ? "bg-emerald-600 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"
             }`}
           >
             {copied ? (
@@ -443,12 +611,7 @@ export default function MyFormPage() {
               <div key={alias.id} className="flex items-center justify-between text-xs">
                 <span className="text-gray-600 truncate">{baseDomain}/f/{alias.slug}</span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => copyToClipboard(`https://${baseDomain}/f/${alias.slug}`)}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
-                    Copy
-                  </button>
+                  <button onClick={() => copyToClipboard(`https://${baseDomain}/f/${alias.slug}`)} className="text-emerald-600 hover:text-emerald-700 font-medium">Copy</button>
                   <button
                     onClick={() => toggleAliasActive(alias.id, !alias.is_active)}
                     className={`font-medium px-1.5 py-0.5 rounded transition-colors ${alias.is_active ? "bg-emerald-50 text-emerald-600" : "bg-gray-200 text-gray-500"}`}
@@ -461,67 +624,56 @@ export default function MyFormPage() {
           </div>
         )}
         {isPro && (
-          <button
-            onClick={() => setShowAliasModal(true)}
-            className="mt-2 text-xs text-emerald-600 font-medium hover:text-emerald-700"
-          >
-            + Add alias
-          </button>
+          <button onClick={() => setShowAliasModal(true)} className="mt-2 text-xs text-emerald-600 font-medium hover:text-emerald-700">+ Add alias</button>
         )}
         {!isPro && aliases.length === 0 && (
           <div className="mt-3 inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs px-3 py-1.5 rounded-lg">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
-            <a href="/dashboard/billing" className="font-medium hover:text-amber-800 transition-colors">
-              Upgrade to Pro
-            </a>
+            <a href="/dashboard/billing" className="font-medium hover:text-amber-800 transition-colors">Upgrade to Pro</a>
             <span>for unlimited link aliases</span>
           </div>
         )}
       </div>
 
-      {/* Main two-column layout: controls + preview */}
+      {/* Main two-column layout */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left column — Controls (52%) */}
-        <div className="flex-1 lg:basis-[52%] space-y-5 min-w-0">
+        {/* Left column (60%) */}
+        <div className="flex-1 lg:basis-[60%] space-y-8 min-w-0">
 
-          {/* Unified Insurance Types — click to configure, toggle to enable/disable */}
+          {/* Insurance Types Grid */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
             <h2 className="text-base font-semibold text-gray-900 mb-0.5">Insurance Types</h2>
-            <p className="text-xs text-gray-500 mt-0.5 mb-4">Click a type to configure its form steps. Toggle to enable/disable.</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <p className="text-xs text-gray-500 mt-0.5 mb-4">Click a type to configure its fields. Toggle to enable/disable.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {INSURANCE_TYPE_OPTIONS.map((opt) => {
                 const enabled = enabledTypes.includes(opt.value);
-                const isSelected = previewType === opt.value;
+                const isConfiguring = configuringType === opt.value;
                 const isLast = enabled && enabledTypes.length <= 1;
                 const isToggling = togglingType === opt.value;
                 return (
                   <div
                     key={opt.value}
-                    onClick={() => selectPreviewType(opt.value)}
-                    className={`relative flex flex-col items-center p-4 rounded-xl border-2 text-center transition-all duration-150 cursor-pointer select-none ${
-                      isSelected
-                        ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20 shadow-md"
+                    onClick={() => enabled ? openConfigPanel(opt.value) : undefined}
+                    title={!enabled ? "Enable this type to configure it" : undefined}
+                    className={`relative flex flex-col items-center rounded-xl border-2 text-center transition-all duration-150 select-none h-[120px] ${
+                      isConfiguring
+                        ? "border-emerald-500 bg-emerald-50/30 ring-2 ring-emerald-500/20 shadow-md cursor-pointer"
                         : enabled
-                          ? "border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md"
-                          : "border-gray-200 bg-white"
+                          ? "border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md cursor-pointer"
+                          : "border-gray-200 bg-white cursor-not-allowed"
                     }`}
                   >
-                    {/* Configuring label — inside card flow */}
-                    {isSelected && (
-                      <span className="text-xs text-emerald-600 font-semibold text-center mb-1 flex items-center gap-0.5">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Configuring
+                    {isConfiguring && (
+                      <span className="absolute top-2 left-2 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md px-2 py-0.5">
+                        Configuring &rarr;
                       </span>
                     )}
-                    <div className={`${!enabled ? "opacity-40 grayscale" : ""}`}>
-                      <span className="text-2xl mb-2 block">{opt.icon}</span>
-                      <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
+                    <div className={`flex flex-col items-center pt-7 pb-8 ${!enabled ? "opacity-60" : ""}`}>
+                      <span className="text-2xl mb-1">{opt.icon}</span>
+                      <span className="text-[11px] font-medium text-gray-700 leading-tight text-center px-1">{opt.label}</span>
                     </div>
-                    {/* Toggle switch — bottom-right */}
                     <button
                       type="button"
                       role="switch"
@@ -529,7 +681,7 @@ export default function MyFormPage() {
                       aria-label={`${enabled ? "Disable" : "Enable"} ${opt.label}`}
                       onClick={(e) => toggleInsuranceType(opt.value, e)}
                       disabled={isLast || isToggling}
-                      className={`absolute bottom-2 right-2 w-8 h-[18px] rounded-full transition-colors ${enabled ? "bg-emerald-500" : "bg-gray-300"} ${isLast ? "opacity-40" : ""}`}
+                      className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-[18px] rounded-full transition-colors ${enabled ? "bg-emerald-500" : "bg-gray-300"} ${isLast ? "opacity-40" : ""}`}
                     >
                       <span className={`block w-3.5 h-3.5 bg-white rounded-full shadow-sm absolute top-[2px] transition-transform ${enabled ? "translate-x-[14px]" : "translate-x-[2px]"}`} />
                     </button>
@@ -537,208 +689,380 @@ export default function MyFormPage() {
                 );
               })}
             </div>
-            <div className="border-t border-gray-100 mt-5" />
           </div>
 
-          {/* Form Steps panel with breadcrumb */}
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2 h-8">
-              <span className="font-medium uppercase tracking-wider text-[10px]">Configuring</span>
-              <span>&rarr;</span>
-              {currentTypeOption && (
-                <span className="font-semibold text-emerald-600">
-                  {currentTypeOption.icon} {currentTypeOption.label}
-                </span>
-              )}
-              {currentPreviewStepData && (
-                <>
-                  <span>&rarr;</span>
-                  <span className="font-medium text-gray-600">{currentPreviewStepData.label}</span>
-                </>
-              )}
-            </div>
+          {/* Step Navigator — shows when a type is selected */}
+          {configuringType && configuringTypeOption && (() => {
+            const clampedIdx = Math.min(previewStep, previewSteps.length - 1);
+            const currentStepLabel = previewSteps[clampedIdx]?.label ?? "";
+            return (
+            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4">
+              {/* Header row — fixed layout */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-lg shrink-0">{configuringTypeOption.icon}</span>
+                  <h2 className="text-sm font-semibold text-gray-900 truncate">{configuringTypeOption.label}</h2>
+                </div>
+                <button
+                  onClick={closeConfigPanel}
+                  className="text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors shrink-0 ml-2"
+                >
+                  Close
+                </button>
+              </div>
 
-            {/* Step pills */}
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {previewSteps.map((step, i) => {
-                const isActive = i === Math.min(previewStep, previewSteps.length - 1);
-                const hasCustom = stepHasCustomConfig(step.key);
-                return (
+              {/* Progress bar — fixed height, never shifts */}
+              <div className="flex gap-1 mb-3">
+                {previewSteps.map((step, idx) => (
                   <button
                     key={step.key}
                     type="button"
-                    onClick={() => setPreviewStep(i)}
-                    className={`relative px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
-                      isActive
-                        ? "bg-emerald-600 text-white font-semibold"
-                        : "bg-gray-50 border border-gray-200 text-gray-600 font-medium hover:border-emerald-300 hover:bg-white cursor-pointer"
-                    }`}
-                  >
-                    {step.label}
-                    {/* Emerald dot for steps with custom config */}
-                    {hasCustom && !isActive && (
-                      <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                    )}
-                  </button>
-                );
-              })}
+                    onClick={() => handlePreviewStepChange(idx)}
+                    className="flex-1 h-1.5 rounded-full transition-colors duration-300 cursor-pointer hover:opacity-80"
+                    style={{ backgroundColor: idx <= clampedIdx ? "#059669" : "#e2e8f0" }}
+                    title={step.label}
+                    aria-label={`Go to step ${idx + 1}: ${step.label}`}
+                  />
+                ))}
+              </div>
+
+              {/* Current step label + navigation — fixed height */}
+              <div className="flex items-center justify-between h-10">
+                <button
+                  type="button"
+                  onClick={() => handlePreviewStepChange(Math.max(0, previewStep - 1))}
+                  disabled={previewStep === 0}
+                  className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back
+                </button>
+                <div className="text-center min-w-0 px-2">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{currentStepLabel}</p>
+                  <p className="text-[10px] text-gray-400">Step {clampedIdx + 1} of {previewSteps.length}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handlePreviewStepChange(Math.min(previewSteps.length - 1, previewStep + 1))}
+                  disabled={previewStep >= previewSteps.length - 1}
+                  className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+                >
+                  Next
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
+            );
+          })()}
 
-            {/* Connector line */}
-            {fieldsForCurrentStep.length > 0 && (
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-px h-4 bg-emerald-300 ml-4" />
-              </div>
-            )}
+          {/* Config Panel — appears when a type card is clicked */}
+          {configuringType && configuringTypeOption && (() => {
+            // Only show field config for steps that have a matching tab (not "type" or "review")
+            const currentStepKey = previewSteps[Math.min(previewStep, previewSteps.length - 1)]?.key;
+            const mappedTab = currentStepKey ? stepKeyToTab[currentStepKey] : null;
+            const hasConfigTab = mappedTab && tabs.some((t) => t.id === mappedTab) && currentStepKey !== "type" && currentStepKey !== "review";
 
-            {/* Step-specific info messages */}
-            {currentPreviewStepData?.key === "type" && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3.5 flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <p className="text-sm font-medium text-emerald-800">Insurance Type Selection</p>
-                  <p className="text-xs text-emerald-700 mt-0.5">Customers choose which type they need. Enable or disable types in the grid above.</p>
-                </div>
-              </div>
-            )}
-
-            {currentPreviewStepData?.key === "review" && (
-              <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Review &amp; Submit</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Always included. Customers see a summary of all their responses before submitting.</p>
-                </div>
-              </div>
-            )}
-
-            {currentPreviewStepData?.key === "details" && (
-              <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Coverage Details</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Type-specific fields shown based on selected insurance type. These fields cannot be individually toggled.</p>
-                </div>
-              </div>
-            )}
-
-            {/* Built-in field toggles */}
-            {fieldsForCurrentStep.length > 0 && (
-              <div className="field-expand-enter">
-                {/* Locked fields for personal step */}
-                {currentPreviewStepData?.key === "personal" && (
-                  <div className="flex flex-wrap gap-1.5 mb-3 pb-3 border-b border-gray-100">
-                    {["First Name", "Last Name", "Email"].map((f) => (
-                      <span key={f} className="flex items-center gap-1 bg-gray-100 rounded-lg px-2.5 py-1 text-[10px] text-gray-600 font-medium">
-                        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        {f}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {fieldsForCurrentStep.map((field, idx) => {
-                  const config = formConfig?.fields?.[field.key];
-                  if (!config) return null;
-                  const isLast = idx === fieldsForCurrentStep.length - 1;
-                  return (
-                    <div
-                      key={field.key}
-                      className={`px-4 py-3.5 transition-opacity duration-150 ${
-                        !config.enabled ? "opacity-40" : ""
-                      } ${!isLast ? "border-b border-gray-100" : ""}`}
+            if (!hasConfigTab) {
+              // Show contextual message for non-configurable steps
+              return (
+                <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                  <div className="text-center py-4">
+                    {currentStepKey === "type" && (
+                      <>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Insurance Type Selection</p>
+                        <p className="text-xs text-gray-400">Clients choose their insurance type on this step. Enable/disable types in the grid above.</p>
+                      </>
+                    )}
+                    {currentStepKey === "review" && (
+                      <>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Review & Submit</p>
+                        <p className="text-xs text-gray-400">Clients review all their information before submitting. This step is auto-generated.</p>
+                      </>
+                    )}
+                    {!currentStepKey && (
+                      <p className="text-xs text-gray-400">Navigate to a step to configure its fields.</p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handlePreviewStepChange(Math.min(previewSteps.length - 1, previewStep + 1))}
+                      disabled={previewStep >= previewSteps.length - 1}
+                      className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <span className={`text-sm font-medium text-gray-900 ${!config.enabled ? "line-through text-gray-400" : ""}`}>
-                            {field.label}
-                          </span>
-                          <p className="text-xs text-gray-400 mt-0.5">{field.description}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1.5 shrink-0 ml-3">
-                          <ToggleSwitch
-                            label="Show"
-                            checked={config.enabled}
-                            onChange={() => toggleFieldEnabled(field.key)}
-                          />
-                          <div className="flex items-center gap-1">
-                            {!config.enabled && (
-                              <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                              </svg>
-                            )}
-                            <ToggleSwitch
-                              label="Required"
-                              checked={config.required}
-                              onChange={() => toggleFieldRequired(field.key)}
-                              disabled={!config.enabled}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      Go to next step
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+              {/* Panel header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                    <span>{tabs.find((t) => t.id === activeTab)?.label ?? "Fields"}</span>
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-0.5">Toggle fields on/off and set them as required</p>
+                </div>
+              </div>
+
+              {/* Tab row */}
+              <div className="px-6 pt-3 pb-0 flex gap-1.5 border-b border-gray-200 overflow-x-auto">
+                {tabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  const hasModified = tabHasModifiedFields(configuringType, tab.id);
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`relative px-4 py-2.5 text-sm transition-all duration-200 border-b-2 -mb-px ${
+                        isActive
+                          ? "border-emerald-500 text-emerald-700 font-semibold"
+                          : "border-transparent text-gray-500 font-medium hover:text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      {tab.label}
+                      {hasModified && !isActive && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full" />
+                      )}
+                    </button>
                   );
                 })}
               </div>
-            )}
-          </div>
 
-          {/* Custom Fields */}
+              {/* Field list */}
+              <div className="px-6 py-4">
+                {/* New fields info banner */}
+                {showNewFieldsBanner && (
+                  <div className="mb-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                    <p className="text-xs text-blue-700">We&apos;ve added new optional fields. They&apos;re off by default.</p>
+                    <button
+                      onClick={dismissNewFieldsBanner}
+                      className="text-blue-400 hover:text-blue-600 ml-2 shrink-0"
+                      aria-label="Dismiss"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+
+                {/* Core fields */}
+                {coreFieldsByStep[activeTab].length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2">Core Fields (always included)</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {coreFieldsByStep[activeTab].map((f) => (
+                        <span key={f} className="flex items-center gap-1 bg-gray-100 rounded-lg px-2.5 py-1 text-[10px] text-gray-600 font-medium">
+                          <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Optional fields */}
+                {configuringFields.length > 0 ? (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2">Optional Fields</p>
+                    {configuringFields.map((field, idx) => {
+                      const toggle = getFieldToggle(configuringType, field.key);
+                      const isLast = idx === configuringFields.length - 1;
+                      return (
+                        <div
+                          key={field.key}
+                          className={`py-3 px-4 hover:bg-gray-50 transition-colors duration-150 ${!isLast ? "border-b border-gray-100" : ""}`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-semibold text-gray-900">
+                                {field.label}
+                              </span>
+                              <p className="text-xs text-gray-500 mt-0.5">{field.description}</p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1.5 shrink-0 ml-3">
+                              <ToggleSwitch
+                                label="Show"
+                                checked={toggle.show}
+                                onChange={() => toggleFieldShow(configuringType, field.key)}
+                              />
+                              <ToggleSwitch
+                                label="Req"
+                                checked={toggle.required}
+                                onChange={() => toggleFieldRequired(configuringType, field.key)}
+                                disabled={!toggle.show}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-gray-400">No configurable fields for this step</p>
+                  </div>
+                )}
+
+                {/* Per-step custom fields */}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2">
+                    Custom Fields for this step
+                  </p>
+                  {perTypeCustomFields.length > 0 && (
+                    <div className="space-y-1.5 mb-3">
+                      {perTypeCustomFields.map((cf) => (
+                        <div key={cf.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2.5 group">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-sm font-medium text-gray-800 truncate">{cf.label}</span>
+                            <span className="text-[9px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full font-medium">
+                              {EXT_CF_TYPE_OPTIONS.find((o) => o.value === cf.type)?.label}
+                            </span>
+                            {cf.required && <span className="text-[9px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium">Req</span>}
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => openEditCf(cf)} className="p-1 text-gray-400 hover:text-gray-600 rounded" aria-label="Edit">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                            <button onClick={() => deleteCf(cf.id)} className="p-1 text-gray-400 hover:text-red-500 rounded" aria-label="Delete">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {extConfig.customFields.length < 10 && !showCfForm && (
+                    <button
+                      onClick={() => { resetCfForm(); setShowCfForm(true); }}
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-all"
+                    >
+                      + Add Custom Field to {tabs.find((t) => t.id === activeTab)?.label} step
+                    </button>
+                  )}
+
+                  {/* Inline custom field form */}
+                  {showCfForm && (
+                    <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white shadow-sm mt-2">
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-600 mb-1">Field Label</label>
+                        <input
+                          type="text"
+                          value={cfLabel}
+                          onChange={(e) => setCfLabel(e.target.value)}
+                          className="w-full px-3 py-2 h-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                          placeholder="e.g., Referral Source"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-medium text-gray-600 mb-1">Field Type</label>
+                          <select
+                            value={cfType}
+                            onChange={(e) => setCfType(e.target.value as ExtCFType)}
+                            className="w-full px-3 py-2 h-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                          >
+                            {EXT_CF_TYPE_OPTIONS.map((o) => (
+                              <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <label className="flex items-end gap-2 pb-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={cfRequired}
+                            onChange={(e) => setCfRequired(e.target.checked)}
+                            className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <span className="text-xs text-gray-600">Required</span>
+                        </label>
+                      </div>
+                      {cfType === "select" && (
+                        <div>
+                          <label className="block text-[11px] font-medium text-gray-600 mb-1">Options</label>
+                          <div className="space-y-1.5">
+                            {cfOptions.map((opt, i) => (
+                              <div key={i} className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  value={opt}
+                                  onChange={(e) => { const n = [...cfOptions]; n[i] = e.target.value; setCfOptions(n); }}
+                                  className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500"
+                                  placeholder={`Option ${i + 1}`}
+                                />
+                                {cfOptions.length > 1 && (
+                                  <button onClick={() => setCfOptions(cfOptions.filter((_, j) => j !== i))} className="p-1 text-gray-400 hover:text-red-500">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <button onClick={() => setCfOptions([...cfOptions, ""])} className="mt-1.5 text-xs text-emerald-600 font-medium hover:text-emerald-700">+ Add option</button>
+                        </div>
+                      )}
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => saveCf(activeTab, configuringType)}
+                          disabled={!cfLabel.trim()}
+                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 transition-colors"
+                        >
+                          {editingCfId ? "Update" : "Add Field"}
+                        </button>
+                        <button onClick={resetCfForm} className="px-4 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            );
+          })()}
+
+          {/* Global Custom Fields Section */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-base font-semibold text-gray-900">Custom Fields</h2>
-              <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">{formConfig.custom_fields.length} / 10</span>
+              <h2 className="text-base font-semibold text-gray-900">Global Custom Fields</h2>
+              <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">{extConfig.customFields.length} / 10</span>
             </div>
             <p className="text-xs text-gray-500 mb-4">
-              Add your own fields to collect additional info. They appear on the Personal Info step.
+              These fields appear for all insurance types. For type-specific fields, use the config panel above.
             </p>
 
-            {/* Existing custom fields */}
-            {formConfig.custom_fields.length > 0 && (
+            {globalCustomFields.length > 0 && (
               <div className="space-y-1.5 mb-3">
-                {formConfig.custom_fields.map((cf) => (
+                {globalCustomFields.map((cf) => (
                   <div key={cf.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3 group hover:border-gray-300 transition-all duration-200">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <span className="text-sm font-medium text-gray-900 truncate">{cf.label}</span>
                       <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">
-                        {CUSTOM_FIELD_TYPE_OPTIONS.find((o) => o.value === cf.type)?.label}
+                        {EXT_CF_TYPE_OPTIONS.find((o) => o.value === cf.type)?.label}
                       </span>
-                      {cf.required && (
-                        <span className="text-[9px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded shrink-0">Required</span>
-                      )}
-                      {cf.applies_to !== "all" && (
-                        <span className="text-[9px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded shrink-0">
-                          {Array.isArray(cf.applies_to) ? `${cf.applies_to.length} type${cf.applies_to.length === 1 ? "" : "s"}` : "All"}
-                        </span>
-                      )}
+                      {cf.required && <span className="text-[9px] font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded shrink-0">Required</span>}
+                      <span className="text-[9px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                        {TABS_BY_TYPE.auto_personal.find((t) => t.id === cf.step)?.label ?? cf.step}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => openEditCf(cf)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                        aria-label={`Edit ${cf.label}`}
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
+                      <button onClick={() => openEditCf(cf)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors" aria-label="Edit">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                       </button>
-                      <button
-                        onClick={() => deleteCf(cf.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                        aria-label={`Delete ${cf.label}`}
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                      <button onClick={() => deleteCf(cf.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" aria-label="Delete">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       </button>
                     </div>
                   </div>
@@ -746,110 +1070,76 @@ export default function MyFormPage() {
               </div>
             )}
 
-            {/* Empty state */}
-            {formConfig.custom_fields.length === 0 && !showCfForm && (
-              <div className="bg-gray-50 rounded-xl px-4 py-6 text-center mb-3">
-                <div className="text-2xl mb-1.5">&#x1F4DD;</div>
-                <p className="text-xs text-gray-500 mb-0.5">No custom fields yet</p>
-                <p className="text-[10px] text-gray-400">Add fields like &ldquo;Referral Source&rdquo; or &ldquo;Policy Number&rdquo;</p>
+            {globalCustomFields.length === 0 && (
+              <div className="border-2 border-dashed border-gray-200 rounded-xl px-4 py-6 text-center mb-3">
+                <p className="text-sm text-gray-500 mb-1">No global custom fields yet</p>
+                <p className="text-xs text-gray-400">These fields appear for all insurance types</p>
               </div>
             )}
 
-            {/* Add button */}
-            {formConfig.custom_fields.length < 10 && !showCfForm && (
+            {extConfig.customFields.length < 10 && (
               <button
-                onClick={() => { resetCfForm(); setShowCfForm(true); }}
+                onClick={() => {
+                  resetCfForm();
+                  // For global custom fields, we show a simple modal-like inline form
+                  // We'll reuse the showCfForm state but save with insuranceType='all'
+                  // Only show if not already in config panel mode
+                  if (!configuringType) {
+                    setShowCfForm(true);
+                    setConfiguringType(null);
+                  }
+                }}
                 className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-all duration-150"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add Custom Field
+                + Add Global Custom Field
               </button>
             )}
 
-            {formConfig.custom_fields.length >= 10 && !showCfForm && (
-              <div className="w-full py-3 border-2 border-dashed border-gray-100 rounded-xl text-sm font-medium text-gray-400 text-center cursor-not-allowed" title="Maximum 10 custom fields reached">
-                Maximum 10 custom fields reached
-              </div>
-            )}
-
-            {/* Custom field builder form */}
-            {showCfForm && (
-              <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white shadow-sm">
-                <h3 className="text-xs font-semibold text-gray-700">
-                  {editingCfId ? "Edit Field" : "New Custom Field"}
-                </h3>
-
+            {/* Global custom field form (when not in config panel) */}
+            {showCfForm && !configuringType && (
+              <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white shadow-sm mt-3">
                 <div>
                   <label className="block text-[11px] font-medium text-gray-600 mb-1">Field Label</label>
                   <input
                     type="text"
                     value={cfLabel}
                     onChange={(e) => setCfLabel(e.target.value)}
-                    className="w-full px-3 py-2 h-11 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                    className="w-full px-3 py-2 h-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500"
                     placeholder="e.g., Referral Source"
                   />
                 </div>
-
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-medium text-gray-600 mb-1">Field Type</label>
                     <select
                       value={cfType}
-                      onChange={(e) => setCfType(e.target.value as CustomFieldType)}
-                      className="w-full px-3 py-2 h-11 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                      onChange={(e) => setCfType(e.target.value as ExtCFType)}
+                      className="w-full px-3 py-2 h-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500"
                     >
-                      {CUSTOM_FIELD_TYPE_OPTIONS.map((o) => (
+                      {EXT_CF_TYPE_OPTIONS.map((o) => (
                         <option key={o.value} value={o.value}>{o.label}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-gray-600 mb-1">Applies To</label>
+                    <label className="block text-[11px] font-medium text-gray-600 mb-1">Which Step?</label>
                     <select
-                      value={cfAppliesTo === "all" ? "all" : "specific"}
-                      onChange={(e) => setCfAppliesTo(e.target.value === "all" ? "all" : [])}
-                      className="w-full px-3 py-2 h-11 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                      value={activeTab}
+                      onChange={(e) => setActiveTab(e.target.value as InsuranceStep)}
+                      className="w-full px-3 py-2 h-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500"
                     >
-                      <option value="all">All Types</option>
-                      <option value="specific">Specific Types</option>
+                      <option value="personal_info">Personal Info</option>
+                      <option value="drivers">Drivers</option>
+                      <option value="vehicles">Vehicles</option>
+                      <option value="property">Property</option>
+                      <option value="coverage">Coverage</option>
+                      <option value="current_insurance">Current Insurance</option>
                     </select>
                   </div>
                 </div>
-
-                {/* Type-specific picker */}
-                {Array.isArray(cfAppliesTo) && (
-                  <div>
-                    <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Select Insurance Types</label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {enabledTypes.map((t) => {
-                        const sel = cfAppliesTo.includes(t);
-                        const opt = INSURANCE_TYPE_OPTIONS.find((o) => o.value === t);
-                        return (
-                          <button
-                            key={t}
-                            type="button"
-                            onClick={() => setCfAppliesTo(sel ? cfAppliesTo.filter((x) => x !== t) : [...cfAppliesTo, t])}
-                            className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border transition-all duration-200 ${
-                              sel
-                                ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                                : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
-                            }`}
-                          >
-                            <span>{opt?.icon}</span>
-                            <span>{opt?.label ?? t}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Dropdown options */}
                 {cfType === "select" && (
                   <div>
-                    <label className="block text-[11px] font-medium text-gray-600 mb-1">Dropdown Options</label>
+                    <label className="block text-[11px] font-medium text-gray-600 mb-1">Options</label>
                     <div className="space-y-1.5">
                       {cfOptions.map((opt, i) => (
                         <div key={i} className="flex items-center gap-1.5">
@@ -857,108 +1147,81 @@ export default function MyFormPage() {
                             type="text"
                             value={opt}
                             onChange={(e) => { const n = [...cfOptions]; n[i] = e.target.value; setCfOptions(n); }}
-                            className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                            className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs"
                             placeholder={`Option ${i + 1}`}
                           />
                           {cfOptions.length > 1 && (
-                            <button
-                              onClick={() => setCfOptions(cfOptions.filter((_, j) => j !== i))}
-                              className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                              aria-label={`Remove option ${i + 1}`}
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
+                            <button onClick={() => setCfOptions(cfOptions.filter((_, j) => j !== i))} className="p-1 text-gray-400 hover:text-red-500">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                           )}
                         </div>
                       ))}
                     </div>
-                    <button
-                      onClick={() => setCfOptions([...cfOptions, ""])}
-                      className="mt-1.5 text-xs text-emerald-600 font-medium hover:text-emerald-700 transition-colors"
-                    >
-                      + Add option
-                    </button>
+                    <button onClick={() => setCfOptions([...cfOptions, ""])} className="mt-1.5 text-xs text-emerald-600 font-medium hover:text-emerald-700">+ Add option</button>
                   </div>
                 )}
-
-                {/* Required toggle */}
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={cfRequired}
-                    onChange={(e) => setCfRequired(e.target.checked)}
-                    className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                  />
+                  <input type="checkbox" checked={cfRequired} onChange={(e) => setCfRequired(e.target.checked)} className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
                   <span className="text-xs text-gray-600">Required field</span>
                 </label>
-
-                {/* Actions */}
                 <div className="flex gap-2 pt-1">
                   <button
-                    onClick={saveCf}
+                    onClick={() => saveCf(activeTab, "all")}
                     disabled={!cfLabel.trim()}
                     className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 transition-colors"
                   >
-                    {editingCfId ? "Update Field" : "Add Field"}
+                    {editingCfId ? "Update" : "Add Field"}
                   </button>
-                  <button
-                    onClick={resetCfForm}
-                    className="px-4 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
+                  <button onClick={resetCfForm} className="px-4 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right column — Preview (48%) */}
-        <div className="lg:basis-[48%] shrink-0">
-          {/* Desktop preview */}
-          <div className="hidden lg:block">
-            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-            <FormPreview
-              enabledTypes={enabledTypes}
-              formConfig={formConfig}
-              brokerBranding={{ name: data.slug, logoUrl: isPro ? data.logo_url : null, brandColor: isPro ? data.brand_color : null, isPro }}
-              activeStep={previewStep}
-              onStepChange={setPreviewStep}
-              previewInsuranceType={previewType}
-              onTypeSelect={handlePreviewTypeSelect}
-            />
-            </div>
-          </div>
-
-          {/* Mobile preview modal */}
-          {showMobilePreview && (
-            <div className="lg:hidden fixed inset-0 z-50 bg-white flex flex-col">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 shrink-0">
-                <span className="text-sm font-semibold text-gray-900">Form Preview</span>
-                <button
-                  onClick={() => setShowMobilePreview(false)}
-                  className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4">
+        {/* Right column — Preview (40%) */}
+        <div className="lg:basis-[40%] shrink-0">
+          <div className="lg:sticky lg:top-6">
+            {/* Desktop preview */}
+            <div className="hidden lg:block">
+              <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
                 <FormPreview
                   enabledTypes={enabledTypes}
-                  formConfig={formConfig}
+                  formConfig={legacyConfig}
+                  extendedConfig={extConfig}
                   brokerBranding={{ name: data.slug, logoUrl: isPro ? data.logo_url : null, brandColor: isPro ? data.brand_color : null, isPro }}
                   activeStep={previewStep}
-                  onStepChange={setPreviewStep}
+                  onStepChange={handlePreviewStepChange}
                   previewInsuranceType={previewType}
                   onTypeSelect={handlePreviewTypeSelect}
                 />
               </div>
             </div>
-          )}
+
+            {/* Mobile preview modal */}
+            {showMobilePreview && (
+              <div className="lg:hidden fixed inset-0 z-50 bg-white flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 shrink-0">
+                  <span className="text-sm font-semibold text-gray-900">Form Preview</span>
+                  <button onClick={() => setShowMobilePreview(false)} className="p-2 text-gray-500 hover:text-gray-700">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4">
+                  <FormPreview
+                    enabledTypes={enabledTypes}
+                    formConfig={legacyConfig}
+                    brokerBranding={{ name: data.slug, logoUrl: isPro ? data.logo_url : null, brandColor: isPro ? data.brand_color : null, isPro }}
+                    activeStep={previewStep}
+                    onStepChange={handlePreviewStepChange}
+                    previewInsuranceType={previewType}
+                    onTypeSelect={handlePreviewTypeSelect}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -972,7 +1235,7 @@ export default function MyFormPage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
         </svg>
-        Preview Form
+        Preview
       </button>
 
       {/* Alias modal */}
@@ -1006,12 +1269,7 @@ export default function MyFormPage() {
               </div>
               {aliasError && <p className="text-xs text-red-600">{aliasError}</p>}
               <div className="flex gap-2 justify-end">
-                <button
-                  onClick={() => { setShowAliasModal(false); setAliasError(""); }}
-                  className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Cancel
-                </button>
+                <button onClick={() => { setShowAliasModal(false); setAliasError(""); }} className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900 transition-colors">Cancel</button>
                 <button
                   onClick={createAlias}
                   disabled={creatingAlias}
@@ -1028,19 +1286,21 @@ export default function MyFormPage() {
   );
 }
 
+// ── Toggle Switch ──────────────────────────────────────────
+
 function ToggleSwitch({ label, checked, onChange, disabled = false }: { label: string; checked: boolean; onChange: () => void; disabled?: boolean }) {
   return (
-    <label className="flex items-center gap-1.5 cursor-pointer">
-      <span className={`text-[10px] font-medium ${disabled ? "text-gray-300" : "text-gray-500"}`}>{label}</span>
+    <label className="flex items-center gap-2 cursor-pointer min-h-[44px] px-1">
+      <span className={`text-[11px] font-medium ${disabled ? "text-gray-300" : "text-gray-500"}`}>{label}</span>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         onClick={onChange}
         disabled={disabled}
-        className={`w-7 h-4 rounded-full relative transition-colors duration-200 ${checked ? "bg-emerald-500" : "bg-gray-300"} ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
+        className={`w-9 h-5 rounded-full relative transition-colors duration-200 shrink-0 ${checked ? "bg-emerald-500" : "bg-gray-300"} ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
       >
-        <span className={`block w-3 h-3 bg-white rounded-full shadow-sm absolute top-0.5 transition-transform duration-200 ${checked ? "translate-x-[13px]" : "translate-x-0.5"}`} />
+        <span className={`block w-3.5 h-3.5 bg-white rounded-full shadow-sm absolute top-[3px] transition-transform duration-200 ${checked ? "translate-x-[17px]" : "translate-x-[3px]"}`} />
       </button>
     </label>
   );

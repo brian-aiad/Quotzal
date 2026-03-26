@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AuthShell } from "@/components/ui/auth-shell";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +44,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    const nextUrl = searchParams.get("next");
+    router.push(nextUrl && nextUrl.startsWith("/dashboard") ? nextUrl : "/dashboard");
   }
 
   return (

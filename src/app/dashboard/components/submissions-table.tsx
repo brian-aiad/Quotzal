@@ -306,12 +306,12 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             <p className="text-xs text-gray-500">
               Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}
             </p>
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                className="px-4 py-2 min-h-[44px] text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
               >
                 Prev
               </button>
@@ -319,7 +319,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                className="px-4 py-2 min-h-[44px] text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
               >
                 Next
               </button>

@@ -3,10 +3,20 @@
 import { useEffect, useState, useRef } from "react";
 import { INSURANCE_TYPE_OPTIONS } from "@/lib/constants/insurance-types";
 import type { FormConfig, InsuranceType, CustomField } from "@/lib/types/intake-form";
+import type { ExtendedFormConfig, FieldToggle, InsuranceStep as ExtStep } from "@/lib/types/form-config";
+import { getTypeConfig, FIELDS_BY_TYPE } from "@/lib/types/form-config";
+
+function getExtToggle(extConfig: ExtendedFormConfig | undefined, type: InsuranceType | null, key: string): FieldToggle | null {
+  if (!extConfig || !type) return null;
+  const tc = getTypeConfig(extConfig, type);
+  if (!tc) return null;
+  return (tc as unknown as Record<string, FieldToggle>)[key] ?? null;
+}
 
 interface FormPreviewProps {
   enabledTypes: InsuranceType[];
   formConfig: FormConfig;
+  extendedConfig?: ExtendedFormConfig;
   brokerBranding: {
     name: string;
     logoUrl: string | null;
@@ -49,6 +59,7 @@ export function buildPreviewSteps(
 export function FormPreview({
   enabledTypes,
   formConfig,
+  extendedConfig,
   brokerBranding,
   activeStep,
   onStepChange,
@@ -85,16 +96,44 @@ export function FormPreview({
   );
 
   // Personal info fields based on config
-  const personalFields: { key: string; label: string; required: boolean }[] = [
+  const personalFields: { key: string; label: string; required: boolean; type?: "text" | "date" | "select" | "toggle" }[] = [
     { key: "first_name", label: "First Name", required: true },
     { key: "last_name", label: "Last Name", required: true },
   ];
   if (formConfig?.fields?.date_of_birth?.enabled) {
-    personalFields.push({ key: "dob", label: "Date of Birth", required: formConfig.fields.date_of_birth.required });
+    personalFields.push({ key: "dob", label: "Date of Birth", required: formConfig.fields.date_of_birth.required, type: "date" });
   }
   personalFields.push({ key: "email", label: "Email", required: true });
   if (formConfig?.fields?.phone?.enabled) {
     personalFields.push({ key: "phone", label: "Phone Number", required: formConfig.fields.phone.required });
+  }
+  // Extended personal info fields
+  if (extendedConfig && previewInsuranceType) {
+    const extFieldDefs = FIELDS_BY_TYPE[previewInsuranceType] ?? [];
+    const personalExtFields = extFieldDefs.filter(
+      (f) => f.step === "personal_info" && !["dateOfBirth", "phone"].includes(f.key)
+    );
+    for (const fd of personalExtFields) {
+      const toggle = getExtToggle(extendedConfig, previewInsuranceType, fd.key);
+      if (toggle?.show) {
+        personalFields.push({ key: fd.key, label: fd.label, required: toggle.required });
+      }
+    }
+  }
+
+  // Extended fields by step (for drivers, vehicles, current insurance)
+  function getExtFieldsForStep(step: ExtStep): { key: string; label: string; required: boolean }[] {
+    if (!extendedConfig || !previewInsuranceType) return [];
+    const extFieldDefs = FIELDS_BY_TYPE[previewInsuranceType] ?? [];
+    const stepFields = extFieldDefs.filter((f) => f.step === step);
+    const result: { key: string; label: string; required: boolean }[] = [];
+    for (const fd of stepFields) {
+      const toggle = getExtToggle(extendedConfig, previewInsuranceType, fd.key);
+      if (toggle?.show) {
+        result.push({ key: fd.key, label: fd.label, required: toggle.required });
+      }
+    }
+    return result;
   }
 
   const visibleCustomFields = (formConfig?.custom_fields ?? []).filter(
@@ -248,7 +287,7 @@ export function FormPreview({
                     <p className="text-[10px] text-slate-500 mb-2.5">Tell us about yourself.</p>
                     <div className="space-y-2">
                       {personalFields.map((f) => (
-                        <PField key={f.key} label={f.label} required={f.required} type={f.key === "dob" ? "date" : "text"} />
+                        <PField key={f.key} label={f.label} required={f.required} type={f.type ?? (f.key === "dob" ? "date" : "text")} />
                       ))}
                       {visibleCustomFields.length > 0 && (
                         <div className="pt-2 border-t border-slate-200 mt-2">
@@ -263,65 +302,53 @@ export function FormPreview({
                 )}
 
                 {/* Step: Drivers */}
-                {currentStepData?.key === "drivers" && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900 mb-0.5">Driver Information</p>
-                    <p className="text-[10px] text-slate-500 mb-2.5">Details for each driver on the policy.</p>
-                    <div className="bg-white border border-slate-200 rounded-lg p-2.5 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
-                          <span className="text-[8px] font-bold text-white">1</span>
+                {currentStepData?.key === "drivers" && (() => {
+                  const driverExtFields = getExtFieldsForStep("drivers");
+                  return (
+                    <div>
+                      <p className="text-xs font-semibold text-slate-900 mb-0.5">Driver Information</p>
+                      <p className="text-[10px] text-slate-500 mb-2.5">Details for each driver on the policy.</p>
+                      <div className="bg-white border border-slate-200 rounded-lg p-2.5 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+                            <span className="text-[8px] font-bold text-white">1</span>
+                          </div>
+                          <p className="text-[10px] font-semibold text-slate-700">Driver 1</p>
                         </div>
-                        <p className="text-[10px] font-semibold text-slate-700">Driver 1</p>
+                        <PField label="Full Name" required />
+                        <PField label="Date of Birth" required type="date" />
+                        {driverExtFields.map((f) => (
+                          <PField key={f.key} label={f.label} required={f.required} />
+                        ))}
                       </div>
-                      <PField label="Full Name" required />
-                      <PField label="Date of Birth" required type="date" />
-                      {formConfig?.fields?.driver_license_number?.enabled && (
-                        <>
-                          <PField label="License State" required={formConfig.fields.driver_license_number.required} type="select" />
-                          <PField label="License Number" required={formConfig.fields.driver_license_number.required} />
-                        </>
-                      )}
-                      {formConfig?.fields?.marital_status?.enabled && (
-                        <PField label="Marital Status" required={formConfig.fields.marital_status.required} type="select" />
-                      )}
-                      {formConfig?.fields?.sr22?.enabled && (
-                        <PField label="SR-22 Required?" required={false} type="toggle" />
-                      )}
-                      {formConfig?.fields?.violations?.enabled && (
-                        <PField label="Any violations?" required={false} type="toggle" />
-                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Step: Vehicles */}
-                {currentStepData?.key === "vehicles" && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900 mb-0.5">Vehicle Information</p>
-                    <p className="text-[10px] text-slate-500 mb-2.5">Add your vehicles.</p>
-                    <div className="bg-white border border-slate-200 rounded-lg p-2.5 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
-                          <span className="text-[8px] font-bold text-white">1</span>
+                {currentStepData?.key === "vehicles" && (() => {
+                  const vehicleExtFields = getExtFieldsForStep("vehicles");
+                  return (
+                    <div>
+                      <p className="text-xs font-semibold text-slate-900 mb-0.5">Vehicle Information</p>
+                      <p className="text-[10px] text-slate-500 mb-2.5">Add your vehicles.</p>
+                      <div className="bg-white border border-slate-200 rounded-lg p-2.5 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+                            <span className="text-[8px] font-bold text-white">1</span>
+                          </div>
+                          <p className="text-[10px] font-semibold text-slate-700">Vehicle 1</p>
                         </div>
-                        <p className="text-[10px] font-semibold text-slate-700">Vehicle 1</p>
+                        <PField label="Year" required />
+                        <PField label="Make" required />
+                        <PField label="Model" required />
+                        {vehicleExtFields.map((f) => (
+                          <PField key={f.key} label={f.label} required={f.required} />
+                        ))}
                       </div>
-                      {formConfig?.fields?.vin?.enabled && (
-                        <PField label="VIN" required={formConfig.fields.vin.required} />
-                      )}
-                      <PField label="Year" required />
-                      <PField label="Make" required />
-                      <PField label="Model" required />
-                      {formConfig?.fields?.trim_package?.enabled && (
-                        <PField label="Trim / Package" required={formConfig.fields.trim_package.required} />
-                      )}
-                      {formConfig?.fields?.coverage_type?.enabled && (
-                        <PField label="Coverage Type" required type="select" />
-                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Step: Coverage Details (non-auto) */}
                 {currentStepData?.key === "details" && (
@@ -336,22 +363,21 @@ export function FormPreview({
                 )}
 
                 {/* Step: Current Insurance */}
-                {currentStepData?.key === "insurance" && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-900 mb-0.5">Current Insurance</p>
-                    <p className="text-[10px] text-slate-500 mb-2.5">Do you currently have insurance?</p>
-                    <div className="space-y-2">
-                      <PField label="Currently insured?" required type="toggle" />
-                      <PField label="Current Carrier" />
-                      {formConfig?.fields?.coverage_limits?.enabled && (
-                        <PField label="Coverage Limits" type="select" />
-                      )}
-                      {formConfig?.fields?.policy_expiry?.enabled && (
-                        <PField label="Policy Expiry" type="date" />
-                      )}
+                {currentStepData?.key === "insurance" && (() => {
+                  const insExtFields = getExtFieldsForStep("current_insurance");
+                  return (
+                    <div>
+                      <p className="text-xs font-semibold text-slate-900 mb-0.5">Current Insurance</p>
+                      <p className="text-[10px] text-slate-500 mb-2.5">Do you currently have insurance?</p>
+                      <div className="space-y-2">
+                        <PField label="Currently insured?" required type="toggle" />
+                        {insExtFields.map((f) => (
+                          <PField key={f.key} label={f.label} required={f.required} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Step: Review */}
                 {currentStepData?.key === "review" && (

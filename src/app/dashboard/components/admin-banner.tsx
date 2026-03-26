@@ -15,11 +15,11 @@ export function AdminBanner({ brokerName }: AdminBannerProps) {
   }
 
   return (
-    <div className="bg-red-600 text-white px-4 py-2 text-sm font-medium flex items-center justify-center gap-3">
-      <span>⚠ ADMIN VIEW — Impersonating {brokerName}</span>
+    <div className="bg-red-600 text-white px-4 min-h-[44px] text-sm font-medium flex items-center justify-center gap-3 flex-wrap">
+      <span>ADMIN VIEW — Impersonating {brokerName}</span>
       <button
         onClick={handleExit}
-        className="px-3 py-1 bg-white text-red-600 rounded text-xs font-bold hover:bg-red-50 transition-colors"
+        className="h-8 px-3 bg-white text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition-colors"
       >
         Exit
       </button>

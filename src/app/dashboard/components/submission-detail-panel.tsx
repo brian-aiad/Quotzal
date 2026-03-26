@@ -79,6 +79,8 @@ export function SubmissionDetailPanel({
   const fd = submission.form_data;
   const drivers = fd.drivers as Array<Record<string, unknown>> | undefined;
   const vehicles = fd.vehicles as Array<Record<string, unknown>> | undefined;
+  const extFields = (fd.extended_fields ?? {}) as Record<string, string>;
+  const customFieldValues = (fd.custom_fields ?? {}) as Record<string, string>;
 
   return (
     <>
@@ -103,9 +105,11 @@ export function SubmissionDetailPanel({
               type="button"
               onClick={onClose}
               aria-label="Close details"
-              className="text-gray-500 hover:text-gray-700 text-xl leading-none"
+              className="flex items-center justify-center w-11 h-11 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
             >
-              &times;
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
@@ -175,6 +179,29 @@ export function SubmissionDetailPanel({
             </Section>
           )}
 
+          {/* Extended Personal Info */}
+          {Object.keys(extFields).length > 0 && (
+            <Section title="Additional Information">
+              {Object.entries(extFields)
+                .filter(([key, val]) => val && val.trim() && !['policyNumber', 'yearsWithCarrier', 'continuousCoverage'].includes(key))
+                .map(([key, val]) => {
+                  const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()).trim();
+                  return <Field key={key} label={label} value={val === 'yes' ? 'Yes' : val} />;
+                })}
+            </Section>
+          )}
+
+          {/* Custom Fields */}
+          {Object.keys(customFieldValues).length > 0 && (
+            <Section title="Custom Fields">
+              {Object.entries(customFieldValues)
+                .filter(([, val]) => val && val.trim())
+                .map(([key, val]) => (
+                  <Field key={key} label={key} value={val} />
+                ))}
+            </Section>
+          )}
+
           {/* Current Insurance */}
           <Section title="Current Insurance">
             <Field label="Currently Insured" value={submission.has_current_insurance ? 'Yes' : 'No'} />
@@ -183,6 +210,9 @@ export function SubmissionDetailPanel({
                 <Field label="Carrier" value={submission.current_carrier} />
                 <Field label="Limits" value={submission.current_limits} />
                 <Field label="Expiry" value={submission.policy_expiry} />
+                {extFields.policyNumber && <Field label="Policy Number" value={extFields.policyNumber} />}
+                {extFields.yearsWithCarrier && <Field label="Years with Carrier" value={extFields.yearsWithCarrier} />}
+                {extFields.continuousCoverage === 'yes' && <Field label="Continuous Coverage" value="Yes" />}
               </>
             )}
           </Section>
@@ -229,14 +259,14 @@ export function SubmissionDetailPanel({
               type="button"
               onClick={handleResend}
               disabled={resending}
-              className="px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 disabled:opacity-50"
+              className="h-11 px-4 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 disabled:opacity-50 transition-all"
             >
               {resendDone ? 'Sent!' : resending ? 'Sending...' : 'Resend Form Link'}
             </button>
             <button
               type="button"
               onClick={() => setShowDelete(true)}
-              className="px-3 py-1.5 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50"
+              className="h-11 px-4 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition-all"
             >
               Delete
             </button>

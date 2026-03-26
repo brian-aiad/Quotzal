@@ -72,8 +72,19 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-8">
+        <div className="h-8 bg-gray-200 rounded-lg w-32 animate-pulse" />
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+          <div className="h-5 bg-gray-100 rounded w-32 animate-pulse" />
+          <div className="h-8 bg-gray-100 rounded w-48 animate-pulse" />
+          <div className="h-4 bg-gray-100 rounded w-64 animate-pulse" />
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+          <div className="h-5 bg-gray-100 rounded w-40 animate-pulse" />
+          <div className="flex gap-3">
+            <div className="h-11 w-48 bg-gray-100 rounded-xl animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -82,31 +93,31 @@ export default function BillingPage() {
     // Trial users have no subscription yet — show helpful trial state
     return (
       <div className="space-y-8">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
-        <div className="bg-white border border-slate-200 rounded-xl p-6">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-50 text-amber-700 border border-amber-200">Trial</span>
-            <h2 className="text-lg font-semibold text-slate-900">Free Trial Active</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Free Trial Active</h2>
           </div>
-          <p className="text-sm text-slate-600 mb-6">
+          <p className="text-sm text-gray-600 mb-6">
             You&apos;re on a free 30-day trial. Subscribe to a plan before your trial ends to keep your form link active.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="border border-slate-200 rounded-xl p-5">
-              <h3 className="font-semibold text-slate-900 mb-1">Starter</h3>
-              <p className="text-2xl font-bold text-slate-900 mb-3">$19<span className="text-sm font-normal text-slate-500">/mo</span></p>
+            <div className="border border-gray-200 rounded-xl p-5">
+              <h3 className="font-semibold text-gray-900 mb-1">Starter</h3>
+              <p className="text-2xl font-bold text-gray-900 mb-3">$19<span className="text-sm font-normal text-gray-500">/mo</span></p>
               <button onClick={async () => {
                 const res = await fetch('/api/create-checkout-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'starter' }) });
                 if (res.ok) { const data = await res.json(); window.location.href = data.url; }
-              }} className="w-full py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors text-sm">Choose Starter</button>
+              }} className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm">Choose Starter</button>
             </div>
             <div className="border-2 border-emerald-600 rounded-xl p-5">
-              <h3 className="font-semibold text-slate-900 mb-1">Pro</h3>
-              <p className="text-2xl font-bold text-slate-900 mb-3">$39<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <h3 className="font-semibold text-gray-900 mb-1">Pro</h3>
+              <p className="text-2xl font-bold text-gray-900 mb-3">$39<span className="text-sm font-normal text-gray-500">/mo</span></p>
               <button onClick={async () => {
                 const res = await fetch('/api/create-checkout-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'pro' }) });
                 if (res.ok) { const data = await res.json(); window.location.href = data.url; }
-              }} className="w-full py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors text-sm">Choose Pro</button>
+              }} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm">Choose Pro</button>
             </div>
           </div>
         </div>
@@ -116,7 +127,7 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
+      <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
 
       {toast && (
         <div
@@ -172,29 +183,29 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
     : null;
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 h-1" />
       <div className="p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Current Plan</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Plan</h2>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-bold text-slate-900 capitalize">
+            <span className="text-2xl font-bold text-gray-900 capitalize">
               {subscription.plan}
             </span>
-            <span className="text-lg text-slate-600">
+            <span className="text-lg text-gray-600">
               ${PLAN_PRICES[subscription.plan]}/month
             </span>
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                STATUS_STYLES[subscription.status] || 'bg-slate-100 text-slate-700'
+                STATUS_STYLES[subscription.status] || 'bg-gray-100 text-gray-700'
               }`}
             >
               {subscription.status.replace('_', ' ')}
             </span>
           </div>
           {nextBillingDate && (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-gray-500">
               {subscription.cancel_at_period_end
                 ? `Cancels on ${nextBillingDate}`
                 : `Next billing date: ${nextBillingDate}`}
@@ -210,7 +221,7 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
           type="button"
           onClick={handleManagePayment}
           disabled={managingPayment}
-          className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 shrink-0"
+          className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm disabled:opacity-50 shrink-0"
         >
           {managingPayment ? 'Opening...' : 'Manage payment method'}
         </button>
@@ -264,14 +275,14 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Manage Subscription</h2>
+    <section className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Manage Subscription</h2>
       <div className="flex flex-wrap gap-3">
         {subscription.plan === 'starter' && (
           <button
             type="button"
             onClick={() => setShowUpgradeModal(true)}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm"
           >
             Upgrade to Pro — $39/mo
           </button>
@@ -280,7 +291,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
           <button
             type="button"
             onClick={() => setShowDowngradeModal(true)}
-            className="px-4 py-2 text-sm text-slate-700 font-medium border border-slate-300 rounded-lg hover:bg-slate-50"
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm"
           >
             Downgrade to Starter — $19/mo
           </button>
@@ -290,7 +301,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
             type="button"
             onClick={() => handleAction('reactivate')}
             disabled={processing}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm disabled:opacity-50"
           >
             {processing ? 'Processing...' : 'Reactivate subscription'}
           </button>
@@ -298,7 +309,7 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
           <button
             type="button"
             onClick={() => setShowCancelModal(true)}
-            className="text-sm text-red-500 hover:text-red-700 hover:underline transition-colors"
+            className="text-sm text-red-500 hover:text-red-600 font-medium transition-colors"
           >
             Cancel subscription
           </button>
@@ -365,14 +376,14 @@ function ConfirmModal({ title, description, confirmLabel, confirmStyle, onConfir
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/30" onClick={onCancel} />
-      <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
-        <p className="text-sm text-slate-600 mb-4">{description}</p>
+      <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        <p className="text-sm text-gray-600 mb-4">{description}</p>
         <div className="flex gap-2 justify-end">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100"
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm"
           >
             Go back
           </button>
@@ -380,7 +391,7 @@ function ConfirmModal({ title, description, confirmLabel, confirmStyle, onConfir
             type="button"
             onClick={onConfirm}
             disabled={disabled}
-            className={`px-4 py-2 text-white text-sm font-medium rounded-lg disabled:opacity-50 ${confirmStyle}`}
+            className={`text-white font-semibold rounded-xl h-11 px-5 transition-all text-sm disabled:opacity-50 ${confirmStyle}`}
           >
             {confirmLabel}
           </button>
@@ -401,13 +412,13 @@ interface PaymentHistoryProps {
 function PaymentHistory({ payments }: PaymentHistoryProps) {
   if (payments.length === 0) {
     return (
-      <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Payment History</h2>
+      <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h2>
         <div className="text-center py-6">
-          <svg className="w-10 h-10 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          <p className="text-sm text-slate-500">No payments yet — your first charge will appear here after your trial ends.</p>
+          <p className="text-sm text-gray-500">No payments yet — your first charge will appear here after your trial ends.</p>
         </div>
       </section>
     );
@@ -426,30 +437,30 @@ function PaymentHistory({ payments }: PaymentHistoryProps) {
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Payment History</h2>
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200">
-              <th className="text-left py-3 px-2 font-medium text-slate-500">Date</th>
-              <th className="text-left py-3 px-2 font-medium text-slate-500">Amount</th>
-              <th className="text-left py-3 px-2 font-medium text-slate-500">Period</th>
-              <th className="text-left py-3 px-2 font-medium text-slate-500">Status</th>
+            <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="text-left py-3 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Date</th>
+              <th className="text-left py-3 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Amount</th>
+              <th className="text-left py-3 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Period</th>
+              <th className="text-left py-3 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
             </tr>
           </thead>
           <tbody>
             {payments.map((payment) => (
-              <tr key={payment.id} className="border-b border-slate-100">
-                <td className="py-3 px-2 text-slate-900">{formatDate(payment.created_at)}</td>
-                <td className="py-3 px-2 text-slate-900 font-medium">{formatAmount(payment.amount)}</td>
-                <td className="py-3 px-2 text-slate-500">
+              <tr key={payment.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/80 transition-colors">
+                <td className="py-3 px-2 text-gray-900">{formatDate(payment.created_at)}</td>
+                <td className="py-3 px-2 text-gray-900 font-medium">{formatAmount(payment.amount)}</td>
+                <td className="py-3 px-2 text-gray-500">
                   {formatDate(payment.period_start)} — {formatDate(payment.period_end)}
                 </td>
                 <td className="py-3 px-2">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                      STATUS_STYLES[payment.status] || 'bg-slate-100 text-slate-700'
+                      STATUS_STYLES[payment.status] || 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {payment.status}

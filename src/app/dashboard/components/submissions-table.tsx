@@ -105,15 +105,15 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
 
   return (
     <>
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm">
         {/* Toolbar */}
-        <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row gap-3">
+        <div className="p-4 border-b border-gray-200 flex flex-col md:flex-row gap-3">
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search by name or email..."
-            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="flex-1 h-11 border border-gray-200 rounded-xl px-4 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 bg-white transition-all duration-150"
           />
           <div className="flex gap-2 flex-wrap">
             {/* Type filter */}
@@ -121,19 +121,19 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
               <button
                 type="button"
                 onClick={() => setShowTypeFilter(!showTypeFilter)}
-                className="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-slate-700"
+                className="h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white hover:bg-gray-50 text-gray-700 transition-all"
               >
                 Type {selectedTypes.length > 0 && `(${selectedTypes.length})`}
               </button>
               {showTypeFilter && (
-                <div className="absolute top-full mt-1 left-0 bg-white border border-slate-200 rounded-lg shadow-lg z-20 p-2 min-w-[200px]">
+                <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 min-w-[200px]">
                   {INSURANCE_TYPE_OPTIONS.map((opt) => (
-                    <label key={opt.value} className="flex items-center gap-2 px-2 py-1 text-sm text-slate-700 hover:bg-slate-50 rounded cursor-pointer">
+                    <label key={opt.value} className="flex items-center gap-2 px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedTypes.includes(opt.value)}
                         onChange={() => toggleType(opt.value)}
-                        className="rounded border-slate-300"
+                        className="rounded border-gray-300"
                       />
                       {opt.label}
                     </label>
@@ -153,7 +153,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-150"
             >
               <option value="">All statuses</option>
               <option value="new">New</option>
@@ -165,38 +165,38 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
             <button
               type="button"
               onClick={handleExport}
-              className="px-3 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg bg-white hover:bg-slate-50"
+              className="h-11 px-4 text-sm font-medium text-gray-700 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-all"
             >
               Export CSV
             </button>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[560px]">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
+              <tr className="bg-gray-50 border-b border-gray-100">
                 <th
-                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
+                  className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900"
                   onClick={() => handleSort('first_name')}
                 >
                   Customer{sortArrow('first_name')}
                 </th>
                 <th
-                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
+                  className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900"
                   onClick={() => handleSort('insurance_type')}
                 >
                   Type{sortArrow('insurance_type')}
                 </th>
                 <th
-                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
+                  className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900"
                   onClick={() => handleSort('submitted_at')}
                 >
                   Submitted{sortArrow('submitted_at')}
                 </th>
                 <th
-                  className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-900"
+                  className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900"
                   onClick={() => handleSort('status')}
                 >
                   Status{sortArrow('status')}
@@ -207,22 +207,22 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
               {loading ? (
                 <>
                   {[...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-slate-100">
-                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-32" /></td>
-                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-20" /></td>
-                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-16" /></td>
-                      <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded animate-pulse w-12" /></td>
+                    <tr key={i} className="border-b border-gray-100">
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-32" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></td>
+                      <td className="px-4 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></td>
                     </tr>
                   ))}
                 </>
               ) : submissions.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-4 py-16 text-center">
-                    <svg className="w-10 h-10 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                     </svg>
-                    <p className="text-sm font-medium text-slate-500">No submissions yet</p>
-                    <p className="text-sm text-slate-400 mt-1">Share your form link to start collecting quote requests.</p>
+                    <p className="text-sm font-medium text-gray-500">No submissions yet</p>
+                    <p className="text-sm text-gray-400 mt-1">Share your form link to start collecting quote requests.</p>
                   </td>
                 </tr>
               ) : (
@@ -230,13 +230,13 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                   <tr
                     key={sub.id}
                     onClick={() => setSelected(sub)}
-                    className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
+                    className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-slate-900">
+                      <div className="font-medium text-gray-900">
                         {sub.first_name} {sub.last_name}
                       </div>
-                      <div className="text-xs text-slate-500">{sub.email}</div>
+                      <div className="text-xs text-gray-500">{sub.email}</div>
                     </td>
                     <td className="px-4 py-3">
                       <InsuranceTypePill type={sub.insurance_type} />
@@ -256,10 +256,54 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
           </table>
         </div>
 
+        {/* Mobile Card List */}
+        <div className="md:hidden">
+          {loading ? (
+            <div className="p-4 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : submissions.length === 0 ? (
+            <div className="px-4 py-16 text-center">
+              <svg className="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-sm font-medium text-gray-500">No submissions yet</p>
+              <p className="text-sm text-gray-400 mt-1">Share your form link to start collecting quote requests.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {submissions.map((sub) => (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => setSelected(sub)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {sub.first_name} {sub.last_name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{sub.email}</p>
+                    </div>
+                    <StatusTag status={sub.status} />
+                  </div>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <InsuranceTypePill type={sub.insurance_type} />
+                    <span className="text-xs text-gray-400">{timeAgo(sub.submitted_at)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-slate-200 flex items-center justify-between">
-            <p className="text-xs text-slate-500">
+          <div className="p-4 border-t border-gray-200 flex items-center justify-between">
+            <p className="text-xs text-gray-500">
               Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}
             </p>
             <div className="flex gap-1">
@@ -267,7 +311,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-slate-50"
+                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
                 Prev
               </button>
@@ -275,7 +319,7 @@ export function SubmissionsTable({ initialSubmissions, initialTotal }: Submissio
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 text-sm border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-slate-50"
+                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
                 Next
               </button>

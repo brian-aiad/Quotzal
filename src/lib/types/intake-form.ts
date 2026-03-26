@@ -31,14 +31,19 @@ export interface PersonalInfo {
 // --- Violation / Incident ---
 
 export type ViolationType =
-  | 'speeding_1_10'
-  | 'speeding_11_20'
-  | 'speeding_21_plus'
-  | 'dui_dwi'
+  | 'speeding'
+  | 'ran_red_light'
+  | 'ran_stop_sign'
+  | 'failure_to_yield'
+  | 'unsafe_lane_change'
+  | 'following_too_closely'
+  | 'reckless_driving'
   | 'at_fault_accident'
   | 'not_at_fault_accident'
-  | 'reckless_driving'
-  | 'other_moving';
+  | 'dui_dwi'
+  | 'distracted_driving'
+  | 'parking_violation'
+  | 'other';
 
 export interface Violation {
   type: ViolationType;
@@ -297,6 +302,10 @@ export interface FormConfig {
     marital_status: FieldConfig;
     sr22: FieldConfig;
     violations: FieldConfig;
+    trim_package: FieldConfig;
+    coverage_type: FieldConfig;
+    coverage_limits: FieldConfig;
+    policy_expiry: FieldConfig;
   };
   custom_fields: CustomField[];
 }
@@ -313,9 +322,31 @@ export const DEFAULT_FORM_CONFIG: FormConfig = {
     marital_status: { enabled: true, required: false },
     sr22: { enabled: true, required: false },
     violations: { enabled: true, required: false },
+    trim_package: { enabled: true, required: false },
+    coverage_type: { enabled: true, required: false },
+    coverage_limits: { enabled: true, required: false },
+    policy_expiry: { enabled: true, required: false },
   },
   custom_fields: [],
 };
+
+/** Deep-merge a (possibly partial) DB form_config with DEFAULT_FORM_CONFIG.
+ *  Missing field keys get safe defaults; extra keys are preserved. */
+export function mergeFormConfig(raw: Partial<FormConfig> | null | undefined): FormConfig {
+  if (!raw) return { ...DEFAULT_FORM_CONFIG, fields: { ...DEFAULT_FORM_CONFIG.fields }, custom_fields: [] };
+  const merged: FormConfig = {
+    fields: { ...DEFAULT_FORM_CONFIG.fields },
+    custom_fields: raw.custom_fields ?? [],
+  };
+  if (raw.fields) {
+    for (const key of Object.keys(DEFAULT_FORM_CONFIG.fields) as ConfigurableFieldKey[]) {
+      merged.fields[key] = raw.fields[key]
+        ? { enabled: raw.fields[key].enabled ?? true, required: raw.fields[key].required ?? false }
+        : { ...DEFAULT_FORM_CONFIG.fields[key] };
+    }
+  }
+  return merged;
+}
 
 // --- Broker Data from Server ---
 

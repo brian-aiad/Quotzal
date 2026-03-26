@@ -26,7 +26,7 @@ export default async function SubmissionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Submissions</h1>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Submissions</h1>
         <ExportButton />
       </div>
       <SubmissionsTable

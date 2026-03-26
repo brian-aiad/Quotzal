@@ -5,6 +5,7 @@ import type { FormConfig, ConfigurableFieldKey } from "@/lib/types/intake-form";
 const VALID_FIELD_KEYS: ConfigurableFieldKey[] = [
   "date_of_birth", "phone", "current_insurance", "vin",
   "driver_license_number", "marital_status", "sr22", "violations",
+  "trim_package", "coverage_type", "coverage_limits", "policy_expiry",
 ];
 
 const VALID_CUSTOM_TYPES = ["text", "textarea", "select", "yes_no"];

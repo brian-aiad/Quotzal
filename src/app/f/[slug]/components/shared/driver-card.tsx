@@ -53,7 +53,7 @@ const LICENSE_TYPES = [
 ];
 
 const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
-const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
+const SELECT_CLASS = 'w-full h-11 px-4 pr-10 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 appearance-none bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-[url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236b7280%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E")]';
 const ERROR_INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-red-400 rounded-xl bg-red-50 text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all duration-200';
 
 function getAgeFromDob(dob: string): number | null {
@@ -91,8 +91,11 @@ export function DriverCard({
   errors,
   formConfig,
 }: DriverCardProps) {
-  const licenseRequired = formConfig?.fields.driver_license_number.enabled !== false
-    && formConfig?.fields.driver_license_number.required !== false;
+  const licenseEnabled = formConfig?.fields.driver_license_number.enabled ?? true;
+  const licenseRequired = licenseEnabled && (formConfig?.fields.driver_license_number.required ?? false);
+  const maritalStatusEnabled = formConfig?.fields.marital_status?.enabled ?? true;
+  const sr22Enabled = formConfig?.fields.sr22?.enabled ?? true;
+  const violationsEnabled = formConfig?.fields.violations?.enabled ?? true;
   function update(field: string, value: unknown) {
     onChange({ ...driver, [field]: value });
   }
@@ -177,8 +180,8 @@ export function DriverCard({
           )}
         </div>
 
-        {/* 3. License State — only if has US license */}
-        {!hasNoUsLicense && (
+        {/* 3. License State — only if enabled and has US license */}
+        {licenseEnabled && !hasNoUsLicense && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               License State {licenseRequired && <span className="text-red-500">*</span>}
@@ -205,8 +208,8 @@ export function DriverCard({
           </div>
         )}
 
-        {/* 4. License Number — only if has US license */}
-        {!hasNoUsLicense && (
+        {/* 4. License Number — only if enabled and has US license */}
+        {licenseEnabled && !hasNoUsLicense && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               License Number {licenseRequired && <span className="text-red-500">*</span>}
@@ -220,13 +223,11 @@ export function DriverCard({
               autoCapitalize="characters"
               className={errors?.licenseNumber ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
-            {errors?.licenseNumber ? (
+            {errors?.licenseNumber && (
               <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                 <svg className="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
                 {errors.licenseNumber}
               </p>
-            ) : (
-              <p className="text-xs text-gray-400 mt-1">{licenseRequired ? 'Required for accurate quote' : 'Optional'} — typically 6-8 characters</p>
             )}
           </div>
         )}
@@ -270,62 +271,66 @@ export function DriverCard({
           </div>
         )}
 
-        {/* 6. Marital Status */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Marital Status
-          </label>
-          <select
-            value={driver.maritalStatus ?? 'single'}
-            onChange={(e) => update('maritalStatus', e.target.value)}
-            className={SELECT_CLASS}
-          >
-            {MARITAL_STATUSES.map((ms) => (
-              <option key={ms.value} value={ms.value}>
-                {ms.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* No US License checkbox */}
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={hasNoUsLicense}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              onChange({
-                ...driver,
-                noUsLicense: checked,
-                licenseNumber: checked ? '' : driver.licenseNumber,
-                licenseState: checked ? '' : driver.licenseState,
-                licenseType: checked ? driver.licenseType : undefined,
-              });
-            }}
-            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
-          />
-          No US driver&apos;s license
-        </label>
-        {hasNoUsLicense && (
-          <div className="ml-6">
+        {/* 6. Marital Status — conditional on formConfig */}
+        {maritalStatusEnabled && (
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              License Type
+              Marital Status
             </label>
             <select
-              value={driver.licenseType ?? 'No License'}
-              onChange={(e) => update('licenseType', e.target.value)}
-              className={`w-full md:w-1/2 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200`}
+              value={driver.maritalStatus ?? 'single'}
+              onChange={(e) => update('maritalStatus', e.target.value)}
+              className={SELECT_CLASS}
             >
-              {LICENSE_TYPES.map((lt) => (
-                <option key={lt} value={lt}>{lt}</option>
+              {MARITAL_STATUSES.map((ms) => (
+                <option key={ms.value} value={ms.value}>
+                  {ms.label}
+                </option>
               ))}
             </select>
           </div>
         )}
       </div>
+
+      {/* No US License checkbox — only if license fields are enabled */}
+      {licenseEnabled && (
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={hasNoUsLicense}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                onChange({
+                  ...driver,
+                  noUsLicense: checked,
+                  licenseNumber: checked ? '' : driver.licenseNumber,
+                  licenseState: checked ? '' : driver.licenseState,
+                  licenseType: checked ? driver.licenseType : undefined,
+                });
+              }}
+              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
+            />
+            No US driver&apos;s license
+          </label>
+          {hasNoUsLicense && (
+            <div className="ml-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                License Type
+              </label>
+              <select
+                value={driver.licenseType ?? 'No License'}
+                onChange={(e) => update('licenseType', e.target.value)}
+                className={`w-full md:w-1/2 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200`}
+              >
+                {LICENSE_TYPES.map((lt) => (
+                  <option key={lt} value={lt}>{lt}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Good Student Discount — only for child under 25 */}
       {showGoodStudent && (
@@ -340,44 +345,54 @@ export function DriverCard({
         </label>
       )}
 
-      {/* 7. SR-22 */}
-      <div>
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={driver.sr22Required}
-            onChange={(e) => update('sr22Required', e.target.checked)}
-            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
-          />
-          SR-22 Required
-        </label>
-      </div>
+      {/* 7. SR-22 — conditional on formConfig */}
+      {sr22Enabled && (
+        <div>
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={driver.sr22Required}
+              onChange={(e) => update('sr22Required', e.target.checked)}
+              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
+            />
+            SR-22 Required
+          </label>
+        </div>
+      )}
 
-      {/* 8. Violations — auto-add blank on check, clear on uncheck */}
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={driver.hasViolations}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              onChange({
-                ...driver,
-                hasViolations: checked,
-                violations: checked ? [emptyViolation()] : [],
-              });
-            }}
-            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
-          />
-          Violations in last 5 years
-        </label>
-        {driver.hasViolations && (
-          <ViolationEntry
-            violations={driver.violations}
-            onChange={(v) => update('violations', v)}
-          />
-        )}
-      </div>
+      {/* 8. Violations — conditional on formConfig */}
+      {violationsEnabled && (
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={driver.hasViolations}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                onChange({
+                  ...driver,
+                  hasViolations: checked,
+                  violations: checked ? [emptyViolation()] : [],
+                });
+              }}
+              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 accent-emerald-600"
+            />
+            Violations in last 5 years
+          </label>
+          {driver.hasViolations && (
+            <ViolationEntry
+              violations={driver.violations}
+              onChange={(v) => {
+                if (v.length === 0) {
+                  onChange({ ...driver, hasViolations: false, violations: [] });
+                } else {
+                  onChange({ ...driver, violations: v });
+                }
+              }}
+            />
+          )}
+        </div>
+      )}
       </div>
     </div>
   );

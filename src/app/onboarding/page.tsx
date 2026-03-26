@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { QuotzalLogo } from "@/components/ui/logo";
 import { ProgressIndicator } from "./components/progress-indicator";
 import { StepBusinessInfo } from "./components/step-business-info";
 import { StepInsuranceTypes } from "./components/step-insurance-types";
@@ -268,13 +269,13 @@ function OnboardingWizard() {
 
   if (checkoutProcessing) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-          <p className="mt-4 text-lg font-medium text-slate-900">
+          <p className="mt-4 text-lg font-medium text-gray-900">
             Setting up your account...
           </p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-gray-500">
             This will only take a moment
           </p>
           {error && (
@@ -290,18 +291,23 @@ function OnboardingWizard() {
   const displaySlug = data.slug || generateSlugFromName(data.brokerageName) || "your-brokerage";
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-slate-50 px-4 py-8 sm:py-12">
-      <div className="w-full max-w-2xl">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">
+    <div className="min-h-screen bg-gray-50">
+      {/* Fixed header */}
+      <header className="bg-white border-b border-gray-100 h-16 flex items-center px-6">
+        <QuotzalLogo size="md" />
+      </header>
+
+      <div className="max-w-lg mx-auto pt-12 pb-20 px-6">
+        <div className="text-center mb-8">
+          <h1 className="text-xl font-bold text-gray-900">
             Welcome to Quotzal
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-gray-500">
             Let&apos;s get your brokerage set up in a few steps
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
           <ProgressIndicator
             currentStep={step}
             totalSteps={3}
@@ -355,7 +361,7 @@ export default function OnboardingPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
         </div>
       }

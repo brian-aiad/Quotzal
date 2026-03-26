@@ -156,6 +156,7 @@ export function StepTypeFields({
         <AutoPersonalVehicles
           data={typeData as AutoPersonalData}
           onChange={onChange}
+          formConfig={formConfig}
         />
       );
     }
@@ -178,6 +179,7 @@ export function StepTypeFields({
         <AutoCommercialVehicles
           data={typeData as AutoCommercialData}
           onChange={onChange}
+          formConfig={formConfig}
         />
       );
     }

@@ -117,7 +117,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Dashboard</h1>
 
       {/* Past due banner */}
       {broker?.status === 'past_due' && (

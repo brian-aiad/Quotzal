@@ -21,7 +21,7 @@ interface SectionProps {
 
 function Section({ title, step, onEdit, children }: SectionProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-5 shadow-sm">
+    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
         <button

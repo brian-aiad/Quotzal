@@ -16,6 +16,7 @@ interface FormPreviewProps {
   activeStep: number;
   onStepChange: (step: number) => void;
   previewInsuranceType: InsuranceType | null;
+  onTypeSelect?: (type: InsuranceType) => void;
 }
 
 export interface PreviewStep {
@@ -38,7 +39,7 @@ export function buildPreviewSteps(
   } else if (previewType) {
     steps.push({ key: "details", label: "Coverage Details" });
   }
-  if (formConfig.fields.current_insurance.enabled) {
+  if (formConfig?.fields?.current_insurance?.enabled) {
     steps.push({ key: "insurance", label: "Current Insurance" });
   }
   steps.push({ key: "review", label: "Review & Submit" });
@@ -52,11 +53,19 @@ export function FormPreview({
   activeStep,
   onStepChange,
   previewInsuranceType,
+  onTypeSelect,
 }: FormPreviewProps) {
   const accent = brokerBranding.brandColor ?? "#059669";
   const steps = buildPreviewSteps(previewInsuranceType, formConfig);
   const clampedStep = Math.min(activeStep, steps.length - 1);
   const currentStepData = steps[clampedStep];
+
+  // Hint visibility — fades after 3 seconds
+  const [showHint, setShowHint] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setShowHint(false), 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   // Animation key — triggers re-animation on step/type change
   const [animKey, setAnimKey] = useState(0);
@@ -80,15 +89,15 @@ export function FormPreview({
     { key: "first_name", label: "First Name", required: true },
     { key: "last_name", label: "Last Name", required: true },
   ];
-  if (formConfig.fields.date_of_birth.enabled) {
+  if (formConfig?.fields?.date_of_birth?.enabled) {
     personalFields.push({ key: "dob", label: "Date of Birth", required: formConfig.fields.date_of_birth.required });
   }
   personalFields.push({ key: "email", label: "Email", required: true });
-  if (formConfig.fields.phone.enabled) {
+  if (formConfig?.fields?.phone?.enabled) {
     personalFields.push({ key: "phone", label: "Phone Number", required: formConfig.fields.phone.required });
   }
 
-  const visibleCustomFields = formConfig.custom_fields.filter(
+  const visibleCustomFields = (formConfig?.custom_fields ?? []).filter(
     (cf) => cf.applies_to === "all" ||
       (Array.isArray(cf.applies_to) && previewInsuranceType && cf.applies_to.includes(previewInsuranceType))
   );
@@ -98,23 +107,51 @@ export function FormPreview({
     ? INSURANCE_TYPE_OPTIONS.find((o) => o.value === previewInsuranceType)
     : null;
 
+  function handleTypeCardClick(type: InsuranceType) {
+    onTypeSelect?.(type);
+    onStepChange(1);
+  }
+
   return (
     <div className="sticky top-6">
-      {/* Header row */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-            Customer Preview
-          </span>
+      {/* Header */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Interactive Preview</span>
           {currentTypeOption && (
-            <span className="text-xs font-medium text-slate-500">
+            <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full">
               {currentTypeOption.icon} {currentTypeOption.label}
             </span>
           )}
         </div>
-        <span className="text-[10px] text-slate-400">
-          Step {clampedStep + 1}/{steps.length}
-        </span>
+        {/* Step dots */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {steps.map((s, i) => (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => onStepChange(i)}
+                className={`rounded-full transition-all duration-300 cursor-pointer hover:scale-125 ${
+                  i === clampedStep ? "w-3 h-3 scale-125 ring-2 ring-offset-1" : "w-2.5 h-2.5"
+                }`}
+                style={{
+                  backgroundColor: i <= clampedStep ? accent : "#cbd5e1",
+                  ...(i === clampedStep ? { ringColor: accent } : {}),
+                }}
+                aria-label={`Go to step ${i + 1}: ${s.label}`}
+                title={s.label}
+              />
+            ))}
+          </div>
+          <span
+            className={`text-[10px] text-gray-400 transition-opacity duration-700 ${
+              showHint ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            &larr; Click to navigate steps
+          </span>
+        </div>
       </div>
 
       {/* Phone frame */}
@@ -153,17 +190,14 @@ export function FormPreview({
               </div>
             )}
 
-            {/* Progress bar */}
+            {/* Progress bar — animated */}
             <div className="px-4 pt-2.5 pb-1 shrink-0">
               <div className="flex gap-1">
                 {steps.map((s, i) => (
-                  <button
+                  <div
                     key={s.key}
-                    type="button"
-                    onClick={() => onStepChange(i)}
-                    className="h-1.5 flex-1 rounded-full transition-all duration-300"
+                    className="h-1.5 flex-1 rounded-full transition-all duration-500 ease-out"
                     style={{ backgroundColor: i <= clampedStep ? accent : "#e2e8f0" }}
-                    aria-label={`Go to step ${i + 1}: ${s.label}`}
                   />
                 ))}
               </div>
@@ -172,7 +206,7 @@ export function FormPreview({
             {/* Content — animated on step/type change */}
             <div className="flex-1 px-4 py-3 overflow-y-auto">
               <div key={animKey} className="preview-step-enter">
-                {/* Step: Insurance Type */}
+                {/* Step: Insurance Type — INTERACTIVE */}
                 {currentStepData?.key === "type" && (
                   <div>
                     <p className="text-xs font-semibold text-slate-900 mb-0.5">What type of insurance do you need?</p>
@@ -181,14 +215,17 @@ export function FormPreview({
                       {filteredOptions.map((opt) => {
                         const isActive = previewInsuranceType === opt.value;
                         return (
-                          <div
+                          <button
                             key={opt.value}
-                            className={`flex flex-col items-center gap-0.5 p-2.5 rounded-lg border-2 text-center transition-all duration-200 ${
+                            type="button"
+                            onClick={() => handleTypeCardClick(opt.value)}
+                            className={`relative flex flex-col items-center gap-0.5 p-2.5 rounded-lg border-2 text-center transition-all duration-200 cursor-pointer group ${
                               isActive
                                 ? "shadow-sm"
-                                : "border-slate-200 bg-white"
+                                : "border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/30 animate-pulse-ring"
                             }`}
                             style={isActive ? { borderColor: accent, backgroundColor: `${accent}08` } : undefined}
+                            title="Select"
                           >
                             <span className="text-base">{opt.icon}</span>
                             <span className="text-[10px] font-medium text-slate-700 leading-tight">{opt.label}</span>
@@ -197,7 +234,7 @@ export function FormPreview({
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             )}
-                          </div>
+                          </button>
                         );
                       })}
                     </div>
@@ -231,20 +268,28 @@ export function FormPreview({
                     <p className="text-xs font-semibold text-slate-900 mb-0.5">Driver Information</p>
                     <p className="text-[10px] text-slate-500 mb-2.5">Details for each driver on the policy.</p>
                     <div className="bg-white border border-slate-200 rounded-lg p-2.5 space-y-2">
-                      <p className="text-[10px] font-semibold text-slate-700">Driver 1</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+                          <span className="text-[8px] font-bold text-white">1</span>
+                        </div>
+                        <p className="text-[10px] font-semibold text-slate-700">Driver 1</p>
+                      </div>
                       <PField label="Full Name" required />
                       <PField label="Date of Birth" required type="date" />
-                      {formConfig.fields.driver_license_number.enabled && (
-                        <PField label="License Number" required={formConfig.fields.driver_license_number.required} />
+                      {formConfig?.fields?.driver_license_number?.enabled && (
+                        <>
+                          <PField label="License State" required={formConfig.fields.driver_license_number.required} type="select" />
+                          <PField label="License Number" required={formConfig.fields.driver_license_number.required} />
+                        </>
                       )}
-                      {formConfig.fields.marital_status.enabled && (
+                      {formConfig?.fields?.marital_status?.enabled && (
                         <PField label="Marital Status" required={formConfig.fields.marital_status.required} type="select" />
                       )}
-                      {formConfig.fields.sr22.enabled && (
-                        <PField label="SR-22 Required?" required={formConfig.fields.sr22.required} type="toggle" />
+                      {formConfig?.fields?.sr22?.enabled && (
+                        <PField label="SR-22 Required?" required={false} type="toggle" />
                       )}
-                      {formConfig.fields.violations.enabled && (
-                        <PField label="Any violations?" required={formConfig.fields.violations.required} type="toggle" />
+                      {formConfig?.fields?.violations?.enabled && (
+                        <PField label="Any violations?" required={false} type="toggle" />
                       )}
                     </div>
                   </div>
@@ -256,14 +301,24 @@ export function FormPreview({
                     <p className="text-xs font-semibold text-slate-900 mb-0.5">Vehicle Information</p>
                     <p className="text-[10px] text-slate-500 mb-2.5">Add your vehicles.</p>
                     <div className="bg-white border border-slate-200 rounded-lg p-2.5 space-y-2">
-                      <p className="text-[10px] font-semibold text-slate-700">Vehicle 1</p>
-                      {formConfig.fields.vin.enabled && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+                          <span className="text-[8px] font-bold text-white">1</span>
+                        </div>
+                        <p className="text-[10px] font-semibold text-slate-700">Vehicle 1</p>
+                      </div>
+                      {formConfig?.fields?.vin?.enabled && (
                         <PField label="VIN" required={formConfig.fields.vin.required} />
                       )}
                       <PField label="Year" required />
                       <PField label="Make" required />
                       <PField label="Model" required />
-                      <PField label="Coverage Type" required type="select" />
+                      {formConfig?.fields?.trim_package?.enabled && (
+                        <PField label="Trim / Package" required={formConfig.fields.trim_package.required} />
+                      )}
+                      {formConfig?.fields?.coverage_type?.enabled && (
+                        <PField label="Coverage Type" required type="select" />
+                      )}
                     </div>
                   </div>
                 )}
@@ -288,8 +343,12 @@ export function FormPreview({
                     <div className="space-y-2">
                       <PField label="Currently insured?" required type="toggle" />
                       <PField label="Current Carrier" />
-                      <PField label="Coverage Limits" />
-                      <PField label="Policy Expiry" type="date" />
+                      {formConfig?.fields?.coverage_limits?.enabled && (
+                        <PField label="Coverage Limits" type="select" />
+                      )}
+                      {formConfig?.fields?.policy_expiry?.enabled && (
+                        <PField label="Policy Expiry" type="date" />
+                      )}
                     </div>
                   </div>
                 )}
@@ -326,13 +385,13 @@ export function FormPreview({
               </div>
             </div>
 
-            {/* Nav */}
-            <div className="px-4 py-2 flex items-center justify-between border-t border-slate-100 bg-white shrink-0">
+            {/* Sticky footer nav — prominent buttons */}
+            <div className="px-4 py-2.5 flex items-center justify-between border-t border-slate-100 bg-white shrink-0">
               <button
                 type="button"
                 onClick={() => onStepChange(Math.max(0, clampedStep - 1))}
                 disabled={clampedStep === 0}
-                className="text-[10px] font-medium text-slate-500 disabled:opacity-30"
+                className="bg-white border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 &larr; Back
               </button>
@@ -340,8 +399,7 @@ export function FormPreview({
                 type="button"
                 onClick={() => onStepChange(Math.min(steps.length - 1, clampedStep + 1))}
                 disabled={clampedStep === steps.length - 1}
-                className="text-[10px] font-medium text-white px-3 py-1 rounded-md disabled:opacity-30"
-                style={{ backgroundColor: accent }}
+                className="bg-emerald-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm hover:bg-emerald-700 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Next &rarr;
               </button>

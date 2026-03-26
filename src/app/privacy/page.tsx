@@ -14,18 +14,18 @@ export default function PrivacyPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/"><QuotzalLogo size="sm" /></Link>
           <div className="flex items-center gap-4">
-            <Link href="/demo" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">Try demo</Link>
-            <Link href="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Sign up</Link>
+            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">Log in</Link>
+            <Link href="/signup" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">Sign Up Free</Link>
           </div>
         </div>
       </header>
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Privacy Policy</h1>
-        <p className="text-sm text-slate-500 mb-8">Last updated: March 24, 2026</p>
+      <div className="max-w-3xl mx-auto px-6 py-20">
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Privacy Policy</h1>
+        <p className="text-sm text-gray-400 mt-2 mb-16 border-b border-gray-100 pb-16">Last updated: March 24, 2026</p>
 
-        <div className="prose prose-gray max-w-none space-y-6 text-sm text-slate-700 leading-relaxed">
+        <div className="prose prose-gray max-w-none space-y-6 text-sm text-gray-600 leading-7">
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">1. Information We Collect</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">1. Information We Collect</h2>
             <p>
               <strong>Broker accounts:</strong> When you create an account, we collect your email address,
               brokerage name, phone number, and address.
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">2. How We Use Your Information</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">2. How We Use Your Information</h2>
             <p>We use the information we collect to:</p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>Provide and maintain the Service</li>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">3. Data Sharing</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">3. Data Sharing</h2>
             <p>
               Form submission data is shared only with the broker whose intake form was used. We do not
               sell, rent, or share personal information with third parties for marketing purposes.
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">4. Data Security</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">4. Data Security</h2>
             <p>
               All data is transmitted over HTTPS encryption. Our database uses row-level security
               to ensure brokers can only access their own data. We implement industry-standard
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">5. Data Retention</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">5. Data Retention</h2>
             <p>
               Submission data is retained according to the broker&apos;s plan: 12 months for Starter plans
               and 24 months for Pro plans. After the retention period, data is automatically and
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">6. Your Rights</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">6. Your Rights</h2>
             <p>You have the right to:</p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>Access your data at any time through the dashboard</li>
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">7. Cookies</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">7. Cookies</h2>
             <p>
               We use essential cookies for authentication and session management. We do not use
               tracking cookies or third-party analytics cookies.
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">8. Changes to This Policy</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">8. Changes to This Policy</h2>
             <p>
               We may update this privacy policy from time to time. We will notify account holders
               of significant changes via email.
@@ -118,13 +118,35 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">Contact</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mt-12 mb-4">Contact</h2>
             <p>
               For privacy-related questions, contact us at support@quotzal.com.
             </p>
           </section>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-950 text-gray-400 py-12 border-t border-white/5">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <QuotzalLogo size="sm" dark />
+              <p className="text-sm mt-1">Insurance intake, simplified.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-6 text-sm">
+              <Link href="/demo" className="text-gray-300 hover:text-white transition-colors">Demo</Link>
+              <Link href="/login" className="text-gray-300 hover:text-white transition-colors">Log in</Link>
+              <Link href="/signup" className="text-gray-300 hover:text-white transition-colors">Sign Up</Link>
+              <Link href="/terms" className="text-gray-300 hover:text-white transition-colors">Terms</Link>
+              <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy</Link>
+            </div>
+          </div>
+          <div className="mt-8 pt-6 border-t border-white/5 text-center text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} Quotzal. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

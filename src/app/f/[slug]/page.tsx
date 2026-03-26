@@ -5,7 +5,9 @@ import { IntakeForm } from './intake-form';
 import { InactivePage } from './components/inactive-page';
 import { ExpiredPage } from './components/expired-page';
 import type { BrokerData, InsuranceType, FormConfig } from '@/lib/types/intake-form';
-import { DEFAULT_FORM_CONFIG } from '@/lib/types/intake-form';
+import { mergeFormConfig } from '@/lib/types/intake-form';
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -151,7 +153,7 @@ export default async function IntakeFormPage({ params, searchParams }: PageProps
     status: broker.status,
     insuranceTypesEnabled: broker.insurance_types_enabled as InsuranceType[],
     linkId,
-    formConfig: (broker.form_config as FormConfig) ?? DEFAULT_FORM_CONFIG,
+    formConfig: mergeFormConfig(broker.form_config as Partial<FormConfig> | null),
     email: broker.email,
     phone: broker.phone,
   };

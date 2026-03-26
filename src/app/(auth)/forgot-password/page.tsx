@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, CheckCircle, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { QuotzalLogo } from "@/components/ui/logo";
+import { AuthShell } from "@/components/ui/auth-shell";
 
 export default function ForgotPasswordPage() {
   const supabase = createClient();
@@ -11,6 +12,7 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [shaking, setShaking] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,6 +26,8 @@ export default function ForgotPasswordPage() {
     if (resetError) {
       setError(resetError.message);
       setLoading(false);
+      setShaking(true);
+      setTimeout(() => setShaking(false), 400);
       return;
     }
 
@@ -31,63 +35,101 @@ export default function ForgotPasswordPage() {
     setLoading(false);
   }
 
-  if (sent) {
-    return (
-      <div className="text-center">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-slate-900 mb-2">Check your email</h2>
-        <p className="text-sm text-slate-600 mb-6">
-          We sent password reset instructions to <strong>{email}</strong>.
-        </p>
-        <Link href="/login" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
-          Back to sign in
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Reset your password</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Enter your email and we&apos;ll send you a link to reset your password.
-        </p>
-      </div>
+    <AuthShell>
+      <div className="max-w-sm w-full mx-auto">
+        {sent ? (
+          /* Success state */
+          <div className="text-center animate-fade-in-up">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <CheckCircle size={32} className="text-emerald-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your inbox</h2>
+            <p className="text-sm text-gray-500 mb-8">
+              We sent a reset link to <strong className="text-gray-700">{email}</strong>
+            </p>
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+            >
+              Back to sign in &rarr;
+            </Link>
+          </div>
+        ) : (
+          /* Form state */
+          <>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-6"
+            >
+              <ChevronLeft size={16} />
+              Back to sign in
+            </Link>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">{error}</div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Reset your password</h1>
+            <p className="text-sm text-gray-500 mt-1 mb-8">
+              Enter your email and we&apos;ll send you a reset link.
+            </p>
+
+            <form
+              onSubmit={handleSubmit}
+              className={`space-y-5 ${shaking ? "animate-shake" : ""}`}
+            >
+              {error && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Email
+                </label>
+                <input
+                  id="reset-email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-11 px-4 text-sm md:text-sm text-base border border-gray-200 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-all duration-150 cursor-pointer hover:-translate-y-px hover:shadow-lg hover:shadow-emerald-500/25 active:translate-y-0 active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none focus:ring-4 focus:ring-emerald-500/20 focus:outline-none"
+              >
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Sending...
+                  </span>
+                ) : (
+                  "Send reset link"
+                )}
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-gray-500">
+              Remember your password?{" "}
+              <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors">
+                Sign in
+              </Link>
+            </p>
+
+            {/* Trust badge */}
+            <div className="mt-6 flex items-center justify-center gap-1.5 text-gray-400">
+              <ShieldCheck size={14} className="text-gray-300" />
+              <span className="text-xs">SSL secured</span>
+            </div>
+          </>
         )}
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full h-11 px-4 text-sm border border-slate-200 rounded-xl bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            placeholder="you@example.com"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-3 rounded-xl transition-colors disabled:opacity-50"
-        >
-          {loading ? "Sending..." : "Send reset link"}
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-slate-600">
-        Remember your password?{" "}
-        <Link href="/login" className="font-medium text-emerald-600 hover:text-emerald-700">Sign in</Link>
-      </p>
-    </div>
+      </div>
+    </AuthShell>
   );
 }

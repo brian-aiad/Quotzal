@@ -19,15 +19,15 @@ interface ChartsProps {
 }
 
 const PIE_COLORS = [
-  '#059669', '#6366f1', '#0ea5e9', '#f43f5e',
-  '#f97316', '#06b6d4', '#f59e0b', '#6b7280',
+  '#059669', '#34d399', '#a7f3d0', '#d1d5db',
+  '#e5e7eb', '#6ee7b7', '#047857', '#9ca3af',
 ];
 
 export function Charts({ data }: ChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Weekly submissions bar chart */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm min-h-[240px]">
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm min-h-[240px]">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Submissions per Week</h3>
         {data.weekly.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>
@@ -44,7 +44,7 @@ export function Charts({ data }: ChartsProps) {
       </div>
 
       {/* Insurance type donut chart */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm min-h-[240px]">
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm min-h-[240px]">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">By Insurance Type</h3>
         {data.byType.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>

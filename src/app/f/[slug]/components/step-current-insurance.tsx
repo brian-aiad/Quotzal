@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import type { CurrentInsurance } from '@/lib/types/intake-form';
+import type { CurrentInsurance, FormConfig } from '@/lib/types/intake-form';
 
 interface StepCurrentInsuranceProps {
   data: CurrentInsurance;
   onChange: (data: CurrentInsurance) => void;
+  formConfig?: FormConfig;
 }
 
 const CARRIERS = [
@@ -17,9 +18,22 @@ const CARRIERS = [
   'Kemper', 'Gainsco',
 ];
 
-const COVERAGE_LIMITS = [
-  'State Minimum', '15/30/5', '25/50/10', '25/50/25', '50/100/25',
-  '50/100/50', '100/300/50', '100/300/100', '250/500/250', '500/500/500',
+interface CoverageLimitPreset {
+  value: string;
+  descriptor?: string;
+  warning?: boolean;
+  recommended?: boolean;
+}
+
+const COVERAGE_LIMIT_PRESETS: CoverageLimitPreset[] = [
+  { value: '30/60/15', descriptor: 'CA State Minimum', warning: true },
+  { value: '50/100/25' },
+  { value: '50/100/50' },
+  { value: '100/300/50' },
+  { value: '100/300/100', descriptor: 'Most common in CA', recommended: true },
+  { value: '250/500/100' },
+  { value: '250/500/250' },
+  { value: '500/1000/250' },
 ];
 
 function Combobox({ value, options, onChange, placeholder, label }: {
@@ -84,7 +98,123 @@ function Combobox({ value, options, onChange, placeholder, label }: {
   );
 }
 
-export function StepCurrentInsurance({ data, onChange }: StepCurrentInsuranceProps) {
+function CoverageLimitsCombobox({ value, onChange }: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [isCustom, setIsCustom] = useState(false);
+  const [query, setQuery] = useState(value);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setQuery(value); }, [value]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  // Auto-detect custom value on mount
+  const isPreset = COVERAGE_LIMIT_PRESETS.some(p => p.value === value);
+  useEffect(() => {
+    if (value && !isPreset) setIsCustom(true);
+  }, [value, isPreset]);
+
+  const filtered = query && !isCustom
+    ? COVERAGE_LIMIT_PRESETS.filter(p =>
+        p.value.includes(query) ||
+        (p.descriptor ?? '').toLowerCase().includes(query.toLowerCase())
+      )
+    : COVERAGE_LIMIT_PRESETS;
+
+  if (isCustom) {
+    return (
+      <div ref={ref}>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">Coverage Limits</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); }}
+            placeholder="e.g., 100/300/100"
+            className="flex-1 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+          />
+          <button
+            type="button"
+            onClick={() => { setIsCustom(false); setQuery(''); onChange(''); }}
+            className="px-3 text-xs text-emerald-600 hover:text-emerald-700 font-medium whitespace-nowrap"
+          >
+            Use preset
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">Coverage Limits</label>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        placeholder="Select or type coverage limits"
+        autoComplete="off"
+        className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+      />
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+          <div className="max-h-64 overflow-y-auto">
+            {filtered.map(preset => (
+              <button
+                key={preset.value}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setQuery(preset.value);
+                  onChange(preset.value);
+                  setOpen(false);
+                }}
+                className="w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors border-b border-gray-50 last:border-0"
+              >
+                <div className="flex items-center gap-2">
+                  {preset.warning && <span className="text-amber-500 text-sm">&#9888;&#65039;</span>}
+                  {preset.recommended && <span className="text-emerald-500 text-sm">&#10003;</span>}
+                  <span className="text-sm font-medium text-gray-900">{preset.value}</span>
+                  {preset.descriptor && (
+                    <span className={`text-xs ${preset.warning ? 'text-amber-500' : preset.recommended ? 'text-emerald-500' : 'text-gray-400'}`}>&mdash; {preset.descriptor}</span>
+                  )}
+                </div>
+              </button>
+            ))}
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsCustom(true);
+                setQuery('');
+                onChange('');
+                setOpen(false);
+              }}
+              className="w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors border-t border-gray-100"
+            >
+              <span className="text-sm font-medium text-emerald-600">Custom...</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function StepCurrentInsurance({ data, onChange, formConfig }: StepCurrentInsuranceProps) {
+  const showCoverageLimits = formConfig?.fields.coverage_limits?.enabled ?? true;
+  const showPolicyExpiry = formConfig?.fields.policy_expiry?.enabled ?? true;
+
   function update(field: keyof CurrentInsurance, value: unknown) {
     onChange({ ...data, [field]: value });
   }
@@ -163,25 +293,26 @@ export function StepCurrentInsurance({ data, onChange }: StepCurrentInsurancePro
               placeholder="e.g., State Farm, GEICO"
             />
 
-            <Combobox
-              label="Coverage Limits"
-              value={data.currentCoverageLimits ?? ''}
-              options={COVERAGE_LIMITS}
-              onChange={(v) => update('currentCoverageLimits', v)}
-              placeholder="e.g., 100/300/100"
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Policy Expiry Date
-              </label>
-              <input
-                type="date"
-                value={data.policyExpiryDate ?? ''}
-                onChange={(e) => update('policyExpiryDate', e.target.value)}
-                className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+            {showCoverageLimits && (
+              <CoverageLimitsCombobox
+                value={data.currentCoverageLimits ?? ''}
+                onChange={(v) => update('currentCoverageLimits', v)}
               />
-            </div>
+            )}
+
+            {showPolicyExpiry && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Policy Expiry Date
+                </label>
+                <input
+                  type="date"
+                  value={data.policyExpiryDate ?? ''}
+                  onChange={(e) => update('policyExpiryDate', e.target.value)}
+                  className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

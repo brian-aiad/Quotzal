@@ -1,27 +1,27 @@
 import Link from "next/link";
-import { QuotzalLogo } from "@/components/ui/logo";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center">
-        <div className="flex justify-center mb-8">
-          <Link href="/"><QuotzalLogo size="lg" /></Link>
-        </div>
-        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-3xl font-bold text-slate-500">404</span>
-        </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-sm mx-auto pt-32 pb-20 px-6 text-center">
+        <p className="text-8xl font-black text-gray-100">404</p>
+        <h1 className="text-2xl font-bold text-gray-900 mt-0">
           Page not found
         </h1>
-        <p className="text-slate-600 mb-8">
+        <p className="text-sm text-gray-500 mt-3 mb-8 max-w-xs mx-auto">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
         <Link
           href="/"
-          className="inline-flex items-center justify-center px-6 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors duration-150"
+          className="w-full inline-flex items-center justify-center h-11 px-6 bg-emerald-600 text-white font-semibold text-sm rounded-xl hover:bg-emerald-700 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/20"
         >
-          Go Home
+          &larr; Back to home
+        </Link>
+        <Link
+          href="mailto:support@quotzal.com"
+          className="text-sm text-emerald-600 hover:text-emerald-700 mt-4 inline-block transition-colors"
+        >
+          Contact support
         </Link>
       </div>
     </div>

@@ -29,15 +29,43 @@ body {
   font-family: var(--font-inter), system-ui, sans-serif;
 }
 
-/* Login page — grid pattern overlay */
-.login-grid {
-  background-image:
-    linear-gradient(rgba(16, 185, 129, 1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 1) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* Autofill fix — kills blue browser autofill bg */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Login page — entrance animation */
+/* Auth — dark panel background */
+.auth-dark-bg {
+  background: radial-gradient(ellipse at 30% 50%, #0d2818 0%, #0a0f0a 60%, #050a05 100%);
+}
+
+/* Auth — dot grid overlay */
+.auth-dot-grid {
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%2310b981'/%3E%3C/svg%3E");
+  background-size: 20px 20px;
+}
+
+/* Auth — ambient glow pulse */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.05);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 8s ease-in-out infinite;
+}
+
+/* Auth — form entrance */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -53,20 +81,17 @@ body {
   animation: fade-in-up 0.6s ease-out both;
 }
 
-/* Login page — ambient glow pulse */
-@keyframes glow-pulse {
-  0%, 100% {
-    opacity: 0.15;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.25;
-    transform: scale(1.05);
-  }
+/* Auth — error shake */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(2px); }
 }
 
-.animate-glow-pulse {
-  animation: glow-pulse 8s ease-in-out infinite;
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
 }
 
 /* Login page — button shimmer sweep */
@@ -133,3 +158,80 @@ body {
 .field-pulse {
   animation: field-pulse 0.6s ease-out;
 }
+
+/* Preview — pulsing ring on insurance type cards */
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* Save indicator fade */
+@keyframes save-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.save-indicator-enter {
+  animation: save-fade-in 0.2s ease-out both;
+}
+
+/* Field expand transition */
+.field-expand-enter {
+  overflow: hidden;
+  animation: field-expand 200ms ease-out both;
+}
+
+@keyframes field-expand {
+  from { max-height: 0; opacity: 0; }
+  to { max-height: 500px; opacity: 1; }
+}
+
+/* Intake form — consistent select styling (remove browser-default blue highlight) */
+select {
+  color: #111827;
+}
+
+select option:checked {
+  color: #111827;
+}
+
+/* Landing page — hero background with emerald bloom */
+.landing-hero-bg {
+  background-color: #080d09;
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -10%,
+    rgba(5, 150, 105, 0.15) 0%,
+    transparent 60%
+  );
+}
+
+/* Landing page — noise texture overlay */
+.noise-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scrollbar styling for dashboard */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+

@@ -129,9 +129,12 @@ function validateDrivers(drivers: Driver[], fc: FormConfig): { message: string |
   return { message, driverErrors };
 }
 
-function validateVehicles(vehicles: { vin: string }[]): string | null {
-  for (const vehicle of vehicles) {
-    if (!vehicle.vin.trim()) return 'All vehicles must have a VIN';
+function validateVehicles(vehicles: { vin: string }[], fc: FormConfig): string | null {
+  const vinRequired = fc.fields.vin.enabled && fc.fields.vin.required;
+  if (vinRequired) {
+    for (const vehicle of vehicles) {
+      if (!vehicle.vin.trim()) return 'All vehicles must have a VIN';
+    }
   }
   return null;
 }
@@ -157,15 +160,16 @@ function validateTypeSpecificDrivers(
 
 function validateTypeSpecificVehicles(
   type: InsuranceType,
-  data: TypeSpecificData | null
+  data: TypeSpecificData | null,
+  fc: FormConfig
 ): string | null {
   if (!data) return 'Please fill in the required details';
 
   if (type === 'auto_personal') {
-    return validateVehicles((data as AutoPersonalData).vehicles);
+    return validateVehicles((data as AutoPersonalData).vehicles, fc);
   }
   if (type === 'auto_commercial') {
-    return validateVehicles((data as AutoCommercialData).vehicles);
+    return validateVehicles((data as AutoCommercialData).vehicles, fc);
   }
   return null;
 }
@@ -261,7 +265,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
     // Step 3: Vehicles (auto types) — skip for non-auto
     if (currentStep === 3 && isAutoType) {
       setTypeSpecificError('');
-      const err = validateTypeSpecificVehicles(insType, formData.typeSpecificData);
+      const err = validateTypeSpecificVehicles(insType, formData.typeSpecificData, fc);
       if (err) {
         setTypeSpecificError(err);
         return;
@@ -291,6 +295,11 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   }
 
   function handleBack() {
+    // Clear all error state when navigating back
+    setPersonalInfoErrors({});
+    setTypeSpecificError('');
+    setDriverErrors({});
+
     // Skip current insurance going back
     if (currentStep === 5 && skipCurrentInsurance) {
       setCurrentStep(isAutoType ? 3 : 2);
@@ -663,6 +672,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 data={formData.typeSpecificData}
                 onChange={handleTypeSpecificChange}
                 section="vehicles"
+                formConfig={fc}
               />
             )}
 
@@ -678,6 +688,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               <StepCurrentInsurance
                 data={formData.currentInsurance}
                 onChange={handleCurrentInsuranceChange}
+                formConfig={fc}
               />
             )}
 

@@ -72,8 +72,18 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-8">
+        <div className="h-8 bg-gray-200 rounded-lg w-40 animate-pulse" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-4">
+            <div className="h-5 bg-gray-100 rounded w-32 animate-pulse" />
+            <div className="h-4 bg-gray-100 rounded w-64 animate-pulse" />
+            <div className="space-y-3 max-w-lg">
+              <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
+              <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -88,7 +98,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Settings</h1>
 
       {toast && (
         <div
@@ -152,44 +162,44 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6">
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-1">Business Info</h2>
-      <p className="text-sm text-slate-500 mb-4 pb-4 border-b border-slate-100">Your brokerage details shown on correspondence</p>
+      <p className="text-sm text-gray-500 mb-4 pb-4 border-b border-gray-100">Your brokerage details shown on correspondence</p>
       <div className="space-y-4 max-w-lg">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Brokerage Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Brokerage Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
           <input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="(555) 123-4567"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Business Address</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Business Address</label>
           <input
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="123 Main St, City, State ZIP"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
           />
         </div>
         <button
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : 'Save changes'}
         </button>
@@ -259,15 +269,15 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Link</h2>
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Link</h2>
       <div className="max-w-lg">
-        <p className="text-sm text-slate-600 mb-2">
+        <p className="text-sm text-gray-600 mb-2">
           Your current form link:
         </p>
-        <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg mb-4">
-          <span className="text-sm text-slate-500">quotzal.com/f/</span>
-          <span className="text-sm font-medium text-slate-900">{primaryLink?.slug || '—'}</span>
+        <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg mb-4">
+          <span className="text-sm text-gray-500">quotzal.com/f/</span>
+          <span className="text-sm font-medium text-gray-900">{primaryLink?.slug || '—'}</span>
         </div>
 
         {!editing ? (
@@ -286,17 +296,17 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">New slug</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">New slug</label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500">quotzal.com/f/</span>
+                <span className="text-sm text-gray-500">quotzal.com/f/</span>
                 <input
                   type="text"
                   value={newSlug}
                   onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="flex-1 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
                 />
               </div>
-              {checking && <p className="text-xs text-slate-400 mt-1">Checking availability...</p>}
+              {checking && <p className="text-xs text-gray-400 mt-1">Checking availability...</p>}
               {!checking && available === true && newSlug !== primaryLink?.slug && (
                 <p className="text-xs text-green-600 mt-1">Available</p>
               )}
@@ -309,14 +319,14 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
                 type="button"
                 onClick={() => setShowConfirm(true)}
                 disabled={!available || saving || newSlug === primaryLink?.slug}
-                className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save
               </button>
               <button
                 type="button"
                 onClick={() => { setEditing(false); setNewSlug(''); setAvailable(null); setSlugError(''); }}
-                className="px-4 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100"
+                className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm"
               >
                 Cancel
               </button>
@@ -329,9 +339,9 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/30" onClick={() => setShowConfirm(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Confirm slug change</h3>
-            <p className="text-sm text-slate-600 mb-4">
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirm slug change</h3>
+            <p className="text-sm text-gray-600 mb-4">
               This will change your form link from <strong>quotzal.com/f/{primaryLink?.slug}</strong> to{' '}
               <strong>quotzal.com/f/{newSlug}</strong>. Any existing links will stop working.
             </p>
@@ -339,7 +349,7 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100"
+                className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm"
               >
                 Cancel
               </button>
@@ -347,7 +357,7 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
                 type="button"
                 onClick={handleSaveSlug}
                 disabled={saving}
-                className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Confirm change'}
               </button>
@@ -379,20 +389,20 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
 
   if (broker.plan !== 'pro') {
     return (
-      <section className="relative bg-slate-50 border border-slate-200 rounded-xl p-6 overflow-hidden">
+      <section className="relative bg-gray-50 border border-gray-100 rounded-2xl shadow-sm p-6 overflow-hidden">
         <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-sm font-medium text-slate-700 mb-2">🔒 Pro feature</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">🔒 Pro feature</p>
             <a
               href="/dashboard/billing"
-              className="inline-block px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700"
+              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11"
             >
               Upgrade to Pro
             </a>
           </div>
         </div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Branding</h2>
-        <p className="text-sm text-slate-500">Upload your logo, set brand colors, and remove Quotzal branding.</p>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Branding</h2>
+        <p className="text-sm text-gray-500">Upload your logo, set brand colors, and remove Quotzal branding.</p>
       </section>
     );
   }
@@ -487,18 +497,18 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Branding</h2>
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Branding</h2>
       <div className="space-y-6 max-w-lg">
         {/* Logo */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Logo</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
           {broker.logo_url ? (
             <div className="flex items-center gap-4">
               <img
                 src={broker.logo_url}
                 alt="Brokerage logo"
-                className="w-16 h-16 rounded-lg object-contain border border-slate-200"
+                className="w-16 h-16 rounded-lg object-contain border border-gray-200"
               />
               <label className="px-3 py-2 text-sm text-emerald-600 font-medium cursor-pointer hover:bg-emerald-50 rounded-lg">
                 {uploading ? 'Uploading...' : 'Replace'}
@@ -506,23 +516,23 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
               </label>
             </div>
           ) : (
-            <label className="inline-block px-4 py-2 bg-slate-100 text-sm text-slate-700 font-medium cursor-pointer hover:bg-slate-200 rounded-lg">
+            <label className="inline-block px-4 py-2 bg-gray-100 text-sm text-gray-700 font-medium cursor-pointer hover:bg-gray-200 rounded-lg">
               {uploading ? 'Uploading...' : 'Upload logo'}
               <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" disabled={uploading} />
             </label>
           )}
-          <p className="text-xs text-slate-400 mt-1">Max 2MB. PNG, JPG, or SVG.</p>
+          <p className="text-xs text-gray-400 mt-1">Max 2MB. PNG, JPG, or SVG.</p>
         </div>
 
         {/* Brand Color */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Brand Color</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Brand Color</label>
           <div className="flex items-center gap-3">
             <input
               type="color"
               value={color}
               onChange={(e) => { setColor(e.target.value); setHexInput(e.target.value); }}
-              className="w-10 h-10 rounded-lg border border-slate-300 cursor-pointer p-0"
+              className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer p-0"
             />
             <input
               type="text"
@@ -534,13 +544,13 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
                 }
               }}
               placeholder="#3B82F6"
-              className="w-28 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="w-28 h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200"
             />
             <button
               type="button"
               onClick={handleSaveColor}
               disabled={savingColor}
-              className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
             >
               {savingColor ? 'Saving...' : 'Save'}
             </button>
@@ -553,11 +563,11 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
             type="button"
             onClick={handleRemoveBranding}
             disabled={removingBranding}
-            className="px-4 py-2 text-sm text-slate-600 font-medium border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50"
+            className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm disabled:opacity-50"
           >
             {removingBranding ? 'Removing...' : 'Remove branding'}
           </button>
-          <p className="text-xs text-slate-400 mt-1">Removes your logo and resets brand color to default.</p>
+          <p className="text-xs text-gray-400 mt-1">Removes your logo and resets brand color to default.</p>
         </div>
       </div>
     </section>
@@ -613,13 +623,13 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Account</h2>
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Account</h2>
       <div className="space-y-4 max-w-lg">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-900">{broker.email}</span>
+            <span className="text-sm text-gray-900">{broker.email}</span>
             <button
               type="button"
               onClick={() => setShowEmailModal(true)}
@@ -634,7 +644,7 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
             type="button"
             onClick={handleResetPassword}
             disabled={resetSent}
-            className="px-4 py-2 text-sm text-slate-600 font-medium border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50"
+            className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm disabled:opacity-50"
           >
             {resetSent ? 'Check your email' : 'Change password'}
           </button>
@@ -645,9 +655,9 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
       {showEmailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/30" onClick={() => setShowEmailModal(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Change email</h3>
-            <p className="text-sm text-slate-600 mb-4">
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Change email</h3>
+            <p className="text-sm text-gray-600 mb-4">
               A confirmation link will be sent to your new email address.
             </p>
             <input
@@ -655,13 +665,13 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="new@example.com"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none mb-4"
+              className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-200 mb-4"
             />
             <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => { setShowEmailModal(false); setNewEmail(''); }}
-                className="px-4 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100"
+                className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm"
               >
                 Cancel
               </button>
@@ -669,7 +679,7 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
                 type="button"
                 onClick={handleChangeEmail}
                 disabled={savingEmail}
-                className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
               >
                 {savingEmail ? 'Sending...' : 'Send confirmation'}
               </button>
@@ -696,20 +706,20 @@ function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
 
   if (broker.plan !== 'pro') {
     return (
-      <section className="relative bg-slate-50 border border-slate-200 rounded-xl p-6 overflow-hidden">
+      <section className="relative bg-gray-50 border border-gray-100 rounded-2xl shadow-sm p-6 overflow-hidden">
         <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-sm font-medium text-slate-700 mb-2">🔒 Pro feature</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">🔒 Pro feature</p>
             <a
               href="/dashboard/billing"
-              className="inline-block px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700"
+              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11"
             >
               Upgrade to Pro
             </a>
           </div>
         </div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Data Retention</h2>
-        <p className="text-sm text-slate-500">Extend submission data retention from 12 months to 24 months.</p>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Data Retention</h2>
+        <p className="text-sm text-gray-500">Extend submission data retention from 12 months to 24 months.</p>
       </section>
     );
   }
@@ -734,14 +744,14 @@ function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
   }
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Data Retention</h2>
+    <section className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Data Retention</h2>
       <div className="flex items-center justify-between max-w-lg">
         <div>
-          <p className="text-sm font-medium text-slate-900">
+          <p className="text-sm font-medium text-gray-900">
             Extend retention to 24 months
           </p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             Default is 12 months. Extending updates all existing submissions.
           </p>
         </div>
@@ -751,8 +761,8 @@ function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
           aria-checked={extended}
           onClick={handleToggle}
           disabled={saving}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 ${
-            extended ? 'bg-emerald-600' : 'bg-slate-200'
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:ring-offset-0 disabled:opacity-50 ${
+            extended ? 'bg-emerald-600' : 'bg-gray-200'
           }`}
         >
           <span
@@ -805,9 +815,9 @@ function DangerZoneSection({ broker }: DangerZoneProps) {
   }
 
   return (
-    <section className="bg-red-50 border border-red-200 rounded-xl p-6">
+    <section className="bg-red-50 border border-red-100 rounded-2xl p-6">
       <h2 className="text-lg font-semibold text-red-600 mb-2 flex items-center gap-2">⚠️ Danger Zone</h2>
-      <p className="text-sm text-slate-600 mb-4">
+      <p className="text-sm text-gray-600 mb-4">
         Permanently delete your account and all associated data. This action cannot be undone.
       </p>
       <button
@@ -821,9 +831,9 @@ function DangerZoneSection({ broker }: DangerZoneProps) {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/30" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-red-600 mb-2">Delete account</h3>
-            <div className="space-y-3 text-sm text-slate-600">
+            <div className="space-y-3 text-sm text-gray-600">
               <p>This will permanently:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Cancel your Stripe subscription</li>
@@ -831,15 +841,15 @@ function DangerZoneSection({ broker }: DangerZoneProps) {
                 <li>Deactivate your form links</li>
                 <li>Remove your account from Quotzal</li>
               </ul>
-              <p className="font-medium text-slate-900 mt-4">
-                Type <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">DELETE</span> to confirm:
+              <p className="font-medium text-gray-900 mt-4">
+                Type <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">DELETE</span> to confirm:
               </p>
               <input
                 type="text"
                 value={confirmation}
                 onChange={(e) => { setConfirmation(e.target.value); setError(''); }}
                 placeholder="DELETE"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-red-400/10 focus:border-red-400 transition-all duration-200"
               />
               {error && <p className="text-red-600 text-xs">{error}</p>}
             </div>
@@ -847,7 +857,7 @@ function DangerZoneSection({ broker }: DangerZoneProps) {
               <button
                 type="button"
                 onClick={() => { setShowModal(false); setConfirmation(''); setError(''); }}
-                className="px-4 py-2 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-100"
+                className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 transition-all text-sm"
               >
                 Cancel
               </button>

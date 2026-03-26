@@ -5,6 +5,7 @@ import type {
   Vehicle,
   CoverageType,
   Driver,
+  FormConfig,
 } from '@/lib/types/intake-form';
 import { VinInput } from './vin-input';
 
@@ -15,6 +16,7 @@ interface VehicleCardProps {
   onChange: (vehicle: Vehicle) => void;
   onRemove?: () => void;
   errors?: Record<string, string>;
+  formConfig?: FormConfig;
 }
 
 const COVERAGE_OPTIONS: { value: CoverageType; label: string }[] = [
@@ -42,7 +44,7 @@ function generateYears(): string[] {
 const YEAR_OPTIONS = generateYears();
 
 const INPUT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
-const SELECT_CLASS = 'w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200';
+const SELECT_CLASS = 'w-full h-11 px-4 pr-10 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 appearance-none bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-[url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236b7280%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E")]';
 const READONLY_CLASS = 'w-full h-11 px-4 text-sm border border-gray-100 rounded-xl text-gray-500 bg-gray-50 focus:outline-none cursor-not-allowed';
 
 interface NHTSAModelResult {
@@ -59,7 +61,12 @@ export function VehicleCard({
   onChange,
   onRemove,
   errors,
+  formConfig,
 }: VehicleCardProps) {
+  const vinEnabled = formConfig?.fields.vin.enabled ?? true;
+  const vinRequired = vinEnabled && (formConfig?.fields.vin.required ?? false);
+  const trimEnabled = formConfig?.fields.trim_package?.enabled ?? true;
+  const coverageTypeEnabled = formConfig?.fields.coverage_type?.enabled ?? true;
   const [models, setModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [modelFetchFailed, setModelFetchFailed] = useState(false);
@@ -186,25 +193,29 @@ export function VehicleCard({
       <div className="p-5 space-y-4">
 
       {/* VIN */}
-      <VinInput
-        value={vehicle.vin}
-        year={vehicle.year}
-        make={vehicle.make}
-        model={vehicle.model}
-        onChange={handleVinChange}
-        error={errors?.vin}
-        required
-      />
+      {vinEnabled && (
+        <>
+          <VinInput
+            value={vehicle.vin}
+            year={vehicle.year}
+            make={vehicle.make}
+            model={vehicle.model}
+            onChange={handleVinChange}
+            error={errors?.vin}
+            required={vinRequired}
+          />
 
-      {/* VIN info box */}
-      {isLocked ? (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-          &#10003; Vehicle confirmed — Year, Make, and Model have been auto-filled from your VIN.
-        </div>
-      ) : (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-          &#128161; Entering your VIN ensures your quote reflects your vehicle&apos;s exact features, safety equipment, and history. Find it on your dashboard (driver&apos;s side) or vehicle registration.
-        </div>
+          {/* VIN info box */}
+          {isLocked ? (
+            <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+              &#10003; Vehicle confirmed — Year, Make, and Model have been auto-filled from your VIN.
+            </div>
+          ) : (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              &#128161; Entering your VIN ensures your quote reflects your vehicle&apos;s exact features, safety equipment, and history. Find it on your dashboard (driver&apos;s side) or vehicle registration.
+            </div>
+          )}
+        </>
       )}
 
       {/* Year / Make / Model */}
@@ -291,18 +302,20 @@ export function VehicleCard({
       </div>
 
       {/* Trim */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Trim / Package <span className="text-slate-400 font-normal">(optional)</span>
-        </label>
-        <input
-          type="text"
-          value={vehicle.trim ?? ''}
-          onChange={(e) => update('trim', e.target.value)}
-          placeholder="e.g. LX, Sport, Limited"
-          className={INPUT_CLASS}
-        />
-      </div>
+      {trimEnabled && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Trim / Package <span className="text-slate-400 font-normal">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={vehicle.trim ?? ''}
+            onChange={(e) => update('trim', e.target.value)}
+            placeholder="e.g. LX, Sport, Limited"
+            className={INPUT_CLASS}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
@@ -322,20 +335,22 @@ export function VehicleCard({
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Coverage Type
-          </label>
-          <select
-            value={vehicle.coverageType}
-            onChange={(e) => update('coverageType', e.target.value)}
-            className={SELECT_CLASS}
-          >
-            {COVERAGE_OPTIONS.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
-          </select>
-        </div>
+        {coverageTypeEnabled && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Coverage Type
+            </label>
+            <select
+              value={vehicle.coverageType}
+              onChange={(e) => update('coverageType', e.target.value)}
+              className={SELECT_CLASS}
+            >
+              {COVERAGE_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
       </div>
     </div>

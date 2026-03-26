@@ -3,7 +3,7 @@ import { escapeHtml } from "@/lib/sanitize";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_ADDRESS = "Quotzal <onboarding@resend.dev>";
+const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || "Quotzal <onboarding@resend.dev>";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://quotzal.com";
 

@@ -5,7 +5,7 @@ interface StepHelpPanelProps {
   insuranceType: string;
 }
 
-export function StepHelpPanel({ currentStep }: StepHelpPanelProps) {
+export function StepHelpPanel({ currentStep, insuranceType }: StepHelpPanelProps) {
   // Step 0 — insurance type selection
   if (currentStep === 0) {
     return (
@@ -78,18 +78,87 @@ export function StepHelpPanel({ currentStep }: StepHelpPanelProps) {
     );
   }
 
-  // Step 2 — drivers
+  // Step 2 — type-specific details
   if (currentStep === 2) {
+    const tipSets: Record<string, { title: string; tips: { icon: string; tip: string }[]; note?: { title: string; text: string } }> = {
+      auto_personal: {
+        title: 'Driver tips',
+        tips: [
+          { icon: '🪪', tip: 'Include anyone who drives the insured vehicle regularly' },
+          { icon: '⚠️', tip: 'Violations in the last 5 years affect your rate — be accurate' },
+          { icon: '✓', tip: 'License number helps your broker get a faster quote' },
+        ],
+        note: { title: 'Violations matter', text: 'Undisclosed violations can cause issues with coverage later. Your broker needs the full picture.' },
+      },
+      auto_commercial: {
+        title: 'Business & driver tips',
+        tips: [
+          { icon: '🏢', tip: 'Your business type affects available coverage options and rates' },
+          { icon: '🪪', tip: 'Include all drivers who operate commercial vehicles' },
+          { icon: '⚠️', tip: 'Violations in the last 5 years affect your fleet rate' },
+        ],
+        note: { title: 'Accurate fleet info helps', text: 'The more detail you provide about your fleet and drivers, the more accurate your quote will be.' },
+      },
+      home: {
+        title: 'Property tips',
+        tips: [
+          { icon: '🏠', tip: 'Accurate square footage and year built help determine replacement cost' },
+          { icon: '🔧', tip: 'Roof age and material significantly impact your premium' },
+          { icon: '🐕', tip: 'Dogs, pools, and trampolines affect liability — be upfront' },
+        ],
+        note: { title: 'Honesty saves hassle', text: 'Undisclosed features can cause claim issues later. Your broker can find the best rate with full information.' },
+      },
+      life: {
+        title: 'Coverage tips',
+        tips: [
+          { icon: '💰', tip: 'A common rule: coverage should be 10–12x your annual income' },
+          { icon: '📋', tip: 'Term life is more affordable; whole life builds cash value' },
+          { icon: '❤️', tip: 'Health conditions may affect rates but rarely disqualify you' },
+        ],
+      },
+      motorcycle: {
+        title: 'Motorcycle tips',
+        tips: [
+          { icon: '🏍️', tip: 'VIN helps your broker verify exact specs and value' },
+          { icon: '🏠', tip: 'Where you store your bike affects theft risk and rates' },
+          { icon: '⚠️', tip: 'Violations in the last 5 years affect your rate — be accurate' },
+        ],
+        note: { title: 'Violations matter', text: 'Undisclosed violations can cause issues with coverage later. Your broker needs the full picture.' },
+      },
+      boat: {
+        title: 'Vessel tips',
+        tips: [
+          { icon: '⛵', tip: 'Your HIN (Hull Identification Number) is like a VIN for boats' },
+          { icon: '🔧', tip: 'Hull material and engine type affect your premium' },
+          { icon: '📍', tip: 'Where you store and use your boat impacts coverage options' },
+        ],
+      },
+      rv: {
+        title: 'RV tips',
+        tips: [
+          { icon: '🚐', tip: 'RV class (A, B, C, travel trailer) determines coverage type' },
+          { icon: '🏠', tip: 'Full-time RV residence may require specialized coverage' },
+          { icon: '⚠️', tip: 'Violations in the last 5 years affect your rate' },
+        ],
+        note: { title: 'Full-timers need more', text: 'Living in your RV full-time means you may need personal property and liability coverage similar to a home policy.' },
+      },
+      other: {
+        title: 'Tips',
+        tips: [
+          { icon: '📝', tip: 'Be as specific as possible about what you need covered' },
+          { icon: '💲', tip: 'Including an estimated value helps your broker prepare options' },
+        ],
+      },
+    };
+
+    const tipSet = tipSets[insuranceType] || tipSets.other!;
+
     return (
       <div className="space-y-4">
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Driver tips</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{tipSet.title}</p>
           <div className="space-y-3">
-            {[
-              { icon: '🪪', tip: 'Include anyone who drives the insured vehicle regularly' },
-              { icon: '⚠️', tip: 'Violations in the last 5 years affect your rate — be accurate' },
-              { icon: '✓', tip: 'License number helps your broker get a faster quote' },
-            ].map((item, i) => (
+            {tipSet.tips.map((item, i) => (
               <div key={i} className="flex items-start gap-2.5">
                 <span className="text-base shrink-0">{item.icon}</span>
                 <p className="text-xs text-gray-500 leading-relaxed">{item.tip}</p>
@@ -98,12 +167,12 @@ export function StepHelpPanel({ currentStep }: StepHelpPanelProps) {
           </div>
         </div>
 
-        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4">
-          <p className="text-xs font-semibold text-amber-800 mb-1">Violations matter</p>
-          <p className="text-xs text-amber-600 leading-relaxed">
-            Undisclosed violations can cause issues with coverage later. Your broker needs the full picture.
-          </p>
-        </div>
+        {tipSet.note && (
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+            <p className="text-xs font-semibold text-amber-800 mb-1">{tipSet.note.title}</p>
+            <p className="text-xs text-amber-600 leading-relaxed">{tipSet.note.text}</p>
+          </div>
+        )}
       </div>
     );
   }

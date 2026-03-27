@@ -4,25 +4,47 @@ interface ProgressBarProps {
   currentStep: number;
   totalSteps: number;
   brandColor?: string | null;
+  insuranceType?: string;
+  /** The raw step index (0-5) before effective step mapping */
+  rawStep?: number;
 }
 
-const STEP_LABELS = [
-  'Insurance Type',
-  'Personal Info',
-  'Drivers',
-  'Vehicles',
-  'Current Insurance',
-  'Review',
-];
+const STEP_2_LABELS: Record<string, string> = {
+  auto_personal: 'Drivers',
+  auto_commercial: 'Business & Drivers',
+  home: 'Property Details',
+  life: 'Coverage Details',
+  motorcycle: 'Motorcycle Details',
+  boat: 'Vessel Details',
+  rv: 'RV Details',
+  other: 'Details',
+};
+
+function getStepLabels(insuranceType?: string): string[] {
+  const detailLabel = (insuranceType && STEP_2_LABELS[insuranceType]) || 'Details';
+  return [
+    'Insurance Type',
+    'Personal Info',
+    detailLabel,
+    'Vehicles',
+    'Current Insurance',
+    'Review',
+  ];
+}
 
 export function ProgressBar({
   currentStep,
   totalSteps,
   brandColor,
+  insuranceType,
+  rawStep,
 }: ProgressBarProps) {
   const percentage = ((currentStep + 1) / totalSteps) * 100;
   const accentColor = brandColor ?? '#059669';
-  const stepLabel = STEP_LABELS[currentStep] ?? '';
+  const stepLabels = getStepLabels(insuranceType);
+  // Use rawStep for label lookup (maps to actual form step), currentStep for progress display
+  const labelIndex = rawStep ?? currentStep;
+  const stepLabel = stepLabels[labelIndex] ?? '';
 
   return (
     <div className="w-full mb-8">

@@ -42,12 +42,35 @@ function Field({ label, value }: { label: string; value: string | undefined }) {
   if (!value) return null;
   return (
     <div className="flex flex-col sm:flex-row sm:gap-2">
-      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider min-w-[140px]">
+      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider min-w-[100px] sm:min-w-[140px]">
         {label}
       </span>
       <span className="text-sm text-gray-900 font-medium">{value}</span>
     </div>
   );
+}
+
+// Format raw enum/snake_case values into readable labels
+const VALUE_LABELS: Record<string, string> = {
+  owned: 'Owned', rented: 'Rented', financed: 'Financed', leased: 'Leased',
+  full: 'Full Coverage', liability_only: 'Liability Only',
+  home_garage: 'Home Garage', storage_unit: 'Storage Unit', outdoor: 'Outdoor',
+  marina: 'Marina', storage_facility: 'Storage Facility', on_trailer: 'On Trailer',
+  rv_park: 'RV Park', home: 'Home',
+  fiberglass: 'Fiberglass', aluminum: 'Aluminum', wood: 'Wood', inflatable: 'Inflatable',
+  asphalt_shingle: 'Asphalt Shingle', metal: 'Metal', tile: 'Tile', flat: 'Flat',
+  class_a: 'Class A', class_b: 'Class B', class_c: 'Class C',
+  travel_trailer: 'Travel Trailer', '5th_wheel': '5th Wheel',
+  term: 'Term', whole: 'Whole Life', not_sure: 'Not Sure',
+  under_100k: 'Under $100K', '100k_250k': '$100K - $250K', '250k_500k': '$250K - $500K',
+  '500k_1m': '$500K - $1M', over_1m: 'Over $1M',
+  spouse: 'Spouse', child: 'Child', parent: 'Parent', sibling: 'Sibling',
+  self: 'Self', yes: 'Yes', no: 'No',
+  male: 'Male', female: 'Female', 'non-binary': 'Non-binary', prefer_not_to_say: 'Prefer not to say',
+};
+
+function formatValue(value: string): string {
+  return VALUE_LABELS[value] ?? value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function renderTypeSpecificSummary(
@@ -61,6 +84,8 @@ function renderTypeSpecificSummary(
     if (value === null || value === undefined || value === '') continue;
     // Skip custom_fields — rendered separately
     if (key === 'custom_fields') continue;
+    // Skip extended_fields — rendered separately
+    if (key === 'extended_fields') continue;
 
     const label = key
       .replace(/([A-Z])/g, ' $1')
@@ -120,7 +145,7 @@ function renderTypeSpecificSummary(
     } else if (typeof value === 'boolean') {
       items.push(<Field key={key} label={label} value={value ? 'Yes' : 'No'} />);
     } else {
-      items.push(<Field key={key} label={label} value={String(value)} />);
+      items.push(<Field key={key} label={label} value={formatValue(String(value))} />);
     }
   }
 

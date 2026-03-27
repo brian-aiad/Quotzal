@@ -543,6 +543,8 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 currentStep={progressStep}
                 totalSteps={effectiveTotalSteps}
                 brandColor={brandColor}
+                insuranceType={insType}
+                rawStep={currentStep}
               />
             </div>
 
@@ -552,6 +554,8 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 currentStep={progressStep}
                 totalSteps={effectiveTotalSteps}
                 brandColor={brandColor}
+                insuranceType={insType}
+                rawStep={currentStep}
               />
             </div>
 

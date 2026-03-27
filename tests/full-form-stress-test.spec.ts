@@ -165,7 +165,8 @@ test.describe('Full Form Stress Test', () => {
 
     // Wait for submission to complete or rate limit message
     await expect(
-      page.getByText(/all set|Thank you|received|too many/i)
+      page.getByRole('heading', { name: /all set|Thank you/i })
+        .or(page.getByText(/too many/i).first())
     ).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'stress-06-thank-you.png'), fullPage: true });

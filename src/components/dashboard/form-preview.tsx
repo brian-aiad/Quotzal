@@ -200,7 +200,7 @@ export function FormPreview({
             <div className="w-20 h-4 bg-black rounded-full" />
           </div>
 
-          <div className="bg-slate-50 rounded-[2rem] overflow-hidden flex flex-col" style={{ height: 600 }}>
+          <div className="bg-slate-50 rounded-[2rem] overflow-hidden flex flex-col h-[600px]">
             {/* Header */}
             <div className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0">
               {brokerBranding.isPro && brokerBranding.logoUrl ? (

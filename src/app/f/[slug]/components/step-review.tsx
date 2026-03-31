@@ -42,7 +42,7 @@ function Field({ label, value }: { label: string; value: string | undefined }) {
   if (!value) return null;
   return (
     <div className="flex flex-col sm:flex-row sm:gap-2">
-      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider min-w-[100px] sm:min-w-[140px]">
+      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider min-w-[100px] sm:min-w-[140px]">
         {label}
       </span>
       <span className="text-sm text-gray-900 font-medium">{value}</span>
@@ -97,7 +97,7 @@ function renderTypeSpecificSummary(
       if (key === 'drivers') {
         items.push(
           <div key={key} className="pt-2">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Drivers ({value.length})
             </span>
             {(value as Array<Record<string, unknown>>).map((d, i) => (
@@ -112,7 +112,7 @@ function renderTypeSpecificSummary(
       } else if (key === 'vehicles') {
         items.push(
           <div key={key} className="pt-2">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Vehicles ({value.length})
             </span>
             {(value as Array<Record<string, unknown>>).map((v, i) => {
@@ -130,7 +130,7 @@ function renderTypeSpecificSummary(
       } else if (key === 'violations') {
         items.push(
           <div key={key} className="pt-2">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Violations ({value.length})
             </span>
             {(value as Array<Record<string, unknown>>).map((v, i) => (

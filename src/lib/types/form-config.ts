@@ -530,11 +530,17 @@ export function extendedToLegacyConfig(
     return val ? val.required : false;
   };
 
+  // Current Insurance step always stays enabled — it has a base "Currently insured?" toggle
+  // that's always present. Individual extended fields (carrier, limits, etc.) are optional additions.
+  // The step visibility is controlled by the TABS_BY_TYPE definition, not individual field toggles.
+  const currentInsuranceFields = (FIELDS_BY_TYPE[type] ?? []).filter(f => f.step === 'current_insurance');
+  const hasCurrentInsuranceTab = currentInsuranceFields.length > 0;
+
   return {
     fields: {
       date_of_birth: { enabled: fieldEnabled('dateOfBirth'), required: fieldRequired('dateOfBirth') },
       phone: { enabled: fieldEnabled('phone'), required: fieldRequired('phone') },
-      current_insurance: { enabled: fieldEnabled('currentCarrier'), required: false },
+      current_insurance: { enabled: hasCurrentInsuranceTab, required: false },
       vin: { enabled: fieldEnabled('vin'), required: fieldRequired('vin') },
       driver_license_number: { enabled: fieldEnabled('licenseNumber'), required: fieldRequired('licenseNumber') },
       marital_status: { enabled: fieldEnabled('maritalStatus'), required: fieldRequired('maritalStatus') },

@@ -28,7 +28,10 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const { data: broker } = await supabase
@@ -38,7 +41,10 @@ export async function GET() {
     .single();
 
   if (!broker) {
-    return NextResponse.json({ error: "Broker not found" }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: "Broker not found", code: "BROKER_NOT_FOUND" },
+      { status: 404 }
+    );
   }
 
   const info: SubscriptionInfo = {
@@ -74,7 +80,10 @@ export async function GET() {
     .order("created_at", { ascending: false })
     .limit(20);
 
-  return NextResponse.json({ subscription: info, payments: payments || [] });
+  return NextResponse.json({
+    success: true,
+    data: { subscription: info, payments: payments || [] },
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -85,7 +94,10 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const { data: broker } = await supabase
@@ -96,7 +108,7 @@ export async function POST(request: NextRequest) {
 
   if (!broker?.stripe_subscription_id) {
     return NextResponse.json(
-      { error: "No active subscription found" },
+      { success: false, error: "No active subscription found", code: "NO_SUBSCRIPTION" },
       { status: 400 }
     );
   }
@@ -109,7 +121,7 @@ export async function POST(request: NextRequest) {
       const targetPlan = body.plan;
       if (!targetPlan || !PLAN_TO_PRICE[targetPlan]) {
         return NextResponse.json(
-          { error: "Invalid plan" },
+          { success: false, error: "Invalid plan", code: "INVALID_PLAN" },
           { status: 400 }
         );
       }
@@ -121,7 +133,7 @@ export async function POST(request: NextRequest) {
 
       if (!currentItem) {
         return NextResponse.json(
-          { error: "No subscription item found" },
+          { success: false, error: "No subscription item found", code: "NO_SUBSCRIPTION_ITEM" },
           { status: 400 }
         );
       }
@@ -130,7 +142,7 @@ export async function POST(request: NextRequest) {
       const currentPlan = PRICE_TO_PLAN[currentItem.price.id];
       if (currentPlan === targetPlan) {
         return NextResponse.json(
-          { error: `Already on the ${targetPlan} plan` },
+          { success: false, error: `Already on the ${targetPlan} plan`, code: "ALREADY_ON_PLAN" },
           { status: 400 }
         );
       }
@@ -166,7 +178,7 @@ export async function POST(request: NextRequest) {
 
     default:
       return NextResponse.json(
-        { error: "Invalid action" },
+        { success: false, error: "Invalid action", code: "INVALID_ACTION" },
         { status: 400 }
       );
   }

@@ -12,7 +12,10 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' },
+      { status: 401 }
+    );
   }
 
   // Fetch broker profile for account status
@@ -23,7 +26,10 @@ export async function GET() {
     .single<{ status: string }>();
 
   if (!broker) {
-    return NextResponse.json({ error: 'Broker not found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: 'Broker not found', code: 'BROKER_NOT_FOUND' },
+      { status: 404 }
+    );
   }
 
   // Fetch all submissions for this broker (RLS enforced)
@@ -39,8 +45,11 @@ export async function GET() {
 
   const stats: DashboardStats = {
     total: rows.length,
-    newCount: rows.filter((r) => r.status === 'new').length,
+    newCount: rows.filter((r) => r.status === 'intake').length,
     thisMonth: rows.filter((r) => r.submitted_at >= monthStart).length,
+    quotedThisMonth: rows.filter(
+      (r) => (r.status === 'quoted' || r.status === 'bound') && r.submitted_at >= monthStart
+    ).length,
     accountStatus: broker.status,
   };
 
@@ -75,5 +84,5 @@ export async function GET() {
     }))
     .sort((a, b) => b.count - a.count);
 
-  return NextResponse.json({ stats, charts: { weekly, byType } });
+  return NextResponse.json({ success: true, data: { stats, charts: { weekly, byType } } });
 }

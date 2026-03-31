@@ -5,7 +5,10 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const { data: broker } = await supabase
@@ -15,7 +18,10 @@ export async function GET() {
     .single();
 
   if (!broker) {
-    return NextResponse.json({ error: "Broker not found" }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: "Broker not found", code: "BROKER_NOT_FOUND" },
+      { status: 404 }
+    );
   }
 
   const { data: links } = await supabase
@@ -25,12 +31,15 @@ export async function GET() {
     .order("is_primary", { ascending: false });
 
   return NextResponse.json({
-    slug: broker.slug,
-    plan: broker.plan,
-    insurance_types_enabled: broker.insurance_types_enabled,
-    form_config: broker.form_config,
-    logo_url: broker.logo_url,
-    brand_color: broker.brand_color,
-    links: links ?? [],
+    success: true,
+    data: {
+      slug: broker.slug,
+      plan: broker.plan,
+      insurance_types_enabled: broker.insurance_types_enabled,
+      form_config: broker.form_config,
+      logo_url: broker.logo_url,
+      brand_color: broker.brand_color,
+      links: links ?? [],
+    },
   });
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import dynamic from "next/dynamic";
-import { useToast } from "@/components/toast";
+import { toast } from "sonner";
 import { buildPreviewSteps } from "@/components/dashboard/form-preview";
 
 const FormPreview = dynamic(
@@ -89,7 +90,6 @@ export default function MyFormPage() {
   const [cfRequired, setCfRequired] = useState(false);
 
   const [togglingType, setTogglingType] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   // Save state with debounce
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -225,7 +225,7 @@ export default function MyFormPage() {
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    showToast("Link copied to clipboard.");
+    toast.success("Link copied to clipboard.");
     setTimeout(() => setCopied(false), 2000);
   }
 
@@ -255,9 +255,9 @@ export default function MyFormPage() {
       if (previewType && !newTypes.includes(previewType) && newTypes.length > 0) {
         setPreviewType(newTypes[0]);
       }
-      showToast("Form updated.");
+      toast.error("Form updated.");
     } else {
-      showToast("Failed to update form.", "error");
+      toast.success("Failed to update form.");
     }
     setTogglingType(null);
   }
@@ -380,7 +380,7 @@ export default function MyFormPage() {
         : [...prev.customFields, field];
       return { ...prev, customFields };
     });
-    showToast("Form updated.");
+    toast.success("Form updated.");
     resetCfForm();
   }
 
@@ -389,7 +389,7 @@ export default function MyFormPage() {
       ...prev,
       customFields: prev.customFields.filter((f) => f.id !== id),
     }));
-    showToast("Form updated.");
+    toast.success("Form updated.");
   }
 
   // ── Global custom fields (applies to 'all') ─────────────
@@ -427,7 +427,8 @@ export default function MyFormPage() {
       setAliasSlug("");
       setAliasLabel("");
       fetchData();
-      showToast(`Alias created. Share: quotzal.com/f/${aliasSlug}`);
+      const domain = (process.env.NEXT_PUBLIC_BASE_URL || "https://quotzal.com").replace(/^https?:\/\//, "");
+      toast.success(`Alias created. Share: ${domain}/f/${aliasSlug}`);
     } else {
       const errData = await res.json();
       setAliasError(errData.error || "Failed to create alias.");
@@ -443,9 +444,9 @@ export default function MyFormPage() {
     });
     fetchData();
     if (res.ok) {
-      showToast(`Link ${active ? "activated" : "deactivated"}.`);
+      toast.error(`Link ${active ? "activated" : "deactivated"}.`);
     } else {
-      showToast("Failed to update link.", "error");
+      toast.success("Failed to update link.");
     }
   }
 
@@ -674,6 +675,17 @@ export default function MyFormPage() {
             ))}
           </div>
         )}
+        {isPro && aliases.length === 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="flex flex-col items-center py-4">
+              <svg className="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M27.656 20.344a8 8 0 00-11.312 0l-8 8a8 8 0 1011.312 11.312l2.204-2.202m-1.516-9.798a8 8 0 0011.312 0l8-8a8 8 0 00-11.312-11.312l-2.2 2.2" />
+              </svg>
+              <p className="text-sm font-medium text-gray-500">No aliases yet.</p>
+              <p className="text-xs text-gray-400 mt-0.5">Create one to track where your leads come from.</p>
+            </div>
+          </div>
+        )}
         {isPro && (
           <button onClick={() => setShowAliasModal(true)} className="mt-2 text-xs text-emerald-600 font-medium hover:text-emerald-700">+ Add alias</button>
         )}
@@ -686,6 +698,74 @@ export default function MyFormPage() {
             <span>for unlimited link aliases</span>
           </div>
         )}
+      </div>
+
+      {/* Share Your Link */}
+      <div className="bg-gray-50 border border-gray-100 rounded-2xl shadow-sm p-6">
+        <h2 className="text-sm font-semibold text-gray-900 mb-4">Share Your Link</h2>
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="shrink-0">
+            <QRCodeSVG
+              id="quotzal-qr-code"
+              value={fullUrl}
+              size={200}
+              fgColor="#059669"
+              bgColor="#ffffff"
+              level="M"
+            />
+          </div>
+          <div className="flex flex-col gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => {
+                const svg = document.getElementById("quotzal-qr-code") as unknown as SVGSVGElement;
+                if (!svg) return;
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const canvas = document.createElement("canvas");
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext("2d");
+                if (!ctx) return;
+                const img = new Image();
+                img.onload = () => {
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(0, 0, 200, 200);
+                  ctx.drawImage(img, 0, 0);
+                  const link = document.createElement("a");
+                  link.download = "quotzal-form-qr.png";
+                  link.href = canvas.toDataURL("image/png");
+                  link.click();
+                };
+                img.src = "data:image/svg+xml;base64," + btoa(svgData);
+              }}
+              className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl h-11 px-5 text-xs transition-all active:scale-[0.98]"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download QR Code
+            </button>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`Fill out my form to get a quote: ${fullUrl}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1fb855] text-white font-semibold rounded-xl h-11 px-5 text-xs transition-all active:scale-[0.98]"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              Share via WhatsApp
+            </a>
+            <a
+              href={`mailto:?subject=${encodeURIComponent(`Get a quote from ${data.slug}`)}&body=${encodeURIComponent(`Fill out this quick form: ${fullUrl}`)}`}
+              className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 text-xs transition-all active:scale-[0.98]"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Share via Email
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Main two-column layout */}
@@ -775,8 +855,7 @@ export default function MyFormPage() {
                     key={step.key}
                     type="button"
                     onClick={() => handlePreviewStepChange(idx)}
-                    className="flex-1 h-1.5 rounded-full transition-colors duration-300 cursor-pointer hover:opacity-80"
-                    style={{ backgroundColor: idx <= clampedIdx ? "#059669" : "#e2e8f0" }}
+                    className={`flex-1 h-1.5 rounded-full transition-colors duration-300 cursor-pointer hover:opacity-80 ${idx <= clampedIdx ? "bg-emerald-600" : "bg-slate-200"}`}
                     title={step.label}
                     aria-label={`Go to step ${idx + 1}: ${step.label}`}
                   />
@@ -831,17 +910,17 @@ export default function MyFormPage() {
                     {currentStepKey === "type" && (
                       <>
                         <p className="text-sm font-medium text-gray-700 mb-1">Insurance Type Selection</p>
-                        <p className="text-xs text-gray-400">Clients choose their insurance type on this step. Enable/disable types in the grid above.</p>
+                        <p className="text-xs text-gray-500">Clients choose their insurance type on this step. Enable/disable types in the grid above.</p>
                       </>
                     )}
                     {currentStepKey === "review" && (
                       <>
                         <p className="text-sm font-medium text-gray-700 mb-1">Review & Submit</p>
-                        <p className="text-xs text-gray-400">Clients review all their information before submitting. This step is auto-generated.</p>
+                        <p className="text-xs text-gray-500">Clients review all their information before submitting. This step is auto-generated.</p>
                       </>
                     )}
                     {!currentStepKey && (
-                      <p className="text-xs text-gray-400">Navigate to a step to configure its fields.</p>
+                      <p className="text-xs text-gray-500">Navigate to a step to configure its fields.</p>
                     )}
                     <button
                       type="button"
@@ -923,11 +1002,11 @@ export default function MyFormPage() {
               <div className="px-6 py-4">
                 {/* New fields info banner */}
                 {showNewFieldsBanner && (
-                  <div className="mb-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                    <p className="text-xs text-blue-700">We&apos;ve added new optional fields. They&apos;re off by default.</p>
+                  <div className="mb-4 flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                    <p className="text-xs text-emerald-700">We&apos;ve added new optional fields. They&apos;re off by default.</p>
                     <button
                       onClick={dismissNewFieldsBanner}
-                      className="text-blue-400 hover:text-blue-600 ml-2 shrink-0"
+                      className="text-emerald-400 hover:text-emerald-600 ml-2 shrink-0"
                       aria-label="Dismiss"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1018,7 +1097,7 @@ export default function MyFormPage() {
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    <p className="text-sm text-gray-400">No configurable fields for this step</p>
+                    <p className="text-sm text-gray-500">No configurable fields for this step</p>
                   </div>
                 )}
 
@@ -1027,6 +1106,15 @@ export default function MyFormPage() {
                   <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2">
                     Custom Fields for this step
                   </p>
+                  {perTypeCustomFields.length === 0 && !showCfForm && (
+                    <div className="flex flex-col items-center py-4 mb-3">
+                      <svg className="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 8h16M8 16h32M8 24h32M8 32h32M16 40h16" />
+                      </svg>
+                      <p className="text-sm font-medium text-gray-500">No custom fields yet.</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Add one to collect extra info.</p>
+                    </div>
+                  )}
                   {perTypeCustomFields.length > 0 && (
                     <div className="space-y-1.5 mb-3">
                       {perTypeCustomFields.map((cf) => (
@@ -1124,7 +1212,7 @@ export default function MyFormPage() {
                         <button
                           onClick={() => saveCf(activeTab, configuringType)}
                           disabled={!cfLabel.trim()}
-                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 transition-colors"
+                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 active:scale-[0.98] transition-all"
                         >
                           {editingCfId ? "Update" : "Add Field"}
                         </button>
@@ -1177,8 +1265,11 @@ export default function MyFormPage() {
 
             {globalCustomFields.length === 0 && (
               <div className="border-2 border-dashed border-gray-200 rounded-xl px-4 py-6 text-center mb-3">
-                <p className="text-sm text-gray-500 mb-1">No global custom fields yet</p>
-                <p className="text-xs text-gray-400">These fields appear for all insurance types</p>
+                <svg className="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 8h16M8 16h32M8 24h32M8 32h32M16 40h16" />
+                </svg>
+                <p className="text-sm font-medium text-gray-500 mb-0.5">No custom fields yet.</p>
+                <p className="text-xs text-gray-400">Add one to collect extra info from your clients.</p>
               </div>
             )}
 
@@ -1274,7 +1365,7 @@ export default function MyFormPage() {
                   <button
                     onClick={() => saveCf(activeTab, "all")}
                     disabled={!cfLabel.trim()}
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 transition-colors"
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 active:scale-[0.98] transition-all"
                   >
                     {editingCfId ? "Update" : "Add Field"}
                   </button>
@@ -1334,7 +1425,7 @@ export default function MyFormPage() {
       <button
         type="button"
         onClick={() => setShowMobilePreview(true)}
-        className="lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-emerald-600 text-white font-semibold rounded-full shadow-lg hover:bg-emerald-700 transition-all"
+        className="lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-emerald-600 text-white font-semibold rounded-full shadow-lg hover:bg-emerald-700 active:scale-[0.98] transition-all"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1378,7 +1469,7 @@ export default function MyFormPage() {
                 <button
                   onClick={createAlias}
                   disabled={creatingAlias}
-                  className="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 transition-colors"
+                  className="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-medium disabled:opacity-50 hover:bg-emerald-700 active:scale-[0.98] transition-all"
                 >
                   {creatingAlias ? "Creating..." : "Create"}
                 </button>

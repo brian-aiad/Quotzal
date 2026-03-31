@@ -227,7 +227,7 @@ export default function MarketingPage() {
                   <div className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight tabular-nums">
                     {stat.number}
                   </div>
-                  <div className="text-xs text-gray-500 mt-0.5 uppercase tracking-wide">
+                  <div className="text-xs text-gray-500 mt-0.5 uppercase tracking-wider">
                     {stat.label}
                   </div>
                 </div>
@@ -680,10 +680,10 @@ export default function MarketingPage() {
                 {[
                   "1 intake form link",
                   "All 8 insurance types",
-                  "Dashboard & email notifications",
-                  "CSV export",
-                  "12-month data retention",
-                  "Powered by Quotzal branding",
+                  "Submission inbox & email alerts",
+                  "Export to Excel",
+                  "Keep records for 12 months",
+                  "Quotzal branding on your form",
                   "30-day free trial",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5">
@@ -698,7 +698,7 @@ export default function MarketingPage() {
                 href="/signup?plan=starter"
                 className="block w-full text-center border-2 border-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-colors text-sm"
               >
-                Start Free Trial
+                Start free — no card required
               </Link>
             </div>
 
@@ -720,8 +720,8 @@ export default function MarketingPage() {
                   "Unlimited link aliases",
                   "White label (your logo & colors)",
                   "Renewal reminders",
-                  "PDF export",
-                  "24-month data retention",
+                  "Export to PDF",
+                  "Keep records for 24 months",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5">
                     <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -738,6 +738,58 @@ export default function MarketingPage() {
                 Start Free Trial
               </Link>
             </div>
+          </div>
+
+          {/* Comparison table */}
+          <div className="mt-10 max-w-2xl mx-auto overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 pr-4 font-semibold text-gray-900">Feature</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Starter</th>
+                  <th className="text-center py-3 pl-4 font-semibold text-emerald-600">Pro</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {([
+                  ["Intake form link", "1 link", "Unlimited aliases"],
+                  ["All 8 insurance types", true, true],
+                  ["Submission inbox & email alerts", true, true],
+                  ["Export to Excel (CSV)", true, true],
+                  ["Export to PDF", false, true],
+                  ["White label branding", false, true],
+                  ["Renewal reminders", false, true],
+                  ["Data retention", "12 months", "24 months"],
+                  ["Quotzal branding removed", false, true],
+                ] as [string, string | boolean, string | boolean][]).map(([feature, starter, pro]) => (
+                  <tr key={feature}>
+                    <td className="py-2.5 pr-4 text-gray-600">{feature}</td>
+                    <td className="py-2.5 px-4 text-center">
+                      {typeof starter === "boolean" ? (
+                        starter ? (
+                          <span className="text-emerald-500 font-bold">&#10003;</span>
+                        ) : (
+                          <span className="text-gray-300 font-bold">&#10005;</span>
+                        )
+                      ) : (
+                        <span className="text-gray-600">{starter}</span>
+                      )}
+                    </td>
+                    <td className="py-2.5 pl-4 text-center">
+                      {typeof pro === "boolean" ? (
+                        pro ? (
+                          <span className="text-emerald-500 font-bold">&#10003;</span>
+                        ) : (
+                          <span className="text-gray-300 font-bold">&#10005;</span>
+                        )
+                      ) : (
+                        <span className="text-gray-600">{pro}</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
@@ -783,7 +835,7 @@ export default function MarketingPage() {
               />
               <FaqItem
                 question="Can I cancel anytime?"
-                answer="Absolutely. No contracts, no cancellation fees. Cancel from your dashboard and your link simply deactivates at the end of your billing period."
+                answer="No contracts, no cancellation fees. Cancel from your dashboard and your link deactivates at the end of your billing period."
               />
               <FaqItem
                 question="Does it work on mobile?"

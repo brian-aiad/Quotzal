@@ -94,7 +94,8 @@ export async function PUT(
 
   const { error } = await admin.from("brokers").update(updates).eq("id", id);
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("admin/brokers/[id] PUT error:", error);
+    return NextResponse.json({ error: "An internal error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

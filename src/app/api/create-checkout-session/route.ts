@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const body = (await request.json()) as { plan: string };
@@ -24,7 +27,7 @@ export async function POST(request: NextRequest) {
 
   if (!priceId) {
     return NextResponse.json(
-      { error: "Invalid plan" },
+      { success: false, error: "Invalid plan", code: "INVALID_PLAN" },
       { status: 400 }
     );
   }
@@ -39,7 +42,7 @@ export async function POST(request: NextRequest) {
 
   if (fetchError || !broker?.stripe_customer_id) {
     return NextResponse.json(
-      { error: "Stripe customer not found. Complete onboarding first." },
+      { success: false, error: "Stripe customer not found. Complete onboarding first.", code: "NO_STRIPE_CUSTOMER" },
       { status: 400 }
     );
   }
@@ -60,5 +63,5 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json({ success: true, data: { url: session.url } });
 }

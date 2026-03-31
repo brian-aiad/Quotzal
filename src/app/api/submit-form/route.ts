@@ -7,6 +7,15 @@ import {
 import type { SubmissionEmailData } from '@/lib/emails';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { sanitizeText } from '@/lib/sanitize';
+import {
+  MAX_NAME_LENGTH,
+  MAX_EMAIL_LENGTH,
+  MAX_PHONE_LENGTH,
+  VIN_LENGTH,
+  MAX_ADDRESS_LENGTH,
+  MAX_NOTES_LENGTH,
+  MAX_CARRIER_NAME_LENGTH,
+} from '@/lib/constants';
 
 interface SubmitFormBody {
   brokerId: string;
@@ -39,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     if (!allowed) {
       return NextResponse.json(
-        { error: 'Too many submissions. Please try again later.' },
+        { success: false, error: 'Too many submissions. Please try again later.', code: 'RATE_LIMITED' },
         { status: 429 }
       );
     }
@@ -64,19 +73,85 @@ export async function POST(request: NextRequest) {
       !personalInfo.email
     ) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { success: false, error: 'Missing required fields', code: 'MISSING_FIELDS' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(personalInfo.email)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid email format', code: 'INVALID_EMAIL' },
+        { status: 400 }
+      );
+    }
+
+    // Validate input lengths
+    if (personalInfo.firstName.length > MAX_NAME_LENGTH || personalInfo.lastName.length > MAX_NAME_LENGTH) {
+      return NextResponse.json(
+        { success: false, error: `Name must be ${MAX_NAME_LENGTH} characters or less`, code: 'NAME_TOO_LONG' },
+        { status: 400 }
+      );
+    }
+    if (personalInfo.email.length > MAX_EMAIL_LENGTH) {
+      return NextResponse.json(
+        { success: false, error: `Email must be ${MAX_EMAIL_LENGTH} characters or less`, code: 'EMAIL_TOO_LONG' },
+        { status: 400 }
+      );
+    }
+    if (personalInfo.phone && personalInfo.phone.length > MAX_PHONE_LENGTH) {
+      return NextResponse.json(
+        { success: false, error: `Phone must be ${MAX_PHONE_LENGTH} characters or less`, code: 'PHONE_TOO_LONG' },
+        { status: 400 }
+      );
+    }
+
+    // Validate VIN if present in type-specific data
+    const vinValue = typeSpecificData?.vin as string | undefined;
+    if (vinValue && vinValue.length !== VIN_LENGTH) {
+      return NextResponse.json(
+        { success: false, error: `VIN must be exactly ${VIN_LENGTH} characters`, code: 'INVALID_VIN' },
+        { status: 400 }
+      );
+    }
+
+    // Validate address fields in type-specific data
+    const addressFields = ['address', 'garaging_address', 'property_address'] as const;
+    for (const field of addressFields) {
+      const val = typeSpecificData?.[field] as string | undefined;
+      if (val && val.length > MAX_ADDRESS_LENGTH) {
+        return NextResponse.json(
+          { success: false, error: `Address must be ${MAX_ADDRESS_LENGTH} characters or less`, code: 'ADDRESS_TOO_LONG' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate notes in type-specific data
+    const notesValue = typeSpecificData?.notes as string | undefined;
+    if (notesValue && notesValue.length > MAX_NOTES_LENGTH) {
+      return NextResponse.json(
+        { success: false, error: `Notes must be ${MAX_NOTES_LENGTH} characters or less`, code: 'NOTES_TOO_LONG' },
+        { status: 400 }
+      );
+    }
+
+    if (currentInsurance.currentCarrier && currentInsurance.currentCarrier.length > MAX_CARRIER_NAME_LENGTH) {
+      return NextResponse.json(
+        { success: false, error: `Carrier name must be ${MAX_CARRIER_NAME_LENGTH} characters or less`, code: 'CARRIER_TOO_LONG' },
         { status: 400 }
       );
     }
 
     // Sanitize text inputs
-    const firstName = sanitizeText(personalInfo.firstName, 100);
-    const lastName = sanitizeText(personalInfo.lastName, 100);
-    const email = sanitizeText(personalInfo.email, 254);
-    const phone = sanitizeText(personalInfo.phone || '', 20);
+    const firstName = sanitizeText(personalInfo.firstName, MAX_NAME_LENGTH);
+    const lastName = sanitizeText(personalInfo.lastName, MAX_NAME_LENGTH);
+    const email = sanitizeText(personalInfo.email, MAX_EMAIL_LENGTH);
+    const phone = sanitizeText(personalInfo.phone || '', MAX_PHONE_LENGTH);
     const dateOfBirth = sanitizeText(personalInfo.dateOfBirth || '', 10);
-    const currentCarrier = sanitizeText(currentInsurance.currentCarrier || '', 200);
-    const currentLimits = sanitizeText(currentInsurance.currentCoverageLimits || '', 200);
+    const currentCarrier = sanitizeText(currentInsurance.currentCarrier || '', MAX_CARRIER_NAME_LENGTH);
+    const currentLimits = sanitizeText(currentInsurance.currentCoverageLimits || '', MAX_CARRIER_NAME_LENGTH);
     const policyExpiry = sanitizeText(currentInsurance.policyExpiryDate || '', 10);
 
     const supabase = createAdminClient();
@@ -90,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     if (!broker) {
       return NextResponse.json(
-        { error: 'Broker not found' },
+        { success: false, error: 'Broker not found', code: 'BROKER_NOT_FOUND' },
         { status: 404 }
       );
     }
@@ -118,7 +193,7 @@ export async function POST(request: NextRequest) {
 
     if (insertError || !inserted) {
       return NextResponse.json(
-        { error: 'Failed to save submission' },
+        { success: false, error: 'Failed to save submission', code: 'INSERT_FAILED' },
         { status: 500 }
       );
     }
@@ -153,7 +228,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error', code: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

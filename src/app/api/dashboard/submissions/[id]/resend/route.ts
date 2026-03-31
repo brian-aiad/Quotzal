@@ -18,7 +18,10 @@ export async function POST(
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
     }
 
     // Fetch submission (RLS enforces broker owns it)
@@ -29,7 +32,10 @@ export async function POST(
       .single<{ email: string; first_name: string; link_id: string }>();
 
     if (!submission) {
-      return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Submission not found', code: 'NOT_FOUND' },
+        { status: 404 }
+      );
     }
 
     // Fetch the link slug
@@ -40,7 +46,10 @@ export async function POST(
       .single<{ slug: string }>();
 
     if (!link) {
-      return NextResponse.json({ error: 'Form link not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Form link not found', code: 'LINK_NOT_FOUND' },
+        { status: 404 }
+      );
     }
 
     // Fetch broker name
@@ -72,6 +81,9 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: 'Failed to resend email' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to resend email', code: 'SEND_FAILED' },
+      { status: 500 }
+    );
   }
 }

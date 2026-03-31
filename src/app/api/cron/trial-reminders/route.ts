@@ -1,14 +1,24 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendTrialEndingEmail } from "@/lib/emails";
 
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+export async function POST(request: NextRequest) {
+  const authHeader = request.headers.get("authorization") ?? "";
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const expected = `Bearer ${secret}`;
+  const authorized =
+    authHeader.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
+  if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const supabase = createAdminClient();
+  const errors: string[] = [];
 
   const { data: trialingBrokers, error } = await supabase
     .from("brokers")
@@ -17,11 +27,15 @@ export async function GET(request: NextRequest) {
     .not("trial_ends_at", "is", null);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("trial-reminders error:", error);
+    return NextResponse.json(
+      { success: false, processed: 0, errors: [error.message] },
+      { status: 500 }
+    );
   }
 
   const now = new Date();
-  let sentCount = 0;
+  let processed = 0;
 
   for (const broker of trialingBrokers ?? []) {
     const trialEnd = new Date(broker.trial_ends_at);
@@ -31,30 +45,41 @@ export async function GET(request: NextRequest) {
     const remindDays = [7, 3, 1];
     if (!remindDays.includes(daysLeft)) continue;
 
-    const sentReminders: number[] = (broker.sent_trial_reminders as number[]) ?? [];
+    const sentReminders: number[] =
+      (broker.sent_trial_reminders as number[]) ?? [];
     if (sentReminders.includes(daysLeft)) continue;
 
-    // Get submission count for context in email
-    const { count } = await supabase
-      .from("submissions")
-      .select("*", { count: "exact", head: true })
-      .eq("broker_id", broker.id);
+    try {
+      // Get submission count for context in email
+      const { count } = await supabase
+        .from("submissions")
+        .select("*", { count: "exact", head: true })
+        .eq("broker_id", broker.id);
 
-    await sendTrialEndingEmail(
-      broker.email,
-      broker.brokerage_name,
-      daysLeft,
-      count ?? 0
-    );
+      await sendTrialEndingEmail(
+        broker.email,
+        broker.brokerage_name,
+        daysLeft,
+        count ?? 0
+      );
 
-    const updatedReminders = [...sentReminders, daysLeft];
-    await supabase
-      .from("brokers")
-      .update({ sent_trial_reminders: updatedReminders })
-      .eq("id", broker.id);
+      const updatedReminders = [...sentReminders, daysLeft];
+      await supabase
+        .from("brokers")
+        .update({ sent_trial_reminders: updatedReminders })
+        .eq("id", broker.id);
 
-    sentCount++;
+      processed++;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unknown error";
+      errors.push(`broker ${broker.id}: ${message}`);
+    }
   }
 
-  return NextResponse.json({ success: true, sent: sentCount });
+  return NextResponse.json({ success: errors.length === 0, processed, errors });
+}
+
+export async function GET() {
+  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }

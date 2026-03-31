@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
-import { useToast } from '@/components/toast';
+import { toast } from 'sonner';
 
 interface SubscriptionInfo {
   plan: 'starter' | 'pro';
@@ -39,7 +39,6 @@ export default function BillingPage() {
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const { showToast } = useToast();
   const searchParams = useSearchParams();
 
   const supabase = createBrowserClient(
@@ -51,10 +50,10 @@ export default function BillingPage() {
   useEffect(() => {
     const success = searchParams.get('success');
     if (success === 'true') {
-      showToast('Plan updated successfully.');
+      toast.success('Plan updated successfully.');
       window.history.replaceState({}, '', '/dashboard/billing');
     }
-  }, [searchParams, showToast]);
+  }, [searchParams]);
 
   const loadData = useCallback(async () => {
     const res = await fetch('/api/billing/subscription');
@@ -129,8 +128,8 @@ export default function BillingPage() {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Billing</h1>
 
-      <PlanCard subscription={subscription} showToast={showToast} onUpdate={loadData} />
-      <PaymentActions subscription={subscription} showToast={showToast} onUpdate={loadData} />
+      <PlanCard subscription={subscription} onUpdate={loadData} />
+      <PaymentActions subscription={subscription} onUpdate={loadData} />
       <PaymentHistory payments={payments} />
     </div>
   );
@@ -142,11 +141,10 @@ export default function BillingPage() {
 
 interface PlanCardProps {
   subscription: SubscriptionInfo;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
   onUpdate: () => Promise<void>;
 }
 
-function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
+function PlanCard({ subscription, onUpdate }: PlanCardProps) {
   const [managingPayment, setManagingPayment] = useState(false);
 
   async function handleManagePayment() {
@@ -157,7 +155,7 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
       const data = await res.json();
       window.location.href = data.url;
     } else {
-      showToast('Failed to open billing portal', 'error');
+      toast.error('Failed to open billing portal');
       setManagingPayment(false);
     }
   }
@@ -225,11 +223,10 @@ function PlanCard({ subscription, showToast, onUpdate }: PlanCardProps) {
 
 interface PaymentActionsProps {
   subscription: SubscriptionInfo;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
   onUpdate: () => Promise<void>;
 }
 
-function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsProps) {
+function PaymentActions({ subscription, onUpdate }: PaymentActionsProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showDowngradeModal, setShowDowngradeModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -250,13 +247,13 @@ function PaymentActions({ subscription, showToast, onUpdate }: PaymentActionsPro
         cancel: 'Subscription will cancel at end of billing period.',
         reactivate: 'Subscription reactivated!',
       };
-      showToast(messages[action] || 'Updated successfully');
+      toast.error(messages[action] || 'Updated successfully');
       setShowUpgradeModal(false);
       setShowDowngradeModal(false);
       setShowCancelModal(false);
       await onUpdate();
     } else {
-      showToast('Failed to update subscription. Please try again.', 'error');
+      toast.success('Failed to update subscription. Please try again.');
     }
     setProcessing(false);
   }
@@ -405,7 +402,7 @@ function PaymentHistory({ payments }: PaymentHistoryProps) {
           <svg className="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          <p className="text-sm text-gray-500">No payments yet — your first charge will appear here after your trial ends.</p>
+          <p className="text-sm font-medium text-gray-500">Your first payment receipt will show here after your trial ends.</p>
         </div>
       </section>
     );

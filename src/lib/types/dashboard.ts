@@ -2,7 +2,7 @@
 // Dashboard Types
 // ============================================================
 
-export type SubmissionStatus = 'new' | 'reviewed' | 'archived';
+export type SubmissionStatus = 'intake' | 'reviewing' | 'quoted' | 'bound' | 'declined' | 'archived';
 
 export interface SubmissionRow {
   id: string;
@@ -20,6 +20,7 @@ export interface SubmissionRow {
   current_carrier: string | null;
   current_limits: string | null;
   policy_expiry: string | null;
+  tags: Array<{ text: string; color: string }> | null;
   form_data: Record<string, unknown>;
   submitted_at: string;
 }
@@ -46,6 +47,7 @@ export interface DashboardStats {
   total: number;
   newCount: number;
   thisMonth: number;
+  quotedThisMonth: number;
   accountStatus: string;
 }
 

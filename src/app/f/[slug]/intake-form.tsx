@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import Script from 'next/script';
 import type {
   BrokerData,
@@ -17,6 +18,7 @@ import type {
   CustomField,
   CustomFieldType,
 } from '@/lib/types/intake-form';
+import { AnimatePresence, motion } from 'framer-motion';
 import { QuotzalLogo } from '@/components/ui/logo';
 import { ProgressBar } from './components/progress-bar';
 import { StepHelpPanel } from './components/step-help-panel';
@@ -187,6 +189,8 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   const [driverErrors, setDriverErrors] = useState<DriverErrors>({});
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
   const [extraFields, setExtraFields] = useState<Record<string, string>>({});
+  const [direction, setDirection] = useState(1);
+  const [lastSaved, setLastSaved] = useState<number | null>(null);
 
   // Auto-select if only 1 insurance type is enabled
   const singleType = broker.insuranceTypesEnabled.length === 1 ? broker.insuranceTypesEnabled[0] : null;
@@ -204,6 +208,31 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       setCurrentStep(1);
     }
   }, [singleType, currentStep]);
+
+  // Auto-save form progress to localStorage
+  const saveProgress = useCallback(() => {
+    if (preview) return;
+    try {
+      localStorage.setItem(
+        `quotzal_progress_${broker.id}`,
+        JSON.stringify({ formData, customFieldValues, extraFields, currentStep })
+      );
+      setLastSaved(Date.now());
+    } catch {
+      // localStorage may be unavailable
+    }
+  }, [formData, customFieldValues, extraFields, currentStep, broker.id, preview]);
+
+  useEffect(() => {
+    saveProgress();
+  }, [saveProgress]);
+
+  // Clear "Progress saved" after 3 seconds
+  useEffect(() => {
+    if (lastSaved === null) return;
+    const timer = setTimeout(() => setLastSaved(null), 3000);
+    return () => clearTimeout(timer);
+  }, [lastSaved]);
 
   const isPro =
     broker.plan === 'pro' &&
@@ -232,6 +261,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   );
 
   function handleNext() {
+    setDirection(1);
     // Step 0: Insurance Type
     if (currentStep === 0 && !formData.insuranceType) return;
 
@@ -296,6 +326,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   }
 
   function handleBack() {
+    setDirection(-1);
     // Clear all error state when navigating back
     setPersonalInfoErrors({});
     setTypeSpecificError('');
@@ -315,6 +346,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   }
 
   function handleEditFromReview(step: number) {
+    setDirection(step < currentStep ? -1 : 1);
     setCurrentStep(step);
   }
 
@@ -397,6 +429,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
 
   if (submitted) {
     const firstName = formData.personalInfo.firstName;
+    const formUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <style>{`
@@ -482,6 +515,19 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               </div>
             </div>
 
+            {/* Referral QR code */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm text-center">
+              <QRCodeSVG
+                value={formUrl}
+                size={160}
+                fgColor="#059669"
+                bgColor="#ffffff"
+                level="M"
+                className="mx-auto"
+              />
+              <p className="text-sm text-gray-600 mt-3">Know someone who needs a quote? Scan this.</p>
+            </div>
+
             <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mt-6">
               <QuotzalLogo size="xs" variant="icon" />
               <span>Powered by Quotzal</span>
@@ -493,6 +539,38 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
   }
 
   const hasHomeType = broker.insuranceTypesEnabled.includes('home');
+
+  // Smart continue: compute first unfilled field for current step
+  function getFirstUnfilledField(): string | null {
+    if (currentStep === 0) {
+      if (!formData.insuranceType) return 'insurance type';
+      return null;
+    }
+    if (currentStep === 1) {
+      const pi = formData.personalInfo;
+      if (!pi.firstName.trim()) return 'first name';
+      if (!pi.lastName.trim()) return 'last name';
+      if (fc.fields.date_of_birth.enabled && fc.fields.date_of_birth.required && !pi.dateOfBirth) return 'date of birth';
+      if (fc.fields.phone.enabled && fc.fields.phone.required && (!pi.phone || pi.phone.replace(/\D/g, '').length < 10)) return 'phone number';
+      if (!pi.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pi.email)) return 'email';
+      for (const cf of visibleCustomFields) {
+        if (cf.required && !customFieldValues[cf.id]?.trim()) return cf.label;
+      }
+      return null;
+    }
+    if (currentStep === 2) {
+      if (!formData.typeSpecificData) return 'required details';
+      if (insType === 'other') {
+        const otherData = formData.typeSpecificData as OtherData;
+        if (!otherData.description?.trim()) return 'description';
+      }
+      return null;
+    }
+    return null;
+  }
+
+  const firstUnfilledField = getFirstUnfilledField();
+  const isContinueDisabled = currentStep === 0 ? !formData.insuranceType : !!firstUnfilledField;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -574,7 +652,15 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 relative overflow-x-hidden">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={currentStep}
+                initial={{ x: direction > 0 ? '50%' : '-50%', opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction > 0 ? '-50%' : '50%', opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
             {/* Step 0: Insurance Type */}
             {currentStep === 0 && (
               <StepInsuranceType
@@ -617,12 +703,20 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                           />
                         )}
                         {cf.type === 'textarea' && (
-                          <textarea
-                            value={customFieldValues[cf.id] ?? ''}
-                            onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
-                            rows={3}
-                            className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 resize-none"
-                          />
+                          <>
+                            <textarea
+                              value={customFieldValues[cf.id] ?? ''}
+                              onChange={(e) => setCustomFieldValues({ ...customFieldValues, [cf.id]: e.target.value })}
+                              rows={3}
+                              maxLength={2000}
+                              className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 resize-none"
+                            />
+                            <p className={`text-xs text-right mt-1 ${
+                              (customFieldValues[cf.id] ?? '').length > 1900 ? 'text-red-500' : (customFieldValues[cf.id] ?? '').length > 1600 ? 'text-amber-500' : 'text-gray-400'
+                            }`}>
+                              {(customFieldValues[cf.id] ?? '').length} / 2000
+                            </p>
+                          </>
                         )}
                         {cf.type === 'select' && (
                           <select
@@ -753,6 +847,27 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               </>
             )}
 
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Progress saved indicator */}
+            <AnimatePresence>
+              {lastSaved !== null && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  className="flex items-center gap-1.5 text-xs text-gray-400"
+                >
+                  <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Progress saved</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             </div>
 
             {/* Mobile bottom padding */}
@@ -776,9 +891,11 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
                 <button
                   type="button"
                   onClick={handleNext}
-                  disabled={currentStep === 0 && !formData.insuranceType}
-                  className="flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: accentColor }}
+                  disabled={isContinueDisabled}
+                  className={`flex-1 h-12 text-sm font-semibold text-white rounded-xl transition-all duration-200 shadow-sm ${
+                    isContinueDisabled ? 'bg-gray-300 cursor-not-allowed' : ''
+                  }`}
+                  style={isContinueDisabled ? undefined : { backgroundColor: accentColor }}
                 >
                   Continue →
                 </button>
@@ -802,6 +919,12 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               )}
             </div>
 
+            {firstUnfilledField && currentStep < TOTAL_STEPS - 1 && (
+              <p className="mt-2 text-xs text-gray-400 text-center">
+                Fill in {firstUnfilledField} to continue
+              </p>
+            )}
+
             {submitError && (
               <p className="mt-2 text-xs text-red-500 text-center">{submitError}</p>
             )}
@@ -823,7 +946,7 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
       </main>
 
       {/* MOBILE ONLY — Sticky bottom navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(16px,env(safe-area-inset-bottom))]">
         <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             {currentStep > 0 ? (
@@ -840,9 +963,11 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={currentStep === 0 && !formData.insuranceType}
-                className="flex-1 h-12 text-base font-semibold text-white rounded-xl transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ backgroundColor: accentColor }}
+                disabled={isContinueDisabled}
+                className={`flex-1 h-12 text-base font-semibold text-white rounded-xl transition-all duration-200 shadow-sm ${
+                  isContinueDisabled ? 'bg-gray-300 cursor-not-allowed' : ''
+                }`}
+                style={isContinueDisabled ? undefined : { backgroundColor: accentColor }}
               >
                 Continue →
               </button>
@@ -865,6 +990,12 @@ export function IntakeForm({ broker, preview = false }: IntakeFormProps) {
               </button>
             )}
           </div>
+
+          {firstUnfilledField && currentStep < TOTAL_STEPS - 1 && (
+            <p className="mt-1.5 text-xs text-gray-400 text-center">
+              Fill in {firstUnfilledField} to continue
+            </p>
+          )}
 
           {submitError && (
             <p className="mt-2 text-xs text-red-500 text-center">{submitError}</p>

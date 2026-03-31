@@ -158,8 +158,10 @@ export function LifeFields({ data, onChange }: LifeFieldsProps) {
                 placeholder="Please describe..."
                 className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 resize-none"
               />
-              <p className="text-xs text-slate-400 text-right">
-                {(data.healthConditionsDescription ?? '').length}/300
+              <p className={`text-xs text-right mt-1 ${
+                (data.healthConditionsDescription ?? '').length > 285 ? 'text-red-500' : (data.healthConditionsDescription ?? '').length > 240 ? 'text-amber-500' : 'text-gray-400'
+              }`}>
+                {(data.healthConditionsDescription ?? '').length} / 300
               </p>
             </div>
           )}

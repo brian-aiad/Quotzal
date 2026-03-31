@@ -5,12 +5,18 @@ export async function PUT(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const { linkId, isActive } = await request.json();
   if (!linkId) {
-    return NextResponse.json({ error: "linkId required" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "linkId required", code: "MISSING_FIELDS" },
+      { status: 400 }
+    );
   }
 
   const { error } = await supabase
@@ -21,7 +27,11 @@ export async function PUT(request: NextRequest) {
     .eq("is_primary", false);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("dashboard/form/toggle-alias PUT error:", error);
+    return NextResponse.json(
+      { success: false, error: "An internal error occurred", code: "UPDATE_FAILED" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ success: true });

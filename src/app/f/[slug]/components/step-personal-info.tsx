@@ -4,6 +4,7 @@ import type { PersonalInfo, FormConfig, InsuranceType } from '@/lib/types/intake
 import type { ExtendedFormConfig, FieldToggle } from '@/lib/types/form-config';
 import { getTypeConfig } from '@/lib/types/form-config';
 import { PhoneInput } from './shared/phone-input';
+import { MAX_NAME_LENGTH, MAX_EMAIL_LENGTH } from '@/lib/constants';
 
 interface StepPersonalInfoProps {
   data: PersonalInfo;
@@ -73,6 +74,7 @@ export function StepPersonalInfo({
               id="firstName"
               type="text"
               autoComplete="given-name"
+              maxLength={MAX_NAME_LENGTH}
               value={data.firstName}
               onChange={(e) => update('firstName', e.target.value)}
               className={`${INPUT_CLASS} ${
@@ -95,6 +97,7 @@ export function StepPersonalInfo({
               id="lastName"
               type="text"
               autoComplete="family-name"
+              maxLength={MAX_NAME_LENGTH}
               value={data.lastName}
               onChange={(e) => update('lastName', e.target.value)}
               className={`${INPUT_CLASS} ${
@@ -151,6 +154,7 @@ export function StepPersonalInfo({
             id="email"
             type="email"
             autoComplete="email"
+            maxLength={MAX_EMAIL_LENGTH}
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
             className={`${INPUT_CLASS} ${
@@ -195,6 +199,7 @@ export function StepPersonalInfo({
             </label>
             <input
               type="text"
+              maxLength={MAX_NAME_LENGTH}
               value={extraFields.occupation ?? ''}
               onChange={(e) => updateExtra('occupation', e.target.value)}
               placeholder="e.g., Software Engineer"

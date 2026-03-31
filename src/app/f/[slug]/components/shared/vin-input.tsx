@@ -47,6 +47,7 @@ export function VinInput({
 }: VinInputProps) {
   const [decoding, setDecoding] = useState(false);
   const [decodeError, setDecodeError] = useState('');
+  const [showInvalidCharWarning, setShowInvalidCharWarning] = useState(false);
 
   const decodeVin = useCallback(
     async (vin: string) => {
@@ -87,10 +88,10 @@ export function VinInput({
             trim: decodedTrim || undefined,
           });
         } else {
-          setDecodeError('Could not decode VIN. Please enter details manually.');
+          setDecodeError('Could not decode this VIN');
         }
       } catch {
-        setDecodeError('VIN lookup failed. Please enter details manually.');
+        setDecodeError('VIN lookup failed');
       } finally {
         setDecoding(false);
       }
@@ -103,7 +104,13 @@ export function VinInput({
   const isValid = isValidLength && !hasInvalidChars;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newVin = e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+    const raw = e.target.value.toUpperCase();
+    if (/[IOQ]/i.test(raw)) {
+      setShowInvalidCharWarning(true);
+    } else {
+      setShowInvalidCharWarning(false);
+    }
+    const newVin = raw.replace(/[^A-HJ-NPR-Z0-9]/g, '');
     onChange({ vin: newVin });
 
     if (newVin.length === expectedLength && expectedLength === 17) {
@@ -146,12 +153,21 @@ export function VinInput({
         )}
       </div>
       {error && <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1"><span>⚠</span> {error}</p>}
+      {showInvalidCharWarning && (
+        <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+          VINs don&apos;t contain the letters I, O, or Q
+        </p>
+      )}
       {decodeError && (
-        <p className="mt-1.5 text-xs text-amber-600">{decodeError}</p>
+        <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+          We couldn&apos;t decode this VIN — fill in the details below
+        </p>
       )}
       <div className="flex items-center justify-between mt-1.5">
         <p className="text-xs text-gray-400">
-          {isValid ? '✓ Valid VIN' : value.length > 0 ? 'VIN decodes automatically at 17 characters' : 'Find it on your dashboard or registration'}
+          {isValid && !decoding ? '✓ Valid VIN' : value.length > 0 && value.length < expectedLength ? `VIN must be ${expectedLength} characters` : value.length === 0 ? 'Find it on your dashboard or registration' : decoding ? 'Decoding...' : 'VIN decodes automatically at 17 characters'}
         </p>
         <span className={`text-xs ${isValid ? 'text-emerald-600 font-medium' : 'text-gray-400'}`}>
           {value.length}/{expectedLength}

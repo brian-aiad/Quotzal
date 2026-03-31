@@ -10,7 +10,10 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const { data: broker } = await supabase
@@ -21,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   if (!broker?.stripe_customer_id) {
     return NextResponse.json(
-      { error: "No Stripe customer found" },
+      { success: false, error: "No Stripe customer found", code: "NO_STRIPE_CUSTOMER" },
       { status: 400 }
     );
   }
@@ -33,5 +36,5 @@ export async function POST(request: NextRequest) {
     return_url: `${origin}/dashboard/billing`,
   });
 
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json({ success: true, data: { url: session.url } });
 }

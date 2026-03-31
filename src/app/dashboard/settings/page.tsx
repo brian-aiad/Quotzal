@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
-import { useToast } from '@/components/toast';
+import { toast } from 'sonner';
 import EmbedSnippetSection from './components/embed-snippet-section';
 
 interface BrokerData {
@@ -28,7 +28,6 @@ export default function SettingsPage() {
   const [broker, setBroker] = useState<BrokerData | null>(null);
   const [primaryLink, setPrimaryLink] = useState<PrimaryLink | null>(null);
   const [loading, setLoading] = useState(true);
-  const { showToast } = useToast();
   const searchParams = useSearchParams();
 
   const supabase = createBrowserClient(
@@ -41,14 +40,14 @@ export default function SettingsPage() {
     const success = searchParams.get('success');
     const error = searchParams.get('error');
     if (success === 'email_changed') {
-      showToast('Your email has been updated successfully.', 'success');
+      toast.success('Your email has been updated successfully.');
       window.history.replaceState({}, '', '/dashboard/settings');
     }
     if (error === 'link_expired') {
-      showToast('That confirmation link has expired. Please request a new email change from settings.', 'error');
+      toast.error('That confirmation link has expired. Please request a new email change from settings.');
       window.history.replaceState({}, '', '/dashboard/settings');
     }
-  }, [searchParams, showToast]);
+  }, [searchParams]);
 
   useEffect(() => {
     async function load() {
@@ -106,17 +105,17 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Settings</h1>
 
-      <BusinessInfoSection broker={broker} setBroker={setBroker} showToast={showToast} />
-      <YourLinkSection primaryLink={primaryLink} setPrimaryLink={setPrimaryLink} showToast={showToast} />
+      <BusinessInfoSection broker={broker} setBroker={setBroker} />
+      <YourLinkSection primaryLink={primaryLink} setPrimaryLink={setPrimaryLink} />
       {primaryLink?.slug && (
         <EmbedSnippetSection
           slug={primaryLink.slug}
           baseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
         />
       )}
-      <BrandingSection broker={broker} setBroker={setBroker} showToast={showToast} supabase={supabase} />
-      <AccountSection broker={broker} showToast={showToast} supabase={supabase} />
-      <DataRetentionSection broker={broker} showToast={showToast} />
+      <BrandingSection broker={broker} setBroker={setBroker} supabase={supabase} />
+      <AccountSection broker={broker} supabase={supabase} />
+      <DataRetentionSection broker={broker} />
       <DangerZoneSection broker={broker} />
     </div>
   );
@@ -129,10 +128,9 @@ export default function SettingsPage() {
 interface BusinessInfoProps {
   broker: BrokerData;
   setBroker: React.Dispatch<React.SetStateAction<BrokerData | null>>;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
 }
 
-function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps) {
+function BusinessInfoSection({ broker, setBroker }: BusinessInfoProps) {
   const [name, setName] = useState(broker.brokerage_name);
   const [phone, setPhone] = useState(broker.phone || '');
   const [address, setAddress] = useState(broker.address || '');
@@ -141,7 +139,7 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
 
   async function handleSave() {
     if (!name.trim()) {
-      showToast('Brokerage name is required', 'error');
+      toast.error('Brokerage name is required');
       return;
     }
 
@@ -154,12 +152,12 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
 
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, brokerage_name: name, phone: phone || null, address: address || null } : prev);
-      showToast('Business info saved.');
+      toast.success('Business info saved.');
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } else {
       const data = await res.json();
-      showToast(data.error || 'Failed to save business info.', 'error');
+      toast.error(data.error || 'Failed to save business info.');
     }
     setSaving(false);
   }
@@ -213,7 +211,7 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
           type="button"
           onClick={handleSave}
           disabled={saving || saved}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : saved ? 'Saved \u2713' : 'Save changes'}
         </button>
@@ -229,10 +227,10 @@ function BusinessInfoSection({ broker, setBroker, showToast }: BusinessInfoProps
 interface YourLinkProps {
   primaryLink: PrimaryLink | null;
   setPrimaryLink: React.Dispatch<React.SetStateAction<PrimaryLink | null>>;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
+
 }
 
-function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkProps) {
+function YourLinkSection({ primaryLink, setPrimaryLink }: YourLinkProps) {
   const [editing, setEditing] = useState(false);
   const [newSlug, setNewSlug] = useState('');
   const [checking, setChecking] = useState(false);
@@ -270,13 +268,14 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
 
     if (res.ok) {
       setPrimaryLink((prev) => prev ? { ...prev, slug: newSlug } : prev);
-      showToast(`Form URL updated. Your new link is quotzal.com/f/${newSlug}`);
+      const domain = (process.env.NEXT_PUBLIC_BASE_URL || 'https://quotzal.com').replace(/^https?:\/\//, '');
+      toast.error(`Form URL updated. Your new link is ${domain}/f/${newSlug}`);
       setEditing(false);
       setShowConfirm(false);
       setNewSlug('');
     } else {
       const data = await res.json();
-      showToast(data.error || 'Failed to update slug', 'error');
+      toast.success(data.error || 'Failed to update slug');
       setShowConfirm(false);
     }
     setSaving(false);
@@ -333,7 +332,7 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
                 type="button"
                 onClick={() => setShowConfirm(true)}
                 disabled={!available || saving || newSlug === primaryLink?.slug}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save
               </button>
@@ -371,7 +370,7 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
                 type="button"
                 onClick={handleSaveSlug}
                 disabled={saving}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Confirm change'}
               </button>
@@ -390,11 +389,11 @@ function YourLinkSection({ primaryLink, setPrimaryLink, showToast }: YourLinkPro
 interface BrandingProps {
   broker: BrokerData;
   setBroker: React.Dispatch<React.SetStateAction<BrokerData | null>>;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
+
   supabase: ReturnType<typeof createBrowserClient>;
 }
 
-function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingProps) {
+function BrandingSection({ broker, setBroker, supabase }: BrandingProps) {
   const [color, setColor] = useState(broker.brand_color || '#3B82F6');
   const [hexInput, setHexInput] = useState(broker.brand_color || '#3B82F6');
   const [uploading, setUploading] = useState(false);
@@ -410,7 +409,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
             <p className="text-sm font-medium text-gray-700 mb-2">🔒 Pro feature</p>
             <a
               href="/dashboard/billing"
-              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11"
+              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all"
             >
               Upgrade to Pro
             </a>
@@ -427,12 +426,12 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      showToast('Please upload an image file', 'error');
+      toast.error('Please upload an image file');
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      showToast('Image must be under 2MB', 'error');
+      toast.error('Image must be under 2MB');
       return;
     }
 
@@ -445,7 +444,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      showToast('Failed to upload logo', 'error');
+      toast.error('Failed to upload logo');
       setUploading(false);
       return;
     }
@@ -461,9 +460,9 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
 
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, logo_url: logoUrl } : prev);
-      showToast('Logo saved.');
+      toast.error('Logo saved.');
     } else {
-      showToast('Failed to save logo', 'error');
+      toast.success('Failed to save logo');
     }
     setUploading(false);
   }
@@ -471,7 +470,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
   async function handleSaveColor() {
     const hexRegex = /^#[0-9A-Fa-f]{6}$/;
     if (!hexRegex.test(hexInput)) {
-      showToast('Invalid hex color', 'error');
+      toast.error('Invalid hex color');
       return;
     }
 
@@ -485,11 +484,11 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, brand_color: hexInput } : prev);
       setColor(hexInput);
-      showToast('Brand color updated.');
+      toast.success('Brand color updated.');
       setSavedColor(true);
       setTimeout(() => setSavedColor(false), 2000);
     } else {
-      showToast('Failed to save brand color.', 'error');
+      toast.error('Failed to save brand color.');
     }
     setSavingColor(false);
   }
@@ -506,9 +505,9 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
       setBroker((prev) => prev ? { ...prev, logo_url: null, brand_color: null } : prev);
       setColor('#3B82F6');
       setHexInput('#3B82F6');
-      showToast('Branding removed', 'success');
+      toast.success('Branding removed');
     } else {
-      showToast('Failed to remove branding', 'error');
+      toast.error('Failed to remove branding');
     }
     setRemovingBranding(false);
   }
@@ -567,7 +566,7 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
               type="button"
               onClick={handleSaveColor}
               disabled={savingColor || savedColor}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all disabled:opacity-50"
             >
               {savingColor ? 'Saving...' : savedColor ? 'Saved \u2713' : 'Save'}
             </button>
@@ -597,11 +596,11 @@ function BrandingSection({ broker, setBroker, showToast, supabase }: BrandingPro
 
 interface AccountProps {
   broker: BrokerData;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
+
   supabase: ReturnType<typeof createBrowserClient>;
 }
 
-function AccountSection({ broker, showToast, supabase }: AccountProps) {
+function AccountSection({ broker, supabase }: AccountProps) {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [savingEmail, setSavingEmail] = useState(false);
@@ -609,7 +608,7 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
 
   async function handleChangeEmail() {
     if (!newEmail.trim() || !newEmail.includes('@')) {
-      showToast('Please enter a valid email', 'error');
+      toast.error('Please enter a valid email');
       return;
     }
 
@@ -617,9 +616,9 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
     const { error } = await supabase.auth.updateUser({ email: newEmail });
 
     if (error) {
-      showToast('Unable to update email. Please try again.', 'error');
+      toast.error('Unable to update email. Please try again.');
     } else {
-      showToast('Email updated. Check your inbox to confirm the change.');
+      toast.success('Email updated. Check your inbox to confirm the change.');
       setShowEmailModal(false);
       setNewEmail('');
     }
@@ -632,10 +631,10 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
     });
 
     if (error) {
-      showToast('Unable to send reset email. Please try again.', 'error');
+      toast.error('Unable to send reset email. Please try again.');
     } else {
       setResetSent(true);
-      showToast('Password reset email sent. Check your inbox.');
+      toast.success('Password reset email sent. Check your inbox.');
     }
   }
 
@@ -696,7 +695,7 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
                 type="button"
                 onClick={handleChangeEmail}
                 disabled={savingEmail}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all disabled:opacity-50"
               >
                 {savingEmail ? 'Sending...' : 'Send confirmation'}
               </button>
@@ -714,10 +713,10 @@ function AccountSection({ broker, showToast, supabase }: AccountProps) {
 
 interface DataRetentionProps {
   broker: BrokerData;
-  showToast: (message: string, type?: "success" | "error" | "warning") => void;
+
 }
 
-function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
+function DataRetentionSection({ broker }: DataRetentionProps) {
   const [extended, setExtended] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -729,7 +728,7 @@ function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
             <p className="text-sm font-medium text-gray-700 mb-2">🔒 Pro feature</p>
             <a
               href="/dashboard/billing"
-              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11"
+              className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl h-11 active:scale-[0.98] transition-all"
             >
               Upgrade to Pro
             </a>
@@ -753,9 +752,9 @@ function DataRetentionSection({ broker, showToast }: DataRetentionProps) {
 
     if (res.ok) {
       setExtended(newValue);
-      showToast('Notification preferences saved.');
+      toast.error('Notification preferences saved.');
     } else {
-      showToast('Failed to update retention', 'error');
+      toast.success('Failed to update retention');
     }
     setSaving(false);
   }

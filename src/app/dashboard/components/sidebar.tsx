@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
+import { Drawer } from 'vaul';
 import { QuotzalLogo } from '@/components/ui/logo';
 
 interface SidebarProps {
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
   { href: '/dashboard/submissions', label: 'Submissions', icon: InboxIcon },
   { href: '/dashboard/form', label: 'My Form', icon: LinkIcon },
+  { href: '/dashboard/renewals', label: 'Renewals', icon: CalendarIcon },
   { href: '/dashboard/settings', label: 'Settings', icon: GearIcon },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCardIcon },
 ];
@@ -52,7 +54,7 @@ export function Sidebar({ brokerName, brokerEmail, isAdmin }: SidebarProps) {
           return (
             <div key={item.href}>
               {/* Separator before Settings group */}
-              {idx === 3 && <div className="border-t border-white/5 my-3" />}
+              {idx === 4 && <div className="border-t border-white/5 my-3" />}
               <Link
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
@@ -69,6 +71,15 @@ export function Sidebar({ brokerName, brokerEmail, isAdmin }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Command palette hint */}
+      <div className="px-3 pb-2">
+        <div className="flex items-center justify-center">
+          <span className="text-[11px] text-gray-500 bg-white/5 border border-white/10 rounded-md px-2 py-1 font-medium">
+            ⌘K
+          </span>
+        </div>
+      </div>
 
       {/* Admin link — only visible to platform admin */}
       {isAdmin && (
@@ -108,34 +119,35 @@ export function Sidebar({ brokerName, brokerEmail, isAdmin }: SidebarProps) {
         {navContent}
       </aside>
 
-      {/* Mobile hamburger */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between border-b border-gray-800 bg-gray-950">
-        <QuotzalLogo size="sm" dark />
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="p-2.5 text-gray-300 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
-      </div>
+      {/* Mobile hamburger + vaul Drawer */}
+      <Drawer.Root open={mobileOpen} onOpenChange={setMobileOpen} direction="left">
+        <div className="md:hidden fixed top-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between border-b border-gray-800 bg-gray-950">
+          <QuotzalLogo size="sm" dark />
+          <Drawer.Trigger asChild>
+            <button
+              type="button"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              className="p-2.5 text-gray-300 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </Drawer.Trigger>
+        </div>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <>
-          <div className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-64 shadow-xl bg-gray-950">
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 z-40 bg-black/60" />
+          <Drawer.Content className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-950 outline-none">
+            <Drawer.Title className="sr-only">Navigation menu</Drawer.Title>
             {navContent}
-          </aside>
-        </>
-      )}
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
     </>
   );
 }
@@ -161,6 +173,14 @@ function LinkIcon({ active }: { active: boolean }) {
   return (
     <svg className={`w-[18px] h-[18px] ${active ? 'text-emerald-400' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    </svg>
+  );
+}
+
+function CalendarIcon({ active }: { active: boolean }) {
+  return (
+    <svg className={`w-[18px] h-[18px] ${active ? 'text-emerald-400' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
   );
 }

@@ -169,7 +169,7 @@ export default function BrokerDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Plan override */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <h3 className="text-sm font-medium text-slate-400 mb-3">Override Plan</h3>
+          <h3 className="text-sm font-semibold text-slate-400 mb-3">Override Plan</h3>
           <div className="flex gap-2">
             <select
               value={planOverride}
@@ -191,7 +191,7 @@ export default function BrokerDetailPage({
 
         {/* Status override */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-          <h3 className="text-sm font-medium text-slate-400 mb-3">Override Status</h3>
+          <h3 className="text-sm font-semibold text-slate-400 mb-3">Override Status</h3>
           <div className="flex gap-2">
             <select
               value={statusOverride}
@@ -246,7 +246,7 @@ export default function BrokerDetailPage({
       {/* Payment history */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-800">
-          <h3 className="text-sm font-medium text-slate-400">Payment History</h3>
+          <h3 className="text-sm font-semibold text-slate-400">Payment History</h3>
         </div>
         {payments.length === 0 ? (
           <p className="px-4 py-6 text-center text-slate-500 text-sm">No payments yet.</p>

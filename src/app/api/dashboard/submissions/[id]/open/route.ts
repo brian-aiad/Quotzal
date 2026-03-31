@@ -10,7 +10,10 @@ export async function POST(
     const { id } = await params;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+        { status: 401 }
+      );
     }
 
     // Check if already opened (RLS ensures broker owns this submission)
@@ -21,7 +24,10 @@ export async function POST(
       .single();
 
     if (!submission) {
-      return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Submission not found", code: "NOT_FOUND" },
+        { status: 404 }
+      );
     }
 
     if (!submission.first_opened_at) {
@@ -32,9 +38,15 @@ export async function POST(
     }
 
     return NextResponse.json({
-      first_opened_at: submission.first_opened_at ?? new Date().toISOString(),
+      success: true,
+      data: {
+        first_opened_at: submission.first_opened_at ?? new Date().toISOString(),
+      },
     });
   } catch {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal server error", code: "INTERNAL_ERROR" },
+      { status: 500 }
+    );
   }
 }

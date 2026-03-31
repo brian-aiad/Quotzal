@@ -77,7 +77,7 @@ function OnboardingLeftContent() {
           <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-emerald-400" />
           </div>
-          <span className="text-sm font-medium text-emerald-400 tracking-wide uppercase">Getting Started</span>
+          <span className="text-xs font-bold text-emerald-400 tracking-[0.15em] uppercase">Getting Started</span>
         </div>
         <h2 className="text-3xl text-white font-bold leading-tight mb-4">
           Set up your brokerage in minutes
@@ -337,7 +337,9 @@ function OnboardingWizard() {
           Set up your brokerage
         </h1>
         <p className="text-sm text-gray-500 mt-1 mb-8">
-          Complete these steps to launch your intake form
+          {step === 1 && "What should we call you on your form?"}
+          {step === 2 && "Which types do you work with?"}
+          {step === 3 && "Preview your form link and customize your brand"}
         </p>
 
         <ProgressIndicator

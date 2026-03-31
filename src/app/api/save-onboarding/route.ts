@@ -23,7 +23,10 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const body = (await request.json()) as SaveOnboardingBody;
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
     !body.insuranceTypes?.length
   ) {
     return NextResponse.json(
-      { error: "Missing required fields" },
+      { success: false, error: "Missing required fields", code: "MISSING_FIELDS" },
       { status: 400 }
     );
   }
@@ -74,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       return NextResponse.json(
-        { error: "Failed to update onboarding data" },
+        { success: false, error: "Failed to update onboarding data", code: "UPDATE_FAILED" },
         { status: 500 }
       );
     }
@@ -105,7 +108,7 @@ export async function POST(request: NextRequest) {
 
       if (linkError) {
         return NextResponse.json(
-          { error: "Failed to create form link. Please try again." },
+          { success: false, error: "Failed to create form link. Please try again.", code: "LINK_CREATE_FAILED" },
           { status: 500 }
         );
       }
@@ -135,12 +138,12 @@ export async function POST(request: NextRequest) {
   if (error) {
     if (error.code === "23505") {
       return NextResponse.json(
-        { error: "A broker with this email or slug already exists" },
+        { success: false, error: "A broker with this email or slug already exists", code: "DUPLICATE" },
         { status: 409 }
       );
     }
     return NextResponse.json(
-      { error: "Failed to save onboarding data" },
+      { success: false, error: "Failed to save onboarding data", code: "INSERT_FAILED" },
       { status: 500 }
     );
   }
@@ -160,7 +163,7 @@ export async function POST(request: NextRequest) {
     // If link creation fails, clean up the broker row
     await admin.from("brokers").delete().eq("id", user.id);
     return NextResponse.json(
-      { error: "Failed to create form link. Please try again." },
+      { success: false, error: "Failed to create form link. Please try again.", code: "LINK_CREATE_FAILED" },
       { status: 500 }
     );
   }

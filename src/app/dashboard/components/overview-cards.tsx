@@ -17,7 +17,7 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
   const acctStyle = STATUS_COLORS[stats.accountStatus] ?? STATUS_COLORS.active;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
       <Card
         label="Submissions"
         value={String(stats.total)}
@@ -25,7 +25,7 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
         icon={<svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>}
       />
       <Card
-        label="Unreviewed"
+        label="New Submissions"
         value={String(stats.newCount)}
         highlight={stats.newCount > 0}
         iconBg="bg-amber-50"
@@ -36,6 +36,12 @@ export function OverviewCards({ stats }: OverviewCardsProps) {
         value={String(stats.thisMonth)}
         iconBg="bg-emerald-50"
         icon={<svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
+      />
+      <Card
+        label="Quoted This Month"
+        value={String(stats.quotedThisMonth)}
+        iconBg="bg-amber-50"
+        icon={<svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
       />
       <div className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between mb-3 sm:mb-4">
@@ -64,7 +70,7 @@ function Card({ label, value, highlight, iconBg, icon }: {
           {icon}
         </div>
       </div>
-      <p className={`text-2xl sm:text-3xl font-bold tracking-tight ${highlight ? 'text-amber-600' : 'text-gray-900'}`}>
+      <p className={`text-3xl font-bold tracking-tight ${highlight ? 'text-amber-600' : 'text-gray-900'}`}>
         {value}
       </p>
     </div>

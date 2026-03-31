@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { Sidebar } from './components/sidebar';
 import { AdminBanner } from './components/admin-banner';
+import { CommandPalette } from './components/command-palette';
 import type { BrokerProfile } from '@/lib/types/dashboard';
 
 export const metadata: Metadata = {
@@ -83,6 +84,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      <CommandPalette />
       <Sidebar brokerName={broker.brokerage_name} brokerEmail={broker.email} isAdmin={user.email === process.env.ADMIN_EMAIL} />
       <main id="main-content" className="flex-1 min-w-0 md:ml-0 mt-14 md:mt-0 relative overflow-x-hidden">
         {isImpersonating && (
@@ -128,7 +130,7 @@ export default async function DashboardLayout({
                   </ul>
                   <form action="/api/create-checkout-session" method="POST">
                     <input type="hidden" name="plan" value="pro" />
-                    <button type="submit" className="w-full h-11 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 text-sm transition-colors">Subscribe</button>
+                    <button type="submit" className="w-full h-11 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 text-sm active:scale-[0.98] transition-all">Subscribe</button>
                   </form>
                 </div>
               </div>

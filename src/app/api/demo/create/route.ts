@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     if (!allowed) {
       return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
+        { success: false, error: "Too many requests. Please try again later.", code: "RATE_LIMITED" },
         { status: 429 }
       );
     }
@@ -34,7 +34,18 @@ export async function POST(request: NextRequest) {
     const phone = sanitizeText(body.phone || "", 20);
 
     if (!brokerageName || !fullName || !email) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Missing required fields", code: "MISSING_FIELDS" },
+        { status: 400 }
+      );
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid email format", code: "INVALID_EMAIL" },
+        { status: 400 }
+      );
     }
 
     const supabase = createAdminClient();
@@ -55,13 +66,19 @@ export async function POST(request: NextRequest) {
     });
 
     if (demoError) {
-      return NextResponse.json({ error: "Failed to create demo request" }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: "Failed to create demo request", code: "INSERT_FAILED" },
+        { status: 500 }
+      );
     }
 
     await sendDemoEmail(email, fullName, demoSlug);
 
-    return NextResponse.json({ demoSlug, email });
+    return NextResponse.json({ success: true, data: { demoSlug, email } });
   } catch {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal server error", code: "INTERNAL_ERROR" },
+      { status: 500 }
+    );
   }
 }

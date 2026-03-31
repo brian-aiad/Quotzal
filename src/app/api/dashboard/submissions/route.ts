@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { escapePostgrestPattern } from '@/lib/sanitize';
+import { SUBMISSIONS_PER_PAGE } from '@/lib/constants';
 import type { SubmissionRow } from '@/lib/types/dashboard';
 
 export async function GET(request: Request) {
@@ -11,12 +12,15 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' },
+      { status: 401 }
+    );
   }
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page') ?? '1');
-  const perPage = 25;
+  const perPage = SUBMISSIONS_PER_PAGE;
   const search = url.searchParams.get('search') ?? '';
   const types = url.searchParams.get('types') ?? '';
   const status = url.searchParams.get('status') ?? '';
@@ -25,7 +29,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('submissions')
-    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at, first_opened_at', { count: 'exact' });
+    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, tags, form_data, submitted_at, first_opened_at', { count: 'exact' });
 
   // Search (escape special PostgREST pattern chars)
   if (search) {
@@ -59,13 +63,20 @@ export async function GET(request: Request) {
   const { data, count, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("dashboard/submissions GET error:", error);
+    return NextResponse.json(
+      { success: false, error: "An internal error occurred", code: "FETCH_FAILED" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({
-    submissions: (data ?? []) as SubmissionRow[],
-    total: count ?? 0,
-    page,
-    perPage,
+    success: true,
+    data: {
+      submissions: (data ?? []) as SubmissionRow[],
+      total: count ?? 0,
+      page,
+      perPage,
+    },
   });
 }

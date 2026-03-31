@@ -42,7 +42,8 @@ export async function GET(request: NextRequest) {
 
   const { count, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("admin/broadcast GET error:", error);
+    return NextResponse.json({ error: "An internal error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ count: count ?? 0 });
@@ -70,7 +71,8 @@ export async function POST(request: NextRequest) {
 
   const { data: brokers, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("admin/broadcast POST error:", error);
+    return NextResponse.json({ error: "An internal error occurred" }, { status: 500 });
   }
 
   const emails = (brokers ?? []).map((b) => b.email);

@@ -180,7 +180,7 @@ function StatCard({
 function PlanPill({ plan }: { plan: string }) {
   const styles =
     plan === "pro"
-      ? "bg-purple-400/10 text-purple-400"
+      ? "bg-emerald-400/10 text-emerald-700"
       : "bg-emerald-400/10 text-emerald-400";
   return (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${styles}`}>

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { MAX_SLUG_LENGTH } from "@/lib/constants";
 
-const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/;
+// Lowercase letters, numbers, hyphens only. No leading/trailing/consecutive hyphens. 3-50 chars.
+const SLUG_REGEX = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+
+function isValidSlug(slug: string): boolean {
+  if (slug.length < 3 || slug.length > MAX_SLUG_LENGTH) return false;
+  if (!SLUG_REGEX.test(slug)) return false;
+  if (slug.includes("--")) return false;
+  return true;
+}
 
 const RESERVED_SLUGS = [
   "admin", "api", "dashboard", "f", "login", "signup",
@@ -16,22 +25,25 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const body = (await request.json()) as { slug: string };
   const slug = body.slug?.trim().toLowerCase();
 
-  if (!slug || !SLUG_REGEX.test(slug)) {
+  if (!slug || !isValidSlug(slug)) {
     return NextResponse.json(
-      { error: "Invalid slug format. Must be 3-30 characters, lowercase letters, numbers, and hyphens only." },
+      { success: false, error: `Invalid slug format. Must be 3-${MAX_SLUG_LENGTH} characters, lowercase letters, numbers, and hyphens only. No consecutive hyphens.`, code: "INVALID_SLUG" },
       { status: 400 }
     );
   }
 
   if (RESERVED_SLUGS.includes(slug)) {
     return NextResponse.json(
-      { error: "This slug is reserved" },
+      { success: false, error: "This slug is reserved", code: "SLUG_RESERVED" },
       { status: 400 }
     );
   }
@@ -46,14 +58,14 @@ export async function POST(request: NextRequest) {
 
   if (linkError || !primaryLink) {
     return NextResponse.json(
-      { error: "Primary link not found" },
+      { success: false, error: "Primary link not found", code: "LINK_NOT_FOUND" },
       { status: 404 }
     );
   }
 
   if (primaryLink.slug === slug) {
     return NextResponse.json(
-      { error: "This is already your current slug" },
+      { success: false, error: "This is already your current slug", code: "SLUG_UNCHANGED" },
       { status: 400 }
     );
   }
@@ -67,15 +79,15 @@ export async function POST(request: NextRequest) {
   if (updateError) {
     if (updateError.message?.includes("already taken")) {
       return NextResponse.json(
-        { error: "This slug is already taken" },
+        { success: false, error: "This slug is already taken", code: "SLUG_TAKEN" },
         { status: 409 }
       );
     }
     return NextResponse.json(
-      { error: "Failed to update slug" },
+      { success: false, error: "Failed to update slug", code: "UPDATE_FAILED" },
       { status: 500 }
     );
   }
 
-  return NextResponse.json({ success: true, slug });
+  return NextResponse.json({ success: true, data: { slug } });
 }

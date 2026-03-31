@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
 
   const { data: submissions, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("admin/submissions GET error:", error);
+    return NextResponse.json({ error: "An internal error occurred" }, { status: 500 });
   }
 
   // Get broker names

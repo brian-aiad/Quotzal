@@ -58,3 +58,28 @@ Update this file whenever something goes wrong.
 - What happened: Landing page had 15px horizontal overflow on 375px mobile viewport
 - What caused it: Some elements in the hero section exceeded the viewport width
 - What to never do again: Always add `overflow-x-hidden` on full-page wrappers, especially landing pages with absolute-positioned decorative elements. Run Playwright mobile viewport tests.
+
+### 2026-03-30 — Audit: check-slug endpoint had no rate limiting
+- What happened: The /api/check-slug public endpoint had no rate limiting, allowing potential abuse
+- What caused it: Rate limiting was added to submit-form and demo/create but overlooked for check-slug
+- What to never do again: Every public API endpoint (no auth required) must have rate limiting. When adding a new public route, always add checkRateLimit() as the first operation.
+
+### 2026-03-30 — Audit: env.ts only logged missing vars instead of throwing
+- What happened: Missing environment variables were logged with console.error but the app would continue running in a broken state
+- What caused it: validateEnv() used console.error instead of throwing an Error
+- What to never do again: Environment validation must throw on missing required vars. A silent log lets the app start up and fail later with cryptic errors.
+
+### 2026-03-30 — Audit: schema.sql missing form_config column and broker slug trigger
+- What happened: The form_config JSONB column was used in code (form-config PATCH route) but missing from schema.sql. Also, the global slug uniqueness trigger only existed on broker_links, not on brokers.
+- What caused it: Schema wasn't updated when form_config was added to the codebase. The trigger was only written for one direction.
+- What to never do again: schema.sql is the single source of truth. When adding a new column or feature that touches the database, update schema.sql first. Global uniqueness constraints must be bidirectional (both tables need triggers).
+
+### 2026-03-30 — Audit: Static inline styles must use Tailwind
+- What happened: Several components used style={{}} with static values like height: 600, boxShadow, backgroundColor with hardcoded hex colors
+- What caused it: Quick implementation without converting to Tailwind arbitrary value syntax
+- What to never do again: Only use inline styles for dynamic Pro brand color injection (accent_color/brand_color from DB). All static styles must use Tailwind classes, including arbitrary values like h-[600px] or bg-emerald-600.
+
+### 2026-03-26 — Current Insurance step disappears when toggling individual fields
+- What happened: In the dashboard form editor, toggling off "Current Carrier" (Show OFF) caused the entire Current Insurance step to vanish from both the config panel and preview. The step count dropped (e.g., 6→5 for Auto Personal) and the UI jumped to Review & Submit.
+- What caused it: `extendedToLegacyConfig()` tied `current_insurance.enabled` to a single field (`currentCarrier`). When that field was hidden, the legacy config marked the entire step as disabled, which `buildPreviewSteps()` used to exclude the step.
+- What to never do again: Never tie a step's visibility to a single field toggle. The Current Insurance step has a base "Currently insured?" yes/no question that should always be present. Step visibility should depend on whether the type has current_insurance fields defined at all (`FIELDS_BY_TYPE`), not on whether any individual field is currently shown.

@@ -6,7 +6,9 @@ import { getInsuranceTypeLabel } from '@/lib/constants/insurance-types';
 import type { InsuranceType } from '@/lib/types/intake-form';
 import { OverviewCards } from './components/overview-cards';
 import { Charts } from './components/charts';
+import { FormEngagement } from './components/form-engagement';
 import { SubmissionsTable } from './components/submissions-table';
+import { RefreshButton } from './components/refresh-button';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -24,9 +26,9 @@ export default async function DashboardPage() {
     // Broker status + trial info
     supabase
       .from('brokers')
-      .select('status, trial_ends_at, slug')
+      .select('status, trial_ends_at, slug, brokerage_name')
       .eq('id', user.id)
-      .single<{ status: string; trial_ends_at: string | null; slug: string }>(),
+      .single<{ status: string; trial_ends_at: string | null; slug: string; brokerage_name: string }>(),
     // Lightweight stats query — only status, type, date for charts
     supabase
       .from('submissions')
@@ -35,7 +37,7 @@ export default async function DashboardPage() {
     // Table data with count
     supabase
       .from('submissions')
-      .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, form_data, submitted_at', { count: 'exact' })
+      .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, tags, form_data, submitted_at', { count: 'exact' })
       .order('submitted_at', { ascending: false })
       .range(0, 24),
   ]);
@@ -71,14 +73,33 @@ export default async function DashboardPage() {
       });
   }
 
+  // Engagement: count submissions viewed by broker (first_opened_at set)
+  const [viewedResult, totalSubsResult] = await Promise.all([
+    supabase
+      .from('submissions')
+      .select('id', { count: 'exact', head: true })
+      .not('first_opened_at', 'is', null),
+    supabase
+      .from('submissions')
+      .select('id', { count: 'exact', head: true }),
+  ]);
+  const viewedCount = viewedResult.count ?? 0;
+  const totalSubmissions = totalSubsResult.count ?? 0;
+  const reviewRate = totalSubmissions > 0
+    ? Math.round((viewedCount / totalSubmissions) * 100)
+    : 0;
+
   const allRows = statsResult.data ?? [];
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
   const stats: DashboardStats = {
     total: allRows.length,
-    newCount: allRows.filter((r) => r.status === 'new').length,
+    newCount: allRows.filter((r) => r.status === 'intake').length,
     thisMonth: allRows.filter((r) => r.submitted_at >= monthStart).length,
+    quotedThisMonth: allRows.filter(
+      (r) => (r.status === 'quoted' || r.status === 'bound') && r.submitted_at >= monthStart
+    ).length,
     accountStatus: broker?.status ?? 'trialing',
   };
 
@@ -120,7 +141,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Dashboard</h1>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+        <RefreshButton />
+      </div>
 
       {/* Past due banner */}
       {broker?.status === 'past_due' && (
@@ -137,7 +161,7 @@ export default async function DashboardPage() {
       {broker?.status === 'trialing' && trialDaysLeft !== null && trialDaysLeft <= 7 && trialDaysLeft > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <p className="text-sm text-amber-800">
-            <strong>Your trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}.</strong> Subscribe to keep your form link active.
+            <strong>{trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''} left on your trial.</strong> Add a card before {new Date(broker.trial_ends_at!).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} or your form link pauses.
           </p>
           <a href="/dashboard/billing" className="shrink-0 text-sm font-medium text-amber-700 hover:text-amber-900 underline">Subscribe now</a>
         </div>
@@ -145,12 +169,18 @@ export default async function DashboardPage() {
 
       <OverviewCards stats={stats} />
       <Charts data={charts} />
+      <FormEngagement
+        totalSubmissions={totalSubmissions}
+        viewedCount={viewedCount}
+        reviewRate={reviewRate}
+      />
 
       <div>
         <h2 className="text-base font-semibold text-gray-900 mb-3">Submissions</h2>
         <SubmissionsTable
           initialSubmissions={submissions}
           initialTotal={count ?? 0}
+          brokerageName={broker?.brokerage_name ?? ''}
         />
       </div>
     </div>

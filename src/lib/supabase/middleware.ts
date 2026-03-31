@@ -46,9 +46,9 @@ export async function updateSession(request: NextRequest) {
   if (pathname.startsWith("/admin")) {
     const adminEmail = process.env.ADMIN_EMAIL;
     if (!user || user.email !== adminEmail) {
-      const notFoundUrl = request.nextUrl.clone();
-      notFoundUrl.pathname = "/404";
-      return NextResponse.rewrite(notFoundUrl);
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = "/dashboard";
+      return NextResponse.redirect(dashboardUrl);
     }
   }
 

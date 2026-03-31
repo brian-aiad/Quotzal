@@ -52,6 +52,10 @@ supabase/.temp/
 # playwright
 /playwright-report/
 .playwright-mcp/
+.playwright-auth/
+
+# MCP config (may contain tokens)
+.mcp.json
 
 # OS
 Thumbs.db

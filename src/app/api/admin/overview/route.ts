@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
 
   const { data: brokers, error } = await query;
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("admin/overview GET error:", error);
+    return NextResponse.json({ error: "An internal error occurred" }, { status: 500 });
   }
 
   // Get submission counts per broker

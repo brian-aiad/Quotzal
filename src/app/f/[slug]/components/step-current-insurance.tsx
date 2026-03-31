@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { CurrentInsurance, FormConfig, InsuranceType } from '@/lib/types/intake-form';
 import type { ExtendedFormConfig, FieldToggle } from '@/lib/types/form-config';
 import { getTypeConfig } from '@/lib/types/form-config';
+import { MAX_CARRIER_NAME_LENGTH } from '@/lib/constants';
 
 interface StepCurrentInsuranceProps {
   data: CurrentInsurance;
@@ -49,12 +50,13 @@ const COVERAGE_LIMIT_PRESETS: CoverageLimitPreset[] = [
   { value: '500/1000/250' },
 ];
 
-function Combobox({ value, options, onChange, placeholder, label }: {
+function Combobox({ value, options, onChange, placeholder, label, maxLength }: {
   value: string;
   options: string[];
   onChange: (v: string) => void;
   placeholder: string;
   label: string;
+  maxLength?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState(value);
@@ -84,6 +86,7 @@ function Combobox({ value, options, onChange, placeholder, label }: {
         onFocus={() => setOpen(true)}
         placeholder={placeholder}
         autoComplete="off"
+        maxLength={maxLength}
         className="w-full h-11 px-4 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
       />
       {open && filtered.length > 0 && (
@@ -150,6 +153,7 @@ function CoverageLimitsCombobox({ value, onChange }: {
         <div className="flex gap-2">
           <input
             type="text"
+            maxLength={50}
             value={query}
             onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); }}
             placeholder="e.g., 100/300/100"
@@ -172,6 +176,7 @@ function CoverageLimitsCombobox({ value, onChange }: {
       <label className="block text-sm font-medium text-gray-700 mb-1.5">Coverage Limits</label>
       <input
         type="text"
+        maxLength={50}
         value={query}
         onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}
@@ -313,6 +318,7 @@ export function StepCurrentInsurance({ data, onChange, formConfig, extendedConfi
               options={CARRIERS}
               onChange={(v) => update('currentCarrier', v)}
               placeholder="e.g., State Farm, GEICO"
+              maxLength={MAX_CARRIER_NAME_LENGTH}
             />
 
             {showCoverageLimits && (
@@ -344,6 +350,7 @@ export function StepCurrentInsurance({ data, onChange, formConfig, extendedConfi
                 </label>
                 <input
                   type="text"
+                  maxLength={50}
                   value={extraFields.policyNumber ?? ''}
                   onChange={(e) => updateExtra('policyNumber', e.target.value)}
                   placeholder="e.g., POL-123456"

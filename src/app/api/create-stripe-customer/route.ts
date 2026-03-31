@@ -11,7 +11,10 @@ export async function POST() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthorized", code: "UNAUTHORIZED" },
+      { status: 401 }
+    );
   }
 
   const admin = createAdminClient();
@@ -24,14 +27,15 @@ export async function POST() {
 
   if (fetchError || !broker) {
     return NextResponse.json(
-      { error: "Broker not found" },
+      { success: false, error: "Broker not found", code: "BROKER_NOT_FOUND" },
       { status: 404 }
     );
   }
 
   if (broker.stripe_customer_id) {
     return NextResponse.json({
-      customerId: broker.stripe_customer_id,
+      success: true,
+      data: { customerId: broker.stripe_customer_id },
     });
   }
 
@@ -50,10 +54,10 @@ export async function POST() {
 
   if (updateError) {
     return NextResponse.json(
-      { error: "Failed to save Stripe customer ID" },
+      { success: false, error: "Failed to save Stripe customer ID", code: "UPDATE_FAILED" },
       { status: 500 }
     );
   }
 
-  return NextResponse.json({ customerId: customer.id });
+  return NextResponse.json({ success: true, data: { customerId: customer.id } });
 }

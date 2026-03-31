@@ -31,8 +31,10 @@ export function OtherFields({ data, onChange }: OtherFieldsProps) {
           placeholder="Describe the insurance coverage you are looking for..."
           className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
         />
-        <p className="text-xs text-slate-400 text-right">
-          {data.description.length}/500
+        <p className={`text-xs text-right mt-1 ${
+          data.description.length > 475 ? 'text-red-500' : data.description.length > 400 ? 'text-amber-500' : 'text-gray-400'
+        }`}>
+          {data.description.length} / 500
         </p>
       </div>
 

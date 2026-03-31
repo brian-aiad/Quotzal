@@ -142,8 +142,10 @@ export function ViolationEntry({
                 rows={2}
                 className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 resize-none"
               />
-              <span className="absolute bottom-2 right-3 text-[10px] text-gray-400">
-                {v.notes.length}/200
+              <span className={`absolute bottom-2 right-3 text-[10px] ${
+                v.notes.length > 190 ? 'text-red-500' : v.notes.length > 160 ? 'text-amber-500' : 'text-gray-400'
+              }`}>
+                {v.notes.length} / 200
               </span>
             </div>
           </div>

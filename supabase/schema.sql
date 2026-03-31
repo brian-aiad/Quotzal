@@ -16,17 +16,23 @@ CREATE TABLE brokers (
   brand_color text,
   phone text,
   address text,
-  plan text NOT NULL DEFAULT 'starter',
-  status text NOT NULL DEFAULT 'trialing',
+  plan text NOT NULL DEFAULT 'starter'
+    CHECK (plan IN ('starter', 'pro')),
+  status text NOT NULL DEFAULT 'trialing'
+    CHECK (status IN ('trialing', 'active', 'past_due', 'cancelled', 'suspended')),
   insurance_types_enabled text[] NOT NULL DEFAULT ARRAY[
     'auto_personal', 'auto_commercial', 'home', 'life',
     'motorcycle', 'boat', 'rv', 'other'
   ],
+  form_config jsonb,
   stripe_customer_id text,
   stripe_subscription_id text,
   trial_ends_at timestamptz,
   sent_trial_reminders jsonb DEFAULT '[]',
-  created_at timestamptz NOT NULL DEFAULT now()
+  email_notifications boolean NOT NULL DEFAULT true,
+  sms_notifications boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE TABLE broker_links (
@@ -44,7 +50,8 @@ CREATE TABLE submissions (
   broker_id uuid NOT NULL REFERENCES brokers(id) ON DELETE CASCADE,
   link_id uuid NOT NULL REFERENCES broker_links(id) ON DELETE CASCADE,
   insurance_type text NOT NULL,
-  status text NOT NULL DEFAULT 'new',
+  status text NOT NULL DEFAULT 'new'
+    CHECK (status IN ('new', 'reviewed', 'archived')),
   broker_notes text,
   first_name text NOT NULL,
   last_name text NOT NULL,
@@ -177,3 +184,41 @@ CREATE TRIGGER trg_broker_links_global_slug
   BEFORE INSERT OR UPDATE ON broker_links
   FOR EACH ROW
   EXECUTE FUNCTION check_global_slug_uniqueness();
+
+-- Trigger: prevent broker slug from colliding with broker_links or demo_requests
+CREATE OR REPLACE FUNCTION check_broker_slug_uniqueness()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM broker_links WHERE slug = NEW.slug) THEN
+    RAISE EXCEPTION 'Slug "%" is already taken by a broker link', NEW.slug;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM demo_requests WHERE demo_slug = NEW.slug) THEN
+    RAISE EXCEPTION 'Slug "%" is already taken by a demo request', NEW.slug;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_brokers_global_slug
+  BEFORE INSERT OR UPDATE OF slug ON brokers
+  FOR EACH ROW
+  EXECUTE FUNCTION check_broker_slug_uniqueness();
+
+-- Auto-update updated_at on brokers
+CREATE OR REPLACE FUNCTION update_brokers_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_brokers_updated_at
+  BEFORE UPDATE ON brokers
+  FOR EACH ROW
+  EXECUTE FUNCTION update_brokers_updated_at();
+
+-- RLS: enable on demo_requests
+ALTER TABLE demo_requests ENABLE ROW LEVEL SECURITY;

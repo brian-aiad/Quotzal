@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendDemoEmail } from "@/lib/emails";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, rateLimitHeaders } from "@/lib/rate-limit";
 import { sanitizeText } from "@/lib/sanitize";
 
 function slugify(text: string): string {
@@ -15,15 +15,15 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 3 demo requests per IP per hour
     const ip = getClientIp(request.headers);
-    const { allowed } = checkRateLimit(ip, "demo-create", {
+    const rl = checkRateLimit(ip, "demo-create", {
       maxRequests: 3,
       windowMs: 60 * 60 * 1000,
     });
 
-    if (!allowed) {
+    if (!rl.allowed) {
       return NextResponse.json(
         { success: false, error: "Too many requests. Please try again later.", code: "RATE_LIMITED" },
-        { status: 429 }
+        { status: 429, headers: rateLimitHeaders(rl) }
       );
     }
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     await sendDemoEmail(email, fullName, demoSlug);
 
-    return NextResponse.json({ success: true, data: { demoSlug, email } });
+    return NextResponse.json({ success: true, data: { demoSlug, email } }, { headers: rateLimitHeaders(rl) });
   } catch {
     return NextResponse.json(
       { success: false, error: "Internal server error", code: "INTERNAL_ERROR" },

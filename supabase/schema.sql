@@ -50,8 +50,9 @@ CREATE TABLE submissions (
   broker_id uuid NOT NULL REFERENCES brokers(id) ON DELETE CASCADE,
   link_id uuid NOT NULL REFERENCES broker_links(id) ON DELETE CASCADE,
   insurance_type text NOT NULL,
-  status text NOT NULL DEFAULT 'new'
-    CHECK (status IN ('new', 'reviewed', 'archived')),
+  status text NOT NULL DEFAULT 'intake'
+    CHECK (status IN ('intake', 'reviewing', 'quoted', 'bound', 'declined', 'archived')),
+  tags jsonb DEFAULT '[]',
   broker_notes text,
   first_name text NOT NULL,
   last_name text NOT NULL,
@@ -64,6 +65,7 @@ CREATE TABLE submissions (
   policy_expiry date,
   form_data jsonb NOT NULL DEFAULT '{}',
   submitted_at timestamptz NOT NULL DEFAULT now(),
+  first_opened_at timestamptz,
   scheduled_deletion_at timestamptz,
   deletion_warning_sent_at timestamptz
 );
@@ -138,7 +140,7 @@ CREATE POLICY "broker_links_delete_own"
   ON broker_links FOR DELETE
   USING (auth.uid() = broker_id);
 
--- submissions: broker can read/update/delete; anon can insert (public form)
+-- Public intake inserts pass through the server's validated submit-form route.
 CREATE POLICY "submissions_select_own"
   ON submissions FOR SELECT
   USING (auth.uid() = broker_id);
@@ -151,10 +153,7 @@ CREATE POLICY "submissions_delete_own"
   ON submissions FOR DELETE
   USING (auth.uid() = broker_id);
 
-CREATE POLICY "submissions_insert_anon"
-  ON submissions FOR INSERT
-  TO anon
-  WITH CHECK (true);
+REVOKE INSERT ON submissions FROM anon, authenticated;
 
 -- payments: broker can read their own
 CREATE POLICY "payments_select_own"

@@ -269,13 +269,13 @@ function YourLinkSection({ primaryLink, setPrimaryLink }: YourLinkProps) {
     if (res.ok) {
       setPrimaryLink((prev) => prev ? { ...prev, slug: newSlug } : prev);
       const domain = (process.env.NEXT_PUBLIC_BASE_URL || 'https://quotzal.com').replace(/^https?:\/\//, '');
-      toast.error(`Form URL updated. Your new link is ${domain}/f/${newSlug}`);
+      toast.success(`Form URL updated. Your new link is ${domain}/f/${newSlug}`);
       setEditing(false);
       setShowConfirm(false);
       setNewSlug('');
     } else {
       const data = await res.json();
-      toast.success(data.error || 'Failed to update slug');
+      toast.error(data.error || 'Failed to update slug');
       setShowConfirm(false);
     }
     setSaving(false);
@@ -460,9 +460,9 @@ function BrandingSection({ broker, setBroker, supabase }: BrandingProps) {
 
     if (res.ok) {
       setBroker((prev) => prev ? { ...prev, logo_url: logoUrl } : prev);
-      toast.error('Logo saved.');
+      toast.success('Logo saved.');
     } else {
-      toast.success('Failed to save logo');
+      toast.error('Failed to save logo');
     }
     setUploading(false);
   }
@@ -752,9 +752,9 @@ function DataRetentionSection({ broker }: DataRetentionProps) {
 
     if (res.ok) {
       setExtended(newValue);
-      toast.error('Notification preferences saved.');
+      toast.success('Notification preferences saved.');
     } else {
-      toast.success('Failed to update retention');
+      toast.error('Failed to update retention');
     }
     setSaving(false);
   }

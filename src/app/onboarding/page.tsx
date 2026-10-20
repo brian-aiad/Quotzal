@@ -293,7 +293,7 @@ function OnboardingWizard() {
         return;
       }
 
-      const { url } = (await checkoutRes.json()) as { url: string };
+      const { data: { url } } = (await checkoutRes.json()) as { data: { url: string } };
 
       if (url) {
         window.location.href = url;

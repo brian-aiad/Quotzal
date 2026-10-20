@@ -59,8 +59,8 @@ export default function BillingPage() {
     const res = await fetch('/api/billing/subscription');
     if (res.ok) {
       const data = await res.json();
-      setSubscription(data.subscription);
-      setPayments(data.payments);
+      setSubscription(data.data.subscription);
+      setPayments(data.data.payments);
     }
     setLoading(false);
   }, []);
@@ -107,7 +107,7 @@ export default function BillingPage() {
               <p className="text-2xl font-bold text-gray-900 mb-3">$19<span className="text-sm font-normal text-gray-500">/mo</span></p>
               <button onClick={async () => {
                 const res = await fetch('/api/create-checkout-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'starter' }) });
-                if (res.ok) { const data = await res.json(); window.location.href = data.url; }
+                if (res.ok) { const data = await res.json(); window.location.href = data.data.url; }
               }} className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm">Choose Starter</button>
             </div>
             <div className="border-2 border-emerald-600 rounded-xl p-5">
@@ -115,7 +115,7 @@ export default function BillingPage() {
               <p className="text-2xl font-bold text-gray-900 mb-3">$39<span className="text-sm font-normal text-gray-500">/mo</span></p>
               <button onClick={async () => {
                 const res = await fetch('/api/create-checkout-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'pro' }) });
-                if (res.ok) { const data = await res.json(); window.location.href = data.url; }
+                if (res.ok) { const data = await res.json(); window.location.href = data.data.url; }
               }} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl h-11 px-5 active:scale-[0.98] transition-all text-sm">Choose Pro</button>
             </div>
           </div>
@@ -153,7 +153,7 @@ function PlanCard({ subscription, onUpdate }: PlanCardProps) {
 
     if (res.ok) {
       const data = await res.json();
-      window.location.href = data.url;
+      window.location.href = data.data.url;
     } else {
       toast.error('Failed to open billing portal');
       setManagingPayment(false);
@@ -247,13 +247,13 @@ function PaymentActions({ subscription, onUpdate }: PaymentActionsProps) {
         cancel: 'Subscription will cancel at end of billing period.',
         reactivate: 'Subscription reactivated!',
       };
-      toast.error(messages[action] || 'Updated successfully');
+      toast.success(messages[action] || 'Updated successfully');
       setShowUpgradeModal(false);
       setShowDowngradeModal(false);
       setShowCancelModal(false);
       await onUpdate();
     } else {
-      toast.success('Failed to update subscription. Please try again.');
+      toast.error('Failed to update subscription. Please try again.');
     }
     setProcessing(false);
   }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, rateLimitHeaders } from "@/lib/rate-limit";
 import { MAX_SLUG_LENGTH } from "@/lib/constants";
 
 const RESERVED_SLUGS = [
@@ -31,15 +31,15 @@ function isValidSlug(slug: string): boolean {
 export async function GET(request: NextRequest) {
   // Rate limit: 30 checks per IP per minute (slug checks happen on keystroke)
   const ip = getClientIp(request.headers);
-  const { allowed } = checkRateLimit(ip, "check-slug", {
+  const rl = checkRateLimit(ip, "check-slug", {
     maxRequests: 30,
     windowMs: 60 * 1000,
   });
 
-  if (!allowed) {
+  if (!rl.allowed) {
     return NextResponse.json(
       { success: false, available: false, reason: "Too many requests. Please try again later." },
-      { status: 429 }
+      { status: 429, headers: rateLimitHeaders(rl) }
     );
   }
 
@@ -52,12 +52,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const rlHeaders = rateLimitHeaders(rl);
+
   if (!isValidSlug(slug)) {
     return NextResponse.json({
       success: true,
       available: false,
       reason: `Must be 3-${MAX_SLUG_LENGTH} characters, lowercase letters, numbers, and hyphens only. No leading, trailing, or consecutive hyphens.`,
-    });
+    }, { headers: rlHeaders });
   }
 
   if (RESERVED_SLUGS.includes(slug)) {
@@ -65,7 +67,7 @@ export async function GET(request: NextRequest) {
       success: true,
       available: false,
       reason: "This slug is reserved",
-    });
+    }, { headers: rlHeaders });
   }
 
   const supabase = createAdminClient();
@@ -93,5 +95,5 @@ export async function GET(request: NextRequest) {
     success: true,
     available: !taken,
     reason: taken ? "This slug is already taken" : undefined,
-  });
+  }, { headers: rlHeaders });
 }

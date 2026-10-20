@@ -31,7 +31,6 @@ test.describe('Landing Page', () => {
     // Scroll through the page in increments
     const totalHeight = await page.evaluate(() => document.body.scrollHeight);
     const step = 500;
-    let screenshotIndex = 1;
 
     for (let y = 0; y < totalHeight; y += step) {
       await page.evaluate((scrollY) => window.scrollTo(0, scrollY), y);

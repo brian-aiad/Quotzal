@@ -31,7 +31,7 @@ export default function DemoPage() {
 
     if (res.ok) {
       const data = await res.json();
-      setSentEmail(data.email);
+        setSentEmail(data.data.email);
       setSuccess(true);
     } else {
       const data = await res.json();

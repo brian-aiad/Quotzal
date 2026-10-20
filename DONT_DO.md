@@ -79,6 +79,21 @@ Update this file whenever something goes wrong.
 - What caused it: Quick implementation without converting to Tailwind arbitrary value syntax
 - What to never do again: Only use inline styles for dynamic Pro brand color injection (accent_color/brand_color from DB). All static styles must use Tailwind classes, including arbitrary values like h-[600px] or bg-emerald-600.
 
+### 2026-03-31 — toast.success and toast.error were systematically swapped
+- What happened: ~10 places in settings, form, and billing pages had success messages calling toast.error() and error messages calling toast.success()
+- What caused it: Likely a find-and-replace or migration from a custom toast system that inverted the method names
+- What to never do again: After migrating any notification system, grep for all toast calls and verify that success messages use toast.success() and error messages use toast.error(). The patterns are: `if (res.ok) → toast.success()` and `else → toast.error()`.
+
+### 2026-03-31 — Rate limit routes missing standard HTTP headers
+- What happened: All 3 public rate-limited routes (submit-form, demo/create, check-slug) returned 429 without X-RateLimit-Limit, X-RateLimit-Remaining, or Retry-After headers
+- What caused it: checkRateLimit() only returned { allowed, remaining } without limit or resetAt info
+- What to never do again: Any rate-limited endpoint must include X-RateLimit-Limit, X-RateLimit-Remaining on ALL responses (200 and 429) and Retry-After on 429 responses. Use rateLimitHeaders() helper from rate-limit.ts.
+
+### 2026-03-31 — Dead code: unused ThankYou component and legacy toast.tsx
+- What happened: src/app/f/[slug]/components/thank-you.tsx was imported but never rendered (thank-you UI was inline in intake-form.tsx). src/components/toast.tsx was a legacy custom toast system replaced by sonner but never deleted.
+- What caused it: Components replaced by inline implementations or library migrations without cleanup
+- What to never do again: When replacing a component with an inline implementation or library, delete the old component file AND remove its import. Grep for unused imports after migrations.
+
 ### 2026-03-26 — Current Insurance step disappears when toggling individual fields
 - What happened: In the dashboard form editor, toggling off "Current Carrier" (Show OFF) caused the entire Current Insurance step to vanish from both the config panel and preview. The step count dropped (e.g., 6→5 for Auto Personal) and the UI jumped to Review & Submit.
 - What caused it: `extendedToLegacyConfig()` tied `current_insurance.enabled` to a single field (`currentCarrier`). When that field was hidden, the legacy config marked the entire step as disabled, which `buildPreviewSteps()` used to exclude the step.

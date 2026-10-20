@@ -20,6 +20,9 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page') ?? '1');
+  if (!Number.isSafeInteger(page) || page < 1 || page > 1_000_000) {
+    return NextResponse.json({ success: false, error: 'Invalid page', code: 'INVALID_PAGE' }, { status: 400 });
+  }
   const perPage = SUBMISSIONS_PER_PAGE;
   const search = url.searchParams.get('search') ?? '';
   const types = url.searchParams.get('types') ?? '';
@@ -29,7 +32,8 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('submissions')
-    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, tags, form_data, submitted_at, first_opened_at', { count: 'exact' });
+    .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, tags, form_data, submitted_at, first_opened_at', { count: 'exact' })
+    .eq('broker_id', user.id);
 
   // Search (escape special PostgREST pattern chars)
   if (search) {

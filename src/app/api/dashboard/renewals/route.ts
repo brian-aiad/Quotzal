@@ -71,7 +71,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from('submissions')
     .select('id, first_name, last_name, email, phone, insurance_type, current_carrier, policy_expiry, form_data, status')
-    .neq('status', 'archived');
+    .neq('status', 'archived')
+    .eq('broker_id', user.id);
 
   if (error) {
     console.error('dashboard/renewals GET error:', error);
@@ -98,7 +99,7 @@ export async function GET() {
 
     if (!expiryStr) continue;
 
-    const expiryDate = new Date(expiryStr);
+    const expiryDate = new Date(`${expiryStr.slice(0, 10)}T00:00:00`);
     if (isNaN(expiryDate.getTime())) continue;
 
     expiryDate.setHours(0, 0, 0, 0);

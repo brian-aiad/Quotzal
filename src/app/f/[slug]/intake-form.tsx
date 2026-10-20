@@ -31,7 +31,7 @@ import {
 } from './components/step-type-fields';
 import { StepCurrentInsurance } from './components/step-current-insurance';
 import { StepReview } from './components/step-review';
-import { ThankYou } from './components/thank-you';
+
 
 interface IntakeFormProps {
   broker: BrokerData;

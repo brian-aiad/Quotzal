@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard, shortcut: '' },
 ];
 
-export function CommandPalette() {
+export function CommandPalette({ formSlug }: { formSlug: string }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -46,7 +46,7 @@ export function CommandPalette() {
   }
 
   function handleCopyFormLink() {
-    const url = `${window.location.origin}/dashboard/form`;
+    const url = `${window.location.origin}/f/${encodeURIComponent(formSlug)}`;
     navigator.clipboard.writeText(url).then(() => {
       toast.success('Form link copied to clipboard');
     });

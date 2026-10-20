@@ -77,7 +77,8 @@ export async function PATCH(
   const { error } = await supabase
     .from('submissions')
     .update(updates)
-    .eq('id', id);
+    .eq('id', id)
+    .eq('broker_id', user.id);
 
   if (error) {
     console.error("dashboard/submissions/[id] PATCH error:", error);
@@ -111,7 +112,8 @@ export async function DELETE(
   const { error } = await supabase
     .from('submissions')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('broker_id', user.id);
 
   if (error) {
     console.error("dashboard/submissions/[id] DELETE error:", error);

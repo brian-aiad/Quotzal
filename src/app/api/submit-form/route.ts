@@ -5,7 +5,7 @@ import {
   sendCustomerConfirmationEmail,
 } from '@/lib/emails';
 import type { SubmissionEmailData } from '@/lib/emails';
-import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rate-limit';
 import { sanitizeText } from '@/lib/sanitize';
 import {
   MAX_NAME_LENGTH,
@@ -41,15 +41,15 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 5 submissions per IP per hour
     const ip = getClientIp(request.headers);
-    const { allowed } = checkRateLimit(ip, 'submit-form', {
+    const rl = checkRateLimit(ip, 'submit-form', {
       maxRequests: 5,
       windowMs: 60 * 60 * 1000,
     });
 
-    if (!allowed) {
+    if (!rl.allowed) {
       return NextResponse.json(
         { success: false, error: 'Too many submissions. Please try again later.', code: 'RATE_LIMITED' },
-        { status: 429 }
+        { status: 429, headers: rateLimitHeaders(rl) }
       );
     }
 
@@ -68,9 +68,10 @@ export async function POST(request: NextRequest) {
       !brokerId ||
       !linkId ||
       !insuranceType ||
-      !personalInfo.firstName ||
-      !personalInfo.lastName ||
-      !personalInfo.email
+      !personalInfo || !currentInsurance || !typeSpecificData ||
+      typeof personalInfo.firstName !== 'string' || !personalInfo.firstName.trim() ||
+      typeof personalInfo.lastName !== 'string' || !personalInfo.lastName.trim() ||
+      typeof personalInfo.email !== 'string' || !personalInfo.email.trim()
     ) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields', code: 'MISSING_FIELDS' },
@@ -156,18 +157,33 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
+    const { data: link } = await supabase
+      .from('broker_links')
+      .select('broker_id')
+      .eq('id', linkId)
+      .eq('broker_id', brokerId)
+      .eq('is_active', true)
+      .single();
+    if (!link) {
+      return NextResponse.json({ success: false, error: 'Form unavailable', code: 'FORM_UNAVAILABLE' }, { status: 404 });
+    }
+
     // Look up broker for email + logo
     const { data: broker } = await supabase
       .from('brokers')
-      .select('email, brokerage_name, logo_url')
+      .select('email, brokerage_name, logo_url, status, insurance_types_enabled')
       .eq('id', brokerId)
-      .single<{ email: string; brokerage_name: string; logo_url: string | null }>();
+      .single<{ email: string; brokerage_name: string; logo_url: string | null; status: string; insurance_types_enabled: string[] }>();
 
     if (!broker) {
       return NextResponse.json(
         { success: false, error: 'Broker not found', code: 'BROKER_NOT_FOUND' },
         { status: 404 }
       );
+    }
+
+    if (!['active', 'trialing', 'past_due'].includes(broker.status) || !broker.insurance_types_enabled.includes(insuranceType)) {
+      return NextResponse.json({ success: false, error: 'Form unavailable', code: 'FORM_UNAVAILABLE' }, { status: 403 });
     }
 
     // Save submission and return the ID
@@ -225,7 +241,7 @@ export async function POST(request: NextRequest) {
       ),
     ]);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: rateLimitHeaders(rl) });
   } catch {
     return NextResponse.json(
       { success: false, error: 'Internal server error', code: 'INTERNAL_ERROR' },

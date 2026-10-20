@@ -9,6 +9,7 @@ import { Charts } from './components/charts';
 import { FormEngagement } from './components/form-engagement';
 import { SubmissionsTable } from './components/submissions-table';
 import { RefreshButton } from './components/refresh-button';
+import { SUBMISSIONS_PER_PAGE } from '@/lib/constants';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -39,7 +40,7 @@ export default async function DashboardPage() {
       .from('submissions')
       .select('id, broker_id, link_id, insurance_type, status, broker_notes, first_name, last_name, email, phone, date_of_birth, has_current_insurance, current_carrier, current_limits, policy_expiry, tags, form_data, submitted_at', { count: 'exact' })
       .order('submitted_at', { ascending: false })
-      .range(0, 24),
+      .range(0, SUBMISSIONS_PER_PAGE - 1),
   ]);
 
   const broker = brokerResult.data;

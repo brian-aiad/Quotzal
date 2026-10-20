@@ -111,11 +111,17 @@ export function SubmissionsTable({ initialSubmissions, initialTotal, brokerageNa
     params.set('sortBy', sortBy);
     params.set('sortDir', sortDir);
 
-    const res = await fetch(`/api/dashboard/submissions?${params}`);
-    const data = (await res.json()) as { submissions: SubmissionRow[]; total: number };
-    setSubmissions(data.submissions);
-    setTotal(data.total);
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/dashboard/submissions?${params}`);
+      const json = (await res.json()) as { success: boolean; data?: { submissions: SubmissionRow[]; total: number } };
+      if (!res.ok || !json.success || !json.data) throw new Error('Unable to load submissions');
+      setSubmissions(json.data.submissions);
+      setTotal(json.data.total);
+    } catch {
+      toast.error('Failed to load submissions. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, [page, search, selectedTypes, statusFilter, sortBy, sortDir]);
 
   useEffect(() => {

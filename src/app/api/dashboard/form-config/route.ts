@@ -15,6 +15,8 @@ const VALID_STEPS = [
   "coverage", "current_insurance", "review",
 ];
 
+export const POST = PATCH;
+
 function isFieldToggle(val: unknown): val is { show: boolean; required: boolean } {
   if (!val || typeof val !== "object") return false;
   const obj = val as Record<string, unknown>;

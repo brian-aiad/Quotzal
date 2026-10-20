@@ -124,7 +124,8 @@ export default function MyFormPage() {
   const fetchData = useCallback(async () => {
     const res = await fetch("/api/dashboard/form");
     if (res.ok) {
-      const json: BrokerFormData = await res.json();
+      const response: { data: BrokerFormData } = await res.json();
+      const json = response.data;
       setData(json);
       const merged = mergeExtendedFormConfig(json.form_config);
       // Sort enabled types by canonical display order (auto_personal first)
@@ -255,9 +256,9 @@ export default function MyFormPage() {
       if (previewType && !newTypes.includes(previewType) && newTypes.length > 0) {
         setPreviewType(newTypes[0]);
       }
-      toast.error("Form updated.");
+      toast.success("Form updated.");
     } else {
-      toast.success("Failed to update form.");
+      toast.error("Failed to update form.");
     }
     setTogglingType(null);
   }
@@ -444,9 +445,9 @@ export default function MyFormPage() {
     });
     fetchData();
     if (res.ok) {
-      toast.error(`Link ${active ? "activated" : "deactivated"}.`);
+      toast.success(`Link ${active ? "activated" : "deactivated"}.`);
     } else {
-      toast.success("Failed to update link.");
+      toast.error("Failed to update link.");
     }
   }
 

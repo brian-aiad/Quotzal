@@ -2,7 +2,7 @@
 
 [Project structure and shared workspace](docs/PROJECT_STRUCTURE.md)
 
-The current reviewed development checkpoint is on `sync/2026-10-19-reviewed` in the existing `Code/Projects/quotzal` folder on both devices. Main promotion remains pending the schema, security and validation issues recorded in the shared project context.
+The current reviewed development checkpoint is on `sync/2026-10-19-reviewed` with the canonical folder paths documented in the project structure guide. Main promotion remains pending the schema, security and validation issues recorded in the shared project context.
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 

@@ -6,13 +6,11 @@ Quotzal is an insurance-broker intake application. Its reviewed development chec
 
 ## Canonical workspace
 
-- Windows: `C:/Users/kingt/Desktop/Projects/quotzal`
-- Mac: `/Users/brianaiad/Desktop/Projects/quotzal`
+- Windows: `C:/Users/kingt/Code/Projects/quotzal`
+- Mac: `/Users/brianaiad/Code/Projects/quotzal`
 - Use these as actual project directories, not shortcuts or symlinks.
 - Repository: `brian-aiad/Quotzal`.
 - Current working branch: `sync/2026-10-19-reviewed`, shared across the two devices.
-
-Filesystem relocation from Code/Projects to these physical Desktop directories is pending final verification.
 
 Start in this existing checkout, inspect Git status, fetch origin, and reconcile local work before updating. Reuse this folder for each session. The reviewed branch contains work ahead of `main`; do not replace it with the older main checkout. Promotion to main remains pending the known schema, security and validation issues recorded in the shared context and repository review checkpoint.
 

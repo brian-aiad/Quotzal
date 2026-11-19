@@ -6,8 +6,11 @@ Quotzal is an insurance-broker intake application. Its reviewed development chec
 
 ## Canonical workspace
 
-- Windows: `C:/Users/kingt/Code/Projects/quotzal`
-- Mac: `/Users/brianaiad/Code/Projects/quotzal`
+| Device | Local project folder |
+| --- | --- |
+| Windows | `C:/Users/kingt/Desktop/Projects/quotzal` |
+| Mac | `/Users/brianaiad/Code/Projects/quotzal` |
+
 - Use these as actual project directories, not shortcuts or symlinks.
 - Repository: `brian-aiad/Quotzal`.
 - Current working branch: `sync/2026-10-19-reviewed`, shared across the two devices.

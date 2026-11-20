@@ -49,6 +49,8 @@ The development command uses port 3006. Browser tests require a correctly config
 
 ## Shared context
 
+Start with [AI workflow and shared context](../AGENTS.md), including the shared `WORKFLOW.md` and the project context below.
+
 Read `OneDrive/Downloads/AI_Brain/START_HERE.md`, then `Projects/quotzal/CONTEXT.md` inside that brain. Update the project note after meaningful verified work with branch/commit, checks, decisions and next steps. Record a failed or deferred check accurately. Keep detailed source history in Git and existing repository documents.
 
 ## History/recovery

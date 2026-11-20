@@ -1,5 +1,7 @@
 # Quotzal
 
+Start with [AGENTS.md](AGENTS.md) for the OneDrive AI_Brain workflow and this project's current shared context. Keep the project rules below; record current status in the shared brain.
+
 B2B SaaS for insurance brokers to collect client intake information.
 Brokers configure multi-step intake forms (8 insurance types), share links
 or embed a widget, and manage submissions in a dashboard.
